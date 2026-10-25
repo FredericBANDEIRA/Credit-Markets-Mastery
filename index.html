@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Academy — Credit Markets Mastery</title>
+    <meta name="description" content="A rigorous, interactive guide to credit risk, CDS mechanics, credit spreads, default modeling, and credit curve construction — from fundamentals to index tranches.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ========================================
+           CSS CUSTOM PROPERTIES
+           ======================================== */
+        :root {
+            /* Background & surfaces */
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a2028;
+
+            /* Accent — deep crimson / blood red */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #b91c1c;
+            --accent-dark: #7f1d1d;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.30);
+
+            /* Secondary accent — warm amber for contrast */
+            --secondary: #f59e0b;
+            --secondary-dim: #d97706;
+
+            /* Text */
+            --text-primary: #e8edf2;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Status colors */
+            --green: #22c55e;
+            --green-dim: #15803d;
+            --yellow: #eab308;
+            --blue: #3b82f6;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Spacing */
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+        }
+
+        /* ========================================
+           RESET & BASE
+           ======================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           ANIMATED BACKGROUND — FRACTURE GRID
+           ======================================== */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Static fallback grid pattern */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Top glow */
+        .bg-glow {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(220, 38, 38, 0.08) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ========================================
+           HEADER
+           ======================================== */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .header-inner {
+            position: relative;
+            padding: 56px 32px 48px;
+            text-align: center;
+            background: linear-gradient(180deg,
+                rgba(220, 38, 38, 0.08) 0%,
+                rgba(220, 38, 38, 0.03) 50%,
+                transparent 100%
+            );
+            border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(220, 38, 38, 0.10);
+            border: 1px solid rgba(220, 38, 38, 0.20);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent-bright);
+            margin-bottom: 24px;
+        }
+
+        .header-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 50%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 28px;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .header-subtitle strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .stat-divider {
+            width: 1px;
+            height: 40px;
+            background: var(--surface-border);
+            align-self: center;
+        }
+
+        /* ========================================
+           PROGRESS BAR
+           ======================================== */
+        .progress-section {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: -20px auto 0;
+            padding: 0 24px;
+        }
+
+        .progress-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent), var(--accent-bright));
+            border-radius: 100px;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--accent-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        .progress-bar-fill.zero::after {
+            display: none;
+        }
+
+        .progress-percent {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            min-width: 42px;
+            text-align: right;
+        }
+
+        /* ========================================
+           MAIN CONTENT
+           ======================================== */
+        .main {
+            position: relative;
+            z-index: 10;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+
+        .section-header .line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--surface-border), transparent);
+        }
+
+        .section-header .count {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        /* ========================================
+           MODULE CARDS
+           ======================================== */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px 24px 24px;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent), var(--accent-bright));
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .module-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+            background: var(--surface-hover);
+            transform: translateY(-4px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(220, 38, 38, 0.1),
+                0 4px 20px rgba(220, 38, 38, 0.05);
+        }
+
+        .module-card:hover::before {
+            opacity: 1;
+        }
+
+        .module-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .module-number {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+        }
+
+        .module-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .module-status.locked {
+            color: var(--text-muted);
+        }
+
+        .module-status.in-progress {
+            color: var(--secondary);
+        }
+
+        .module-status.complete {
+            color: var(--green);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .module-status.in-progress .status-dot {
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        .module-icon {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(220, 38, 38, 0.2));
+        }
+
+        .module-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .module-card p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            flex: 1;
+        }
+
+        .module-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--surface-border);
+        }
+
+        .tag {
+            font-size: 0.68rem;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.06);
+            color: var(--text-muted);
+            border: 1px solid rgba(220, 38, 38, 0.08);
+            letter-spacing: 0.3px;
+        }
+
+        .module-card:hover .tag {
+            background: rgba(220, 38, 38, 0.10);
+            color: var(--text-secondary);
+            border-color: rgba(220, 38, 38, 0.15);
+        }
+
+        /* ========================================
+           KEY CONCEPTS STRIP & EXPANDABLE DRAWER
+           ======================================== */
+        .concepts-strip {
+            margin-top: 56px;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .concept-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px 16px 16px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            outline: none;
+        }
+
+        .concept-card:hover {
+            border-color: rgba(220, 38, 38, 0.4);
+            transform: translateY(-3px);
+            background: var(--surface-hover);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px var(--accent-glow);
+        }
+
+        .concept-card:focus-visible {
+            border-color: var(--accent-bright);
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+        }
+
+        .concept-card.active {
+            border-color: var(--accent-bright);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.12) 0%, var(--surface-hover) 100%);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow-strong);
+            transform: translateY(-2px);
+        }
+
+        .concept-card.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-top: 9px solid var(--accent-bright);
+            z-index: 5;
+        }
+
+        .concept-card .concept-icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+            transition: transform 0.25s ease;
+        }
+
+        .concept-card:hover .concept-icon {
+            transform: scale(1.1);
+        }
+
+        .concept-card .concept-label {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .concept-card .concept-formula {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: var(--accent-bright);
+            margin-bottom: 10px;
+        }
+
+        .concept-card .concept-expand-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--surface-border);
+            padding: 3px 8px;
+            border-radius: 100px;
+            transition: all 0.2s ease;
+        }
+
+        .concept-card:hover .concept-expand-hint,
+        .concept-card.active .concept-expand-hint {
+            color: var(--text-primary);
+            border-color: rgba(220, 38, 38, 0.3);
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .concept-card .concept-expand-hint .chevron {
+            font-size: 0.65rem;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .concept-card.active .concept-expand-hint .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Expandable Equation Drawer */
+        .equation-drawer {
+            display: none;
+            margin-top: 20px;
+            background: var(--surface);
+            border: 1px solid rgba(220, 38, 38, 0.28);
+            border-radius: var(--radius);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 24px var(--accent-glow);
+            overflow: hidden;
+            animation: drawer-fade-down 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .equation-drawer.open {
+            display: block;
+        }
+
+        @keyframes drawer-fade-down {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .equation-pane {
+            display: none;
+            padding: 28px 28px 32px;
+        }
+
+        .equation-pane.active {
+            display: block;
+        }
+
+        .eq-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 24px;
+        }
+
+        .eq-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .eq-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eq-title-row .eq-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .eq-title-row h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .eq-latex-display {
+            font-size: 1.15rem;
+            color: #ffffff;
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent);
+            border-radius: 4px;
+            margin-top: 6px;
+            overflow-x: auto;
+        }
+
+        .eq-close-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .eq-close-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.15);
+        }
+
+        .eq-body-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .eq-body-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        .eq-column {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 18px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .eq-col-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent-bright);
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+        }
+
+        .eq-col-content {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        .eq-col-content ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .eq-col-content li {
+            position: relative;
+            padding-left: 14px;
+        }
+
+        .eq-col-content li::before {
+            content: '▪';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .eq-col-content strong {
+            color: var(--text-primary);
+        }
+
+        .eq-col-content code {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-accent);
+            background: rgba(220, 38, 38, 0.08);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* ========================================
+           FOOTER
+           ======================================== */
+        .footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 32px 24px 48px;
+            border-top: 1px solid var(--surface-border);
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .footer-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .footer-link {
+            color: var(--accent-bright);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: var(--text-accent);
+        }
+
+        .footer-sep {
+            margin: 0 8px;
+            color: var(--surface-border);
+        }
+
+        /* ========================================
+           SCROLLBAR
+           ======================================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-border);
+            border-radius: 100px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 700px) {
+            .header-inner {
+                padding: 40px 20px 36px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .stats-bar {
+                gap: 16px;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .stat-divider {
+                display: none;
+            }
+
+            .progress-card {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .progress-label {
+                width: 100%;
+            }
+
+            .main {
+                padding: 32px 16px 60px;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .concepts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .concept-card {
+                padding: 14px 10px;
+            }
+        }
+
+        /* ========================================
+           ANIMATIONS
+           ======================================== */
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+
+        .module-card:nth-child(1) { animation-delay: 0.05s; }
+        .module-card:nth-child(2) { animation-delay: 0.10s; }
+        .module-card:nth-child(3) { animation-delay: 0.15s; }
+        .module-card:nth-child(4) { animation-delay: 0.20s; }
+        .module-card:nth-child(5) { animation-delay: 0.25s; }
+        .module-card:nth-child(6) { animation-delay: 0.30s; }
+        .module-card:nth-child(7) { animation-delay: 0.35s; }
+        .module-card:nth-child(8) { animation-delay: 0.40s; }
+    </style>
+</head>
+<body>
+    <!-- Background layers -->
+    <canvas class="bg-canvas" id="bgCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-badge">
+                <span class="dot"></span>
+                Credit Markets Mastery
+            </div>
+            <h1>Credit Academy</h1>
+            <p class="header-subtitle">
+                A rigorous, interactive guide to <strong>credit risk</strong>, <strong>CDS mechanics</strong>,
+                default modeling, and credit curve construction — from fundamentals to index tranches.
+            </p>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value">8</span>
+                    <span class="stat-label">Modules</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="totalCharts">30+</span>
+                    <span class="stat-label">Interactive Charts</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="totalTabs">~28</span>
+                    <span class="stat-label">Deep-Dive Tabs</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value">🔴</span>
+                    <span class="stat-label">Math-Heavy</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== PROGRESS ========== -->
+    <section class="progress-section">
+        <div class="progress-card">
+            <span class="progress-label">Overall Progress</span>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill zero" id="progressFill" style="width: 0%"></div>
+            </div>
+            <span class="progress-percent" id="progressPercent">0%</span>
+        </div>
+    </section>
+
+    <!-- ========== MODULE CARDS ========== -->
+    <main class="main">
+        <div class="section-header">
+            <h2>Modules</h2>
+            <div class="line"></div>
+            <span class="count">0 / 8 complete</span>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Module 01 -->
+            <a class="module-card animate-in" href="01_Credit_Fundamentals.html" id="mod-01">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 01</span>
+                    <span class="module-status in-progress"><span class="status-dot"></span> In Progress</span>
+                </div>
+                <span class="module-icon">🎯</span>
+                <h3>Credit Fundamentals</h3>
+                <p>Credit risk taxonomy, probability of default, loss given default, recovery rates, rating agencies, transition matrices, and the KMV–Merton structural model.</p>
+                <div class="module-tags">
+                    <span class="tag">PD / LGD / EAD</span>
+                    <span class="tag">Ratings</span>
+                    <span class="tag">KMV–Merton</span>
+                    <span class="tag">EL = PD × LGD × EAD</span>
+                </div>
+            </a>
+
+            <!-- Module 02 -->
+            <a class="module-card animate-in" href="02_Credit_Spreads.html" id="mod-02">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 02</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">📊</span>
+                <h3>Credit Spreads</h3>
+                <p>Z-spread, asset-swap spread, OAS — decomposing bond yields into risk-free rate, funding, and credit risk. Spread drivers, relative value, and basis trading.</p>
+                <div class="module-tags">
+                    <span class="tag">Z-Spread</span>
+                    <span class="tag">ASW Spread</span>
+                    <span class="tag">OAS</span>
+                    <span class="tag">Basis Trading</span>
+                </div>
+            </a>
+
+            <!-- Module 03 -->
+            <a class="module-card animate-in" href="03_CDS_Mechanics.html" id="mod-03">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 03</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">🔄</span>
+                <h3>CDS Mechanics</h3>
+                <p>CDS contract anatomy: premium leg, protection leg, standard coupons, quarterly payments, cash vs physical settlement, and the Big Bang protocol.</p>
+                <div class="module-tags">
+                    <span class="tag">Premium Leg</span>
+                    <span class="tag">Protection Leg</span>
+                    <span class="tag">Big Bang</span>
+                    <span class="tag">Settlement</span>
+                </div>
+            </a>
+
+            <!-- Module 04 -->
+            <a class="module-card animate-in" href="04_CDS_Pricing.html" id="mod-04">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 04</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">📐</span>
+                <h3>CDS Pricing</h3>
+                <p>Hazard rates, survival probabilities, risky PV01, pricing CDS from credit curves. The fundamental relationship: S ≈ PD × (1 − R) and its continuous-time generalization.</p>
+                <div class="module-tags">
+                    <span class="tag">Hazard Rate λ</span>
+                    <span class="tag">Survival Prob</span>
+                    <span class="tag">Risky PV01</span>
+                    <span class="tag">S = λ(1−R)</span>
+                </div>
+            </a>
+
+            <!-- Module 05 -->
+            <a class="module-card animate-in" href="05_Credit_Curves.html" id="mod-05">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 05</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">📈</span>
+                <h3>Credit Curves</h3>
+                <p>Bootstrapping hazard rates from CDS term structure, constructing credit curves, curve shapes (normal, inverted, humped), and curve trading strategies.</p>
+                <div class="module-tags">
+                    <span class="tag">Bootstrapping</span>
+                    <span class="tag">Term Structure</span>
+                    <span class="tag">Curve Trades</span>
+                    <span class="tag">Steepeners</span>
+                </div>
+            </a>
+
+            <!-- Module 06 -->
+            <a class="module-card animate-in" href="06_Credit_Indices.html" id="mod-06">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 06</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">🗂️</span>
+                <h3>Credit Indices & Tranches</h3>
+                <p>CDX and iTraxx index mechanics, on-the-run rolls, index tranches, CDO/CLO structures, correlation trading, and the effect of default correlation on tranche pricing.</p>
+                <div class="module-tags">
+                    <span class="tag">CDX / iTraxx</span>
+                    <span class="tag">Tranches</span>
+                    <span class="tag">CDO / CLO</span>
+                    <span class="tag">Correlation</span>
+                </div>
+            </a>
+
+            <!-- Module 07 -->
+            <a class="module-card animate-in" href="07_Credit_Events.html" id="mod-07">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 07</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">⚡</span>
+                <h3>Credit Events & Auctions</h3>
+                <p>Default triggers, restructuring types, succession events, ISDA determinations committee, CDS auction mechanics, recovery rate discovery, and CLN settlement.</p>
+                <div class="module-tags">
+                    <span class="tag">Default Triggers</span>
+                    <span class="tag">Restructuring</span>
+                    <span class="tag">Auctions</span>
+                    <span class="tag">ISDA DC</span>
+                </div>
+            </a>
+
+            <!-- Module 08 -->
+            <a class="module-card animate-in" href="08_Credit_Interview.html" id="mod-08">
+                <div class="module-card-top">
+                    <span class="module-number">MODULE 08</span>
+                    <span class="module-status locked"><span class="status-dot"></span> Coming Soon</span>
+                </div>
+                <span class="module-icon">🎓</span>
+                <h3>Interview Cheat Sheet</h3>
+                <p>Key formulas, market conventions, common interview questions with concise answers, mental models, and quick-reference tables for credit desks.</p>
+                <div class="module-tags">
+                    <span class="tag">Q&A</span>
+                    <span class="tag">Formulas</span>
+                    <span class="tag">Conventions</span>
+                    <span class="tag">Flashcards</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- ========== KEY CONCEPTS STRIP & EXPANDABLE DRAWER ========== -->
+        <div class="concepts-strip">
+            <div class="section-header">
+                <h2>Core Equations</h2>
+                <div class="line"></div>
+                <span class="count">Click any card to expand</span>
+            </div>
+            <div class="concepts-grid">
+                <div class="concept-card" role="button" tabindex="0" data-eq="el" aria-expanded="false" aria-controls="equationDrawer">
+                    <span class="concept-icon">💀</span>
+                    <div class="concept-label">Expected Loss</div>
+                    <div class="concept-formula">EL = PD × LGD × EAD</div>
+                    <div class="concept-expand-hint">Explore math & intuition <span class="chevron">▾</span></div>
+                </div>
+                <div class="concept-card" role="button" tabindex="0" data-eq="survival" aria-expanded="false" aria-controls="equationDrawer">
+                    <span class="concept-icon">📉</span>
+                    <div class="concept-label">Survival Probability</div>
+                    <div class="concept-formula">S(t) = e<sup>−λt</sup></div>
+                    <div class="concept-expand-hint">Explore math & intuition <span class="chevron">▾</span></div>
+                </div>
+                <div class="concept-card" role="button" tabindex="0" data-eq="cdspd" aria-expanded="false" aria-controls="equationDrawer">
+                    <span class="concept-icon">💱</span>
+                    <div class="concept-label">CDS–PD Rule of Thumb</div>
+                    <div class="concept-formula">S ≈ λ(1 − R)</div>
+                    <div class="concept-expand-hint">Explore math & intuition <span class="chevron">▾</span></div>
+                </div>
+                <div class="concept-card" role="button" tabindex="0" data-eq="fairval" aria-expanded="false" aria-controls="equationDrawer">
+                    <span class="concept-icon">⚖️</span>
+                    <div class="concept-label">CDS Fair Value</div>
+                    <div class="concept-formula">PV(Prem) = PV(Prot)</div>
+                    <div class="concept-expand-hint">Explore math & intuition <span class="chevron">▾</span></div>
+                </div>
+                <div class="concept-card" role="button" tabindex="0" data-eq="riskydur" aria-expanded="false" aria-controls="equationDrawer">
+                    <span class="concept-icon">📏</span>
+                    <div class="concept-label">Risky Duration & RPV01</div>
+                    <div class="concept-formula">RPV01 = Σ Δt·D(t)·S(t)</div>
+                    <div class="concept-expand-hint">Explore math & intuition <span class="chevron">▾</span></div>
+                </div>
+            </div>
+
+            <!-- EXPANDABLE DRAWER -->
+            <div class="equation-drawer" id="equationDrawer">
+                <!-- 1. Expected Loss Pane -->
+                <div class="equation-pane" id="pane-el">
+                    <div class="eq-header">
+                        <div class="eq-header-left">
+                            <div class="eq-title-row">
+                                <span class="eq-badge">Credit Risk Modeling</span>
+                                <h3>Expected Loss (EL)</h3>
+                            </div>
+                            <div class="eq-latex-display">$$\text{EL} = \text{PD} \times \text{LGD} \times \text{EAD} = \text{PD} \times (1 - R) \times \text{EAD}$$</div>
+                        </div>
+                        <button class="eq-close-btn" aria-label="Close equation breakdown" onclick="closeEquationDrawer()">✕</button>
+                    </div>
+                    <div class="eq-body-grid">
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>📐</span> Parameter Anatomy</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>$\text{PD}$ (Probability of Default):</strong> Probability that counterparty defaults over a specified horizon (typically 12 months), bounded in $[0, 1]$.</li>
+                                    <li><strong>$\text{LGD}$ (Loss Given Default):</strong> Fraction of total exposure lost upon default, defined as $1 - R$, where $R$ is the recovery rate.</li>
+                                    <li><strong>$\text{EAD}$ (Exposure at Default):</strong> Total outstanding dollar/euro claim at default, including drawn loans and converted credit lines.</li>
+                                    <li><strong>$\text{EL}$:</strong> Statistical mean monetary loss expected in a portfolio over a normal business cycle.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>💡</span> Trading & Economic Intuition</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Cost of Doing Business:</strong> Expected Loss is NOT a tail risk. It is a predictable operating cost that must be priced into the loan margin or corporate credit spread.</li>
+                                    <li><strong>EL vs Unexpected Loss (UL):</strong> EL is covered through loan loss reserves / provisions. Unexpected Loss (the volatility/tail of losses) requires equity capital.</li>
+                                    <li><strong>Pre-default vs Post-default:</strong> PD is influenced by borrower leverage, volatility, and macro cycle. LGD is determined post-default by collateral quality, seniority, and bankruptcy jurisdiction.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>🎯</span> CFA & Desk Application</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Standard Recovery Benchmark:</strong> In corporate credit trading, senior unsecured debt typically assumes $R = 40\%$ ($\text{LGD} = 60\%$). Subordinated debt assumes $R \approx 15\text{--}20\%$.</li>
+                                    <li><strong>IFRS 9 / CECL Staging:</strong> Stage 1 (performing loans) reserves 1-year EL. Stage 2 (significant credit deterioration) and Stage 3 (default) require <em>Lifetime EL</em> provisions.</li>
+                                    <li><strong>Basel AIRB Capital:</strong> Regulatory capital requirements ($K$) depend on the Vasicek Gaussian copula formula, driving the Risk-Weighted Assets (RWA).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Survival Probability Pane -->
+                <div class="equation-pane" id="pane-survival">
+                    <div class="eq-header">
+                        <div class="eq-header-left">
+                            <div class="eq-title-row">
+                                <span class="eq-badge">Intensity-Based Modeling</span>
+                                <h3>Survival Probability & Hazard Rates</h3>
+                            </div>
+                            <div class="eq-latex-display">$$S(t) = \exp\left(-\int_0^t \lambda(u)\,du\right) \xrightarrow{\lambda = \text{const}} S(t) = e^{-\lambda t}$$</div>
+                        </div>
+                        <button class="eq-close-btn" aria-label="Close equation breakdown" onclick="closeEquationDrawer()">✕</button>
+                    </div>
+                    <div class="eq-body-grid">
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>📐</span> Parameter Anatomy</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>$\lambda(t)$ (Hazard Rate / Intensity):</strong> Instantaneous conditional probability rate of default at time $t$, given survival up to $t$: $\lambda(t) = \lim_{\Delta t \to 0} \frac{\mathbb{P}(t < \tau \le t + \Delta t \mid \tau > t)}{\Delta t}$.</li>
+                                    <li><strong>$S(t)$ (Survival Function):</strong> Probability that default time $\tau > t$. Monotonically non-increasing with $S(0) = 1$ and $\lim_{t \to \infty} S(t) = 0$.</li>
+                                    <li><strong>$F(t) = 1 - S(t)$ (Cumulative PD):</strong> Unconditional probability of defaulting between time $0$ and $t$.</li>
+                                    <li><strong>$f(t) = -S'(t) = \lambda(t) S(t)$:</strong> Marginal default probability density function.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>💡</span> Trading & Economic Intuition</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Poisson Arrival Process:</strong> Under constant $\lambda$, default arrives as a first jump of a Poisson process. The expected default time is $\mathbb{E}[\tau] = 1/\lambda$.</li>
+                                    <li><strong>Compounding Survival:</strong> Multi-year survival is the product of annual survival rates: $S(T) = \prod_{i=1}^T (1 - \text{condPD}_i)$.</li>
+                                    <li><strong>Curve Term Structure:</strong> In benign markets, credit curves slope upward ($\lambda_{5\text{Y}} > \lambda_{1\text{Y}}$) due to long-term uncertainty. In distress, $\lambda_{1\text{Y}}$ spikes, inverting the hazard curve.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>🎯</span> CFA & Desk Application</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Bootstrapping CDS Curves:</strong> Desk pricers discretize $\lambda(t)$ as piecewise-constant across benchmark maturities (1Y, 2Y, 3Y, 5Y, 7Y, 10Y) to fit quoted CDS spreads.</li>
+                                    <li><strong>Mental Approximation:</strong> For small $\lambda t$, $S(t) \approx 1 - \lambda t$. Over 1 year, $S(1) \approx 1 - \lambda$, so the 1-year default probability is approximately $\lambda$.</li>
+                                    <li><strong>Unconditional vs Conditional:</strong> Unconditional PD in year 3 is $S(2) - S(3) = e^{-2\lambda} - e^{-3\lambda}$, which is always lower than the conditional hazard rate $\lambda$.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. CDS-PD Rule of Thumb Pane -->
+                <div class="equation-pane" id="pane-cdspd">
+                    <div class="eq-header">
+                        <div class="eq-header-left">
+                            <div class="eq-title-row">
+                                <span class="eq-badge">Market Quoting & Quick Sizing</span>
+                                <h3>CDS–PD Fundamental Link</h3>
+                            </div>
+                            <div class="eq-latex-display">$$S_{\text{CDS}} \approx \lambda \times (1 - R) \iff \text{PD}_{1\text{Y}} \approx \frac{S_{\text{CDS}}}{1 - R}$$</div>
+                        </div>
+                        <button class="eq-close-btn" aria-label="Close equation breakdown" onclick="closeEquationDrawer()">✕</button>
+                    </div>
+                    <div class="eq-body-grid">
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>📐</span> Parameter Anatomy</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>$S_{\text{CDS}}$:</strong> Par annual CDS spread in basis points or decimal form (e.g. $150\text{ bps} = 0.0150$).</li>
+                                    <li><strong>$\lambda$:</strong> Annual risk-neutral default intensity (implied hazard rate).</li>
+                                    <li><strong>$R$:</strong> Assumed recovery rate upon default ($0.40$ standard for senior unsecured corporates).</li>
+                                    <li><strong>$1 - R$:</strong> Loss Given Default fraction ($0.60$ standard).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>💡</span> Trading & Economic Intuition</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>No-Arbitrage Heuristic:</strong> Protection buyer pays $S$ per year. In default, seller pays $1 - R$. Equating expected cashflows over 1 year gives $S \approx \text{PD} \times (1 - R)$.</li>
+                                    <li><strong>Desk Rule of Thumb:</strong> To find implied 1-year default probability, divide the CDS spread by $0.60$ (or multiply spread by $1.67$). Example: $300\text{ bps CDS} \implies \text{PD} \approx 300 / 0.60 = 5.0\%$.</li>
+                                    <li><strong>Spread Sensitivity to Recovery:</strong> If market consensus lowers recovery from $40\%$ to $20\%$, the implied PD required to justify the same 300 bps spread falls to $300 / 0.80 = 3.75\%$.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>🎯</span> CFA & Desk Application</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Risk-Neutral ($\mathbb{Q}$) vs Physical ($\mathbb{P}$):</strong> $\text{PD}_{\mathbb{Q}}$ implied from CDS is <em>substantially higher</em> than historical rating agency default frequencies $\text{PD}_{\mathbb{P}}$ because CDS spreads price credit risk premia and jump-to-default risk.</li>
+                                    <li><strong>Cash-CDS Basis:</strong> If a cash bond trades at a spread over swap $s_{\text{bond}}$ and CDS trades at $S_{\text{CDS}}$, Basis $= S_{\text{CDS}} - s_{\text{bond}}$. A negative basis allows buying the bond and buying CDS protection for an arbitrage carry.</li>
+                                    <li><strong>High-Yield Approximation Limit:</strong> For deeply distressed names ($S > 1{,}000\text{ bps}$), the linear approximation breaks down; full numerical discounting is required.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. CDS Fair Value Pane -->
+                <div class="equation-pane" id="pane-fairval">
+                    <div class="eq-header">
+                        <div class="eq-header-left">
+                            <div class="eq-title-row">
+                                <span class="eq-badge">Arbitrage-Free Pricing</span>
+                                <h3>CDS Fair Value & Upfront Payment</h3>
+                            </div>
+                            <div class="eq-latex-display">$$\text{PV}(\text{Protection Leg}) = \text{PV}(\text{Premium Leg}) \implies \text{Upfront} = (S_{\text{par}} - C) \times \text{RPV01}$$</div>
+                        </div>
+                        <button class="eq-close-btn" aria-label="Close equation breakdown" onclick="closeEquationDrawer()">✕</button>
+                    </div>
+                    <div class="eq-body-grid">
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>📐</span> Parameter Anatomy</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>$\text{PV}(\text{Prot}) = (1 - R) \int_0^T D(0, t) (-dS(t))$:</strong> Present value of expected default compensation paid by protection seller.</li>
+                                    <li><strong>$\text{PV}(\text{Prem}) = C \sum_{i=1}^N \Delta t_i D(0, t_i) S(t_i) + \text{Accrual}$:</strong> Present value of quarterly coupon payments made by protection buyer.</li>
+                                    <li><strong>$S_{\text{par}}$:</strong> Breakeven par spread where upfront value is zero ($\text{PV}(\text{Prot}) = \text{PV}(\text{Prem})$).</li>
+                                    <li><strong>$C$:</strong> Standard running contract coupon (100 bps for IG, 500 bps for HY).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>💡</span> Trading & Economic Intuition</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Big Bang Standardized Mechanics:</strong> Pre-2009, CDS traded at par spread without upfronts. Post-Big Bang, all contracts trade with fixed coupons ($100$ or $500$ bps) plus an <em>upfront payment</em> to settle the present value difference.</li>
+                                    <li><strong>Buyer vs Seller Upfront:</strong> If $S_{\text{par}} > C$, protection buyer pays upfront cash to seller. If $S_{\text{par}} < C$, protection seller pays upfront cash (points rebate) to buyer.</li>
+                                    <li><strong>MtM Closeout:</strong> The unwind value of an existing CDS position is the upfront difference between the original trade spread and current market par spread.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>🎯</span> CFA & Desk Application</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Clean vs Dirty Upfront:</strong> Quoted upfront is "clean" (excludes accrued premium since last roll). Settled upfront is "dirty" (includes accrued interest paid to the seller).</li>
+                                    <li><strong>Standard IMM Roll Dates:</strong> Standard CDS contracts roll on the 20th of March, June, September, and December (IMM roll dates), standardizing liquidity.</li>
+                                    <li><strong>ISDA Standard Model:</strong> The global standard model implemented in Bloomberg's <code>CDSW</code> uses standardized interest rate curves and piecewise constant hazard rates.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Risky Duration Pane -->
+                <div class="equation-pane" id="pane-riskydur">
+                    <div class="eq-header">
+                        <div class="eq-header-left">
+                            <div class="eq-title-row">
+                                <span class="eq-badge">Risk & Sensitivity</span>
+                                <h3>Risky Duration & RPV01 (Spread01)</h3>
+                            </div>
+                            <div class="eq-latex-display">$$\text{RPV01} = \sum_{i=1}^N \Delta t_i \, D(0, t_i) \, S(t_i) + \text{Accrual on Default} \approx \frac{1 - e^{-(r + \lambda)T}}{r + \lambda}$$</div>
+                        </div>
+                        <button class="eq-close-btn" aria-label="Close equation breakdown" onclick="closeEquationDrawer()">✕</button>
+                    </div>
+                    <div class="eq-body-grid">
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>📐</span> Parameter Anatomy</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>$\text{RPV01}$ (Risky PV01):</strong> Present value of a 1 basis point ($0.0001$) annuity paid quarterly until maturity or counterparty default, whichever comes first.</li>
+                                    <li><strong>$D(0, t_i)$:</strong> Risk-free discount factor from valuation date to coupon payment date $t_i$.</li>
+                                    <li><strong>$S(t_i)$:</strong> Survival probability of the reference entity to coupon date $t_i$.</li>
+                                    <li><strong>$\Delta t_i$:</strong> Day count fraction (ACT/360 standard in corporate CDS markets).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>💡</span> Trading & Economic Intuition</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Credit Spread DV01:</strong> RPV01 is the credit desk's equivalent to bond modified duration. A 1 bp widening in credit spread changes position value by: $\Delta \text{MTM} = \text{Notional} \times \text{RPV01} \times \Delta S$.</li>
+                                    <li><strong>Why Credit Dampens Duration:</strong> Risky duration is always strictly LESS than risk-free duration ($\text{RPV01} < \text{PV01}_{\text{risk-free}}$) because future cashflows are discounted twice: by the interest rate $r$ AND by the default hazard rate $\lambda$.</li>
+                                    <li><strong>Spread Convexity:</strong> When credit deteriorates ($\lambda$ surges), RPV01 collapses rapidly. Protection buyers enjoy positive spread convexity (gains accelerate as spreads widen).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="eq-column">
+                            <div class="eq-col-title"><span>🎯</span> CFA & Desk Application</div>
+                            <div class="eq-col-content">
+                                <ul>
+                                    <li><strong>Curve Hedging / Sizing:</strong> In a 5Y vs 10Y CDS curve steepener trade, desks balance positions by $\text{RPV01}$ rather than face notional: $\text{Notional}_{5\text{Y}} \times \text{RPV01}_{5\text{Y}} = \text{Notional}_{10\text{Y}} \times \text{RPV01}_{10\text{Y}}$.</li>
+                                    <li><strong>Cash vs Synthetic Hedging:</strong> To hedge a corporate bond portfolio with CDS, the hedge ratio is: $\beta = \frac{\text{Spread Duration}_{\text{bond}} \times \text{MV}_{\text{bond}}}{\text{RPV01}_{\text{CDS}} \times \text{Notional}_{\text{CDS}}}$.</li>
+                                    <li><strong>Typical Values:</strong> A standard 5-year investment grade CDS has an RPV01 around $4.2\text{--}4.6$. A distressed HY name with high default probability may have an RPV01 of only $2.5\text{--}3.0$.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-title">Credit Academy — Market Finance Mastery Suite</div>
+            <div class="footer-sub">
+                Part of the
+                <a href="#" class="footer-link">Market Finance Mastery</a>
+                educational platform.
+                <span class="footer-sep">|</span>
+                Built with vanilla HTML, CSS, JS, KaTeX & Canvas.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== KATEX SCRIPTS ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- ========== BACKGROUND ANIMATION & INTERACTION SCRIPT ========== -->
+    <script>
+        /* ----------------------------------------
+           FRACTURE-GRID BACKGROUND ANIMATION
+           Draws faint, slowly shifting line fragments
+           that evoke cracking / credit stress.
+           ---------------------------------------- */
+        (function () {
+            const canvas = document.getElementById('bgCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let W, H;
+            const LINES = [];
+            const NUM_LINES = 40;
+
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Create line fragments
+            for (let i = 0; i < NUM_LINES; i++) {
+                LINES.push(createLine());
+            }
+
+            function createLine() {
+                const x = Math.random() * W;
+                const y = Math.random() * H;
+                const angle = (Math.random() - 0.5) * Math.PI;
+                const len = 30 + Math.random() * 120;
+                return {
+                    x, y, angle, len,
+                    speed: 0.05 + Math.random() * 0.15,
+                    drift: (Math.random() - 0.5) * 0.3,
+                    opacity: 0.02 + Math.random() * 0.06,
+                    phase: Math.random() * Math.PI * 2
+                };
+            }
+
+            function draw(t) {
+                ctx.clearRect(0, 0, W, H);
+
+                for (const l of LINES) {
+                    const flicker = 0.5 + 0.5 * Math.sin(t * 0.001 * l.speed + l.phase);
+                    const alpha = l.opacity * flicker;
+
+                    ctx.save();
+                    ctx.translate(l.x, l.y);
+                    ctx.rotate(l.angle + Math.sin(t * 0.0003 + l.phase) * 0.05);
+
+                    ctx.beginPath();
+                    ctx.moveTo(-l.len / 2, 0);
+                    ctx.lineTo(l.len / 2, 0);
+                    ctx.strokeStyle = `rgba(220, 38, 38, ${alpha})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.restore();
+
+                    // Slow drift
+                    l.y += l.drift * 0.3;
+                    l.x += Math.sin(t * 0.0005 + l.phase) * 0.1;
+
+                    // Wrap around
+                    if (l.y < -20) l.y = H + 20;
+                    if (l.y > H + 20) l.y = -20;
+                    if (l.x < -20) l.x = W + 20;
+                    if (l.x > W + 20) l.x = -20;
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            requestAnimationFrame(draw);
+        })();
+
+        /* ----------------------------------------
+           EXPANDABLE EQUATION DRAWER CONTROLLER
+           ---------------------------------------- */
+        function renderDrawerMath() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('equationDrawer'), {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function closeEquationDrawer() {
+            const drawer = document.getElementById('equationDrawer');
+            if (drawer) drawer.classList.remove('open');
+            document.querySelectorAll('.concept-card').forEach(c => {
+                c.classList.remove('active');
+                c.setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        function toggleEquation(eqKey, targetCard) {
+            const drawer = document.getElementById('equationDrawer');
+            const targetPane = document.getElementById('pane-' + eqKey);
+            if (!drawer || !targetPane) return;
+
+            const isAlreadyActive = targetCard.classList.contains('active');
+
+            if (isAlreadyActive) {
+                closeEquationDrawer();
+                return;
+            }
+
+            // Deactivate all cards
+            document.querySelectorAll('.concept-card').forEach(c => {
+                c.classList.remove('active');
+                c.setAttribute('aria-expanded', 'false');
+            });
+
+            // Hide all panes
+            document.querySelectorAll('.equation-pane').forEach(p => p.classList.remove('active'));
+
+            // Activate chosen card and pane
+            targetCard.classList.add('active');
+            targetCard.setAttribute('aria-expanded', 'true');
+            targetPane.classList.add('active');
+            drawer.classList.add('open');
+
+            // Render math inside newly active pane
+            renderDrawerMath();
+
+            // Smooth scroll into drawer if needed
+            setTimeout(() => {
+                const rect = drawer.getBoundingClientRect();
+                if (rect.top < 0 || rect.bottom > window.innerHeight) {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 100);
+        }
+
+        /* ----------------------------------------
+           INITIALIZATION & PROGRESS ON LOAD
+           ---------------------------------------- */
+        document.addEventListener('DOMContentLoaded', function () {
+            // Setup Concept Cards Click & Keyboard Listeners
+            const conceptCards = document.querySelectorAll('.concept-card');
+            conceptCards.forEach(card => {
+                const eqKey = card.getAttribute('data-eq');
+                card.addEventListener('click', function () {
+                    toggleEquation(eqKey, card);
+                });
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleEquation(eqKey, card);
+                    }
+                });
+            });
+
+            // Initial KaTeX Render for page
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Count completed modules
+            const cards = document.querySelectorAll('.module-card');
+            let completed = 0;
+            cards.forEach(function (card) {
+                const status = card.querySelector('.module-status');
+                if (status && status.classList.contains('complete')) {
+                    completed++;
+                }
+            });
+
+            const total = cards.length;
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            // Animate progress bar
+            const fill = document.getElementById('progressFill');
+            const label = document.getElementById('progressPercent');
+            if (fill && label) {
+                setTimeout(function () {
+                    fill.style.width = pct + '%';
+                    label.textContent = pct + '%';
+                    if (pct > 0) {
+                        fill.classList.remove('zero');
+                    }
+                }, 400);
+            }
+
+            // Update count
+            const countEl = document.querySelector('.section-header .count');
+            if (countEl) {
+                countEl.textContent = completed + ' / ' + total + ' complete';
+            }
+        });
+    </script>
+</body>
+</html>

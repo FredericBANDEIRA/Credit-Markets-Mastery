@@ -1,0 +1,2789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 01: Credit Fundamentals — Credit Academy</title>
+    <meta name="description" content="A rigorous guide to credit risk taxonomy, PD/LGD/EAD, rating migrations, the KMV-Merton structural model, risky duration, and Basel bank capital.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        .alert-box.tip {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #a7f3d0;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Formula display container */
+        .formula-card {
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent-bright);
+            margin-bottom: 8px;
+        }
+
+        /* KPI summary stats */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .kpi-card .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-card .kpi-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-card.highlight .kpi-value {
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           CONTROLS & SLIDERS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* ==========================================================================
+           CANVAS CHARTS WRAPPER & TOOLTIP
+           ========================================================================== */
+        .chart-wrapper {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+
+        .chart-hud {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(15, 20, 25, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .chart-hud .hud-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            line-height: 1.5;
+        }
+
+        .chart-hud .hud-label {
+            color: var(--text-muted);
+        }
+
+        .chart-hud .hud-val {
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .badge-ig {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .badge-hy {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        .interview-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-bright);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">01</span>
+                <span>Credit Fundamentals</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 01 • Core Quantitative Foundations</div>
+            <h1>Credit Fundamentals</h1>
+            <p class="hero-description">
+                From default risk taxonomy and the structural KMV–Merton model to rating migration matrices,
+                risky duration, and Basel bank capital requirements.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-framework" role="tab">
+                <span class="tab-num">01</span> Credit Framework & EL
+            </button>
+            <button class="tab-btn" data-tab="tab-ratings" role="tab">
+                <span class="tab-num">02</span> Ratings & Migrations
+            </button>
+            <button class="tab-btn" data-tab="tab-merton" role="tab">
+                <span class="tab-num">03</span> KMV–Merton Model
+            </button>
+            <button class="tab-btn" data-tab="tab-duration" role="tab">
+                <span class="tab-num">04</span> Risky Duration
+            </button>
+            <button class="tab-btn" data-tab="tab-capital" role="tab">
+                <span class="tab-num">05</span> Bank Capital & RWA
+            </button>
+            <button class="tab-btn" data-tab="tab-interview" role="tab">
+                <span class="tab-num">06</span> Interview Q&A
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: CREDIT RISK FRAMEWORK & EL
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-framework">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎯</span>
+                        <div>
+                            <h2 class="card-title">Credit Risk Taxonomy & The Three Pillars</h2>
+                            <p class="card-subtitle">Default risk, downgrade risk, and counterparty exposure in Global Markets</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    In financial markets, credit risk is not simply the binary risk of a company filing for bankruptcy. It decomposes into three distinct trading and portfolio dimensions:
+                </p>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <div style="font-weight: 700; color: var(--accent-bright); font-size: 0.95rem; margin-bottom: 6px;">1. Default Risk</div>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary);">
+                            The catastrophic risk that the borrower fails to make scheduled interest or principal payments, triggering formal restructuring or bankruptcy liquidation.
+                        </p>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <div style="font-weight: 700; color: var(--amber); font-size: 0.95rem; margin-bottom: 6px;">2. Migration (Downgrade) Risk</div>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary);">
+                            The risk that an issuer's credit rating is cut (e.g., BBB to BB "fallen angel"), causing bond prices to fall and forcing mandates to liquidate holdings.
+                        </p>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <div style="font-weight: 700; color: var(--blue); font-size: 0.95rem; margin-bottom: 6px;">3. Counterparty Risk (CCR)</div>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary);">
+                            Bilateral risk in OTC derivatives (swaps, forwards) where the counterparty defaults while the contract has positive mark-to-market ($MtM > 0$) for the bank.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">The Master Credit Risk Equation</div>
+                    $$\text{Expected Loss (EL)} = \text{PD} \times \text{LGD} \times \text{EAD} = \text{PD} \times (1 - R) \times \text{EAD}$$
+                </div>
+
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">PD (Probability of Default):</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                            The likelihood that the counterparty defaults over a 1-year horizon. Measured via internal credit rating models, external ECAI scales, or implied from market CDS spreads.
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">LGD (Loss Given Default):</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                            The percentage of exposure lost post-default: $\text{LGD} = 1 - R$. Senior unsecured bonds average $R \approx 40\%$ ($\text{LGD} = 60\%$), whereas 1st lien loans recover $70\text{--}80\%$.
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">EAD (Exposure at Default):</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
+                            The dollar exposure when default strikes. For loans: drawn balance + credit conversion factor ($\text{CCF}$) on undrawn facilities. For derivatives: current $MtM$ plus PFE add-on.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE EL & UNEXPECTED LOSS CALCULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🧮</span>
+                        <div>
+                            <h2 class="card-title">Interactive Portfolio Loss & Capital Simulator</h2>
+                            <p class="card-subtitle">Expected Loss (Provisioning) vs Unexpected Loss (Economic Capital)</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitELCalc()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Portfolio Exposure (EAD)</span>
+                            <span class="control-value" id="val-ead">$100M</span>
+                        </div>
+                        <input type="range" id="input-ead" min="10" max="500" step="10" value="100">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>1-Year Default Prob (PD)</span>
+                            <span class="control-value" id="val-pd">1.50%</span>
+                        </div>
+                        <input type="range" id="input-pd" min="0.05" max="15.0" step="0.05" value="1.50">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Recovery Rate (R)</span>
+                            <span class="control-value" id="val-recovery">40%</span>
+                        </div>
+                        <input type="range" id="input-recovery" min="0" max="90" step="5" value="40">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Asset Correlation ($\rho$)</span>
+                            <span class="control-value" id="val-rho">18%</span>
+                        </div>
+                        <input type="range" id="input-rho" min="5" max="40" step="1" value="18">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Expected Loss (EL)</span>
+                        <span class="kpi-value" id="res-el">$900,000</span>
+                        <span class="kpi-sub" id="res-el-pct">0.90% of EAD (Provision)</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Loss Given Default (LGD)</span>
+                        <span class="kpi-value" id="res-lgd">60.0%</span>
+                        <span class="kpi-sub">$1 - R$ dollar shortfall</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">99.9% VaR (Total Loss)</span>
+                        <span class="kpi-value" id="res-var">$7,420,000</span>
+                        <span class="kpi-sub">Vasicek asymptotic tail</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Unexpected Loss (UL / Capital)</span>
+                        <span class="kpi-value" id="res-ul">$6,520,000</span>
+                        <span class="kpi-sub">Required Economic Equity</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="lossDistCanvas" width="900" height="280"></canvas>
+                    <div class="chart-hud" id="lossHud">
+                        <div class="hud-row"><span class="hud-label">Loss Rate:</span><span class="hud-val" id="hud-loss-rate">0.0%</span></div>
+                        <div class="hud-row"><span class="hud-label">Dollar Loss:</span><span class="hud-val" id="hud-loss-dollar">$0</span></div>
+                        <div class="hud-row"><span class="hud-label">Density:</span><span class="hud-val" id="hud-loss-density">0.00</span></div>
+                    </div>
+                </div>
+
+                <div class="alert-box danger">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Key Desk Insight — EL vs UL Distinction:</strong>
+                        Expected Loss is <em>not</em> an economic risk; it is a routine cost of business, covered by loan loss provisioning (IFRS 9 / CECL) and priced into the loan margin. <strong>Unexpected Loss (UL)</strong> represents the volatile tail of losses (e.g. 99.9% percentile) that must be absorbed by the bank's regulatory equity capital (CET1).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: RATINGS & TRANSITION MATRICES
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-ratings">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📊</span>
+                        <div>
+                            <h2 class="card-title">External Credit Ratings & Migration Matrices</h2>
+                            <p class="card-subtitle">ECAI rating scales, Through-the-Cycle vs Point-in-Time, and absorbing default states</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Grade Classification</th>
+                                <th>Moody's</th>
+                                <th>S&P</th>
+                                <th>Fitch</th>
+                                <th>1Y Default Prob</th>
+                                <th>5Y Cumulative Default</th>
+                                <th>Typical Spread</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-ig">Prime / Highest</span></td>
+                                <td>Aaa</td>
+                                <td>AAA</td>
+                                <td>AAA</td>
+                                <td>0.00%</td>
+                                <td>0.03%</td>
+                                <td>15–30 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ig">High Quality</span></td>
+                                <td>Aa1 to Aa3</td>
+                                <td>AA+ to AA-</td>
+                                <td>AA+ to AA-</td>
+                                <td>0.02%</td>
+                                <td>0.25%</td>
+                                <td>35–65 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ig">Upper Medium</span></td>
+                                <td>A1 to A3</td>
+                                <td>A+ to A-</td>
+                                <td>A+ to A-</td>
+                                <td>0.06%</td>
+                                <td>0.80%</td>
+                                <td>70–115 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ig">Lower Medium (Border)</span></td>
+                                <td>Baa1 to Baa3</td>
+                                <td>BBB+ to BBB-</td>
+                                <td>BBB+ to BBB-</td>
+                                <td>0.18%</td>
+                                <td>2.85%</td>
+                                <td>125–220 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-hy">Non-IG / Speculative</span></td>
+                                <td>Ba1 to Ba3</td>
+                                <td>BB+ to BB-</td>
+                                <td>BB+ to BB-</td>
+                                <td>0.95%</td>
+                                <td>8.90%</td>
+                                <td>250–420 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-hy">Highly Speculative</span></td>
+                                <td>B1 to B3</td>
+                                <td>B+ to B-</td>
+                                <td>B+ to B-</td>
+                                <td>3.65%</td>
+                                <td>21.50%</td>
+                                <td>450–750 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-hy">Substantial Risk</span></td>
+                                <td>Caa1 to Caa3</td>
+                                <td>CCC+ to CCC-</td>
+                                <td>CCC</td>
+                                <td>15.20%</td>
+                                <td>43.80%</td>
+                                <td>800–1800 bps</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-hy">In Default</span></td>
+                                <td>Ca / C</td>
+                                <td>D</td>
+                                <td>DDD / DD / D</td>
+                                <td>100.0%</td>
+                                <td>100.0%</td>
+                                <td>Distressed (Points Upfront)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert-box info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Through-the-Cycle (TTC) vs Point-in-Time (PIT):</strong> Rating agencies (S&P, Moody's) deliberately design ratings to be <em>Through-the-Cycle</em>, meaning they filter out temporary recessions to avoid excessive rating volatility. In contrast, credit market spreads (CDS and cash bond z-spreads) are <em>Point-in-Time</em>, reacting instantly to market liquidity and near-term default probability.
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE TRANSITION MATRIX & MULTI-YEAR DEFAULT EXPLORER -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📈</span>
+                        <div>
+                            <h2 class="card-title">Live Rating Migration & Cumulative Default Explorer</h2>
+                            <p class="card-subtitle">Project multi-year Markov default curves: $P(t) = P^t$</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitRatingTab()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Initial Rating Category</span>
+                            <span class="control-value" id="val-rating-select">BBB (Baa)</span>
+                        </div>
+                        <select id="select-rating" onchange="updateRatingSim()">
+                            <option value="AAA">AAA (Aaa) — Prime</option>
+                            <option value="AA">AA (Aa) — High Grade</option>
+                            <option value="A">A — Upper Medium</option>
+                            <option value="BBB" selected>BBB (Baa) — Investment Grade Floor</option>
+                            <option value="BB">BB (Ba) — Speculative / High Yield</option>
+                            <option value="B">B — Highly Speculative</option>
+                            <option value="CCC">CCC (Caa) — Distressed / Imminent Default</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Projection Horizon (Years)</span>
+                            <span class="control-value" id="val-horizon">5 Years</span>
+                        </div>
+                        <input type="range" id="input-horizon" min="1" max="10" step="1" value="5" oninput="updateRatingSim()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Economic Stress Multiplier</span>
+                            <span class="control-value" id="val-stress">1.0x (Baseline)</span>
+                        </div>
+                        <input type="range" id="input-stress" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateRatingSim()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Cumulative Default Prob</span>
+                        <span class="kpi-value" id="kpi-cum-pd">2.85%</span>
+                        <span class="kpi-sub" id="kpi-cum-pd-sub">Over selected horizon</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Survival Probability $S(T)$</span>
+                        <span class="kpi-value" id="kpi-survival-prob">97.15%</span>
+                        <span class="kpi-sub">Probability of non-default</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Annualized Hazard Rate ($\lambda$)</span>
+                        <span class="kpi-value" id="kpi-hazard-rate">0.58%</span>
+                        <span class="kpi-sub">Equivalent constant intensity</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Fallen Angel / Downgrade Risk</span>
+                        <span class="kpi-value" id="kpi-downgrade-risk">14.2%</span>
+                        <span class="kpi-sub">Migration to lower bucket</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="ratingChartCanvas" width="900" height="300"></canvas>
+                    <div class="chart-hud" id="ratingHud">
+                        <div class="hud-row"><span class="hud-label">Year:</span><span class="hud-val" id="hud-rating-year">T=0</span></div>
+                        <div class="hud-row"><span class="hud-label">Cumulative PD:</span><span class="hud-val" id="hud-rating-pd">0.0%</span></div>
+                        <div class="hud-row"><span class="hud-label">Survival:</span><span class="hud-val" id="hud-rating-surv">100.0%</span></div>
+                        <div class="hud-row"><span class="hud-label">Marginal PD:</span><span class="hud-val" id="hud-rating-marg">0.0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: KMV-MERTON STRUCTURAL MODEL
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-merton">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <h2 class="card-title">KMV–Merton Structural Model (Default as an Option)</h2>
+                            <p class="card-subtitle">Unifying corporate debt valuation with Black-Scholes-Merton option theory</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    In 1974, Robert C. Merton revolutionized corporate credit by treating equity and debt as contingent claims on the firm's underlying assets ($V_t$):
+                </p>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <div style="font-weight: 700; color: var(--accent-bright); font-size: 1rem; margin-bottom: 8px;">1. Equity as a Call Option</div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+                            Shareholders have limited liability. At debt maturity $T$, if asset value exceeds debt face value ($V_T > D$), equity holders pay $D$ and keep the remainder ($V_T - D$). If $V_T < D$, they default and walk away:
+                        </p>
+                        <div class="formula-card" style="margin: 0;">
+                            $$E_T = \max(V_T - D, 0) \implies E_0 = \text{BSM\_Call}(V_0, D, r, T, \sigma_V)$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <div style="font-weight: 700; color: var(--amber); font-size: 1rem; margin-bottom: 8px;">2. Debt as Risk-Free Bond Minus Put</div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+                            Bondholders receive either full repayment $D$ or take over the company assets $V_T$. Debt is equivalent to a default-free bond minus an implicit put option written to shareholders:
+                        </p>
+                        <div class="formula-card" style="margin: 0;">
+                            $$D_0 = V_0 - E_0 = D e^{-rT} - \text{BSM\_Put}(V_0, D, r, T, \sigma_V)$$
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">Distance to Default (DD) & Default Probability</div>
+                    $$DD = \frac{\ln(V_0 / D) + \left(\mu - \frac{1}{2}\sigma_V^2\right)T}{\sigma_V \sqrt{T}}, \quad \text{PD} = \mathcal{N}(-DD)$$
+                </div>
+            </div>
+
+            <!-- INTERACTIVE MERTON SIMULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🧪</span>
+                        <div>
+                            <h2 class="card-title">Merton Structural Model & Asset Distribution Simulator</h2>
+                            <p class="card-subtitle">Adjust firm assets, debt barrier, and volatility to see option-implied default</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitMerton()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Firm Asset Value ($V_0$)</span>
+                            <span class="control-value" id="val-merton-v">$100M</span>
+                        </div>
+                        <input type="range" id="input-merton-v" min="50" max="200" step="5" value="100" oninput="updateMerton()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Debt Face Value ($D$)</span>
+                            <span class="control-value" id="val-merton-d">$80M</span>
+                        </div>
+                        <input type="range" id="input-merton-d" min="30" max="150" step="5" value="80" oninput="updateMerton()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Asset Volatility ($\sigma_V$)</span>
+                            <span class="control-value" id="val-merton-vol">25%</span>
+                        </div>
+                        <input type="range" id="input-merton-vol" min="5" max="60" step="1" value="25" oninput="updateMerton()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Debt Maturity ($T$)</span>
+                            <span class="control-value" id="val-merton-t">3.0 Years</span>
+                        </div>
+                        <input type="range" id="input-merton-t" min="0.5" max="7.0" step="0.5" value="3.0" oninput="updateMerton()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Distance to Default (DD)</span>
+                        <span class="kpi-value" id="kpi-merton-dd">1.82 σ</span>
+                        <span class="kpi-sub">Standard deviations to barrier</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Implied Default Prob (PD)</span>
+                        <span class="kpi-value" id="kpi-merton-pd">3.44%</span>
+                        <span class="kpi-sub">$\mathcal{N}(-DD)$ probability</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Equity Market Value ($E_0$)</span>
+                        <span class="kpi-value" id="kpi-merton-equity">$33.1M</span>
+                        <span class="kpi-sub">Call option on firm</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Debt Market Value ($D_0$)</span>
+                        <span class="kpi-value" id="kpi-merton-debt">$66.9M</span>
+                        <span class="kpi-sub">Implied credit spread: <strong id="kpi-merton-spread">145 bps</strong></span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="mertonCanvas" width="900" height="320"></canvas>
+                    <div class="chart-hud" id="mertonHud">
+                        <div class="hud-row"><span class="hud-label">Asset Level $V_T$:</span><span class="hud-val" id="hud-merton-v">$0M</span></div>
+                        <div class="hud-row"><span class="hud-label">Density $f(V_T)$:</span><span class="hud-val" id="hud-merton-density">0.000</span></div>
+                        <div class="hud-row"><span class="hud-label">Status:</span><span class="hud-val" id="hud-merton-status">Solvent</span></div>
+                    </div>
+                </div>
+
+                <div class="alert-box tip">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>The Asset Substitution Problem (Risk-Shifting):</strong> Notice what happens if you increase Asset Volatility ($\sigma_V$) while holding debt constant. Equity value <em>rises</em> because call options gain from volatility, but Debt value <em>falls</em> because the probability of landing in the default zone surges. This option-theoretic insight explains why distressed equity holders are incentivized to take excessive risk at the expense of bondholders!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: RISKY DURATION
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-duration">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📏</span>
+                        <div>
+                            <h2 class="card-title">Risky Duration vs Risk-Free Duration</h2>
+                            <p class="card-subtitle">Why credit risk dampens interest rate sensitivity and alters hedging ratios</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    In Fixed Income, Macaulay and Modified Duration measure the weighted average time until cash flows are received. In credit markets, future cash flows are uncertain: the bond may default before maturity. Consequently, each cash flow must be discounted by both the risk-free rate $r$ and the survival probability $S(t)$:
+                </p>
+
+                <div class="formula-card">
+                    <div class="label">Corporate Risky Duration Formula</div>
+                    $$D^* = \frac{1}{P_{\text{risky}}} \sum_{i=1}^n t_i \cdot CF_i \cdot e^{-r t_i} \cdot S(t_i)$$
+                </div>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">1. Cash Flow Weight Decay</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            Because $S(t) = e^{-\lambda t}$ decreases monotonically with maturity, distant principal and coupon cash flows carry significantly less probabilistic weight in the duration sum.
+                        </p>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--green); font-size: 0.95rem;">2. The High-Yield Duration Collapse</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            As credit spreads widen (distress), the risky duration collapses dramatically. A 10-year CCC corporate bond behaves like a 2-year equity surrogate rather than a 10-year rate instrument.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE RISKY DURATION CALCULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎛️</span>
+                        <div>
+                            <h2 class="card-title">Interactive Risky Duration & Sensitivity Visualizer</h2>
+                            <p class="card-subtitle">Compare price sensitivity of sovereign vs corporate bonds</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitDuration()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Bond Coupon Rate</span>
+                            <span class="control-value" id="val-dur-coupon">5.0%</span>
+                        </div>
+                        <input type="range" id="input-dur-coupon" min="0" max="12" step="0.5" value="5.0" oninput="updateDuration()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Maturity (Years)</span>
+                            <span class="control-value" id="val-dur-mat">10 Years</span>
+                        </div>
+                        <input type="range" id="input-dur-mat" min="2" max="30" step="1" value="10" oninput="updateDuration()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Risk-Free Rate ($r$)</span>
+                            <span class="control-value" id="val-dur-rf">3.0%</span>
+                        </div>
+                        <input type="range" id="input-dur-rf" min="0" max="8" step="0.25" value="3.0" oninput="updateDuration()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Credit Spread / Hazard ($\lambda$)</span>
+                            <span class="control-value" id="val-dur-hazard">300 bps</span>
+                        </div>
+                        <input type="range" id="input-dur-hazard" min="0" max="1500" step="25" value="300" oninput="updateDuration()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <span class="kpi-label">Risk-Free Mod Duration</span>
+                        <span class="kpi-value" id="kpi-dur-rf">7.82 yrs</span>
+                        <span class="kpi-sub">Default-free benchmark</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Risky Duration ($D^*$)</span>
+                        <span class="kpi-value" id="kpi-dur-risky">6.45 yrs</span>
+                        <span class="kpi-sub">Shortened by default probability</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Duration Gap ($\Delta D$)</span>
+                        <span class="kpi-value" id="kpi-dur-gap">-1.37 yrs</span>
+                        <span class="kpi-sub">Duration reduction (-17.5%)</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Risky PV01 (per $10M)</span>
+                        <span class="kpi-value" id="kpi-dur-pv01">$6,450</span>
+                        <span class="kpi-sub">Dollar value of 1 bp spread</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="durationCanvas" width="900" height="300"></canvas>
+                    <div class="chart-hud" id="durHud">
+                        <div class="hud-row"><span class="hud-label">Yield Shift:</span><span class="hud-val" id="hud-dur-shift">0 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Risk-Free Price:</span><span class="hud-val" id="hud-dur-rfprice">$100.0</span></div>
+                        <div class="hud-row"><span class="hud-label">Risky Price:</span><span class="hud-val" id="hud-dur-riskprice">$85.2</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: BANK CAPITAL & RWA
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-capital">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🏛️</span>
+                        <div>
+                            <h2 class="card-title">Bank Balance Sheets, RWA & Basel AIRB</h2>
+                            <p class="card-subtitle">Pillar 1 minimum capital, CET1 buffers, and the Vasicek asymptotic credit risk model</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div>
+                        <strong style="font-size: 1rem; color: var(--text-primary);">The Bank Capital Stack (Loss Absorbency)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 8px 0 16px;">
+                            Under Basel III/IV, banks must hold Tier 1 and Tier 2 capital against their Risk-Weighted Assets ($\text{RWA}$):
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--green); padding: 10px 14px; border-radius: 4px; font-size: 0.84rem;">
+                                <strong>Common Equity Tier 1 (CET1) $\ge 4.5\%$ (plus buffers up to 9–12%):</strong> Common stock and retained earnings. Absorbs losses on a going-concern basis.
+                            </div>
+                            <div style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--amber); padding: 10px 14px; border-radius: 4px; font-size: 0.84rem;">
+                                <strong>Additional Tier 1 (AT1 CoCos) $\ge 1.5\%$:</strong> Hybrid perpetual bonds that write down or convert to equity when CET1 falls below triggers (e.g. 5.125% or 7.0%).
+                            </div>
+                            <div style="background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--blue); padding: 10px 14px; border-radius: 4px; font-size: 0.84rem;">
+                                <strong>Tier 2 Capital $\ge 2.0\%$:</strong> Subordinated debt and general loan loss reserves. Absorbs losses on a gone-concern basis in liquidation.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <strong style="font-size: 1rem; color: var(--text-primary);">Basel Advanced IRB Formula for Capital Charge ($K$)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 8px 0 16px;">
+                            Under the Advanced Internal Ratings-Based approach, capital charge $K$ is derived from the single-factor Vasicek asymptotic copula:
+                        </p>
+                        <div class="formula-card" style="margin: 0 0 12px;">
+                            $$K = \left[ \text{LGD} \cdot \mathcal{N}\left( \frac{\mathcal{N}^{-1}(\text{PD}) + \sqrt{\rho}\,\mathcal{N}^{-1}(0.999)}{\sqrt{1 - \rho}} \right) - \text{PD} \cdot \text{LGD} \right] \cdot \text{MatAdj}$$
+                        </div>
+                        <div class="formula-card" style="margin: 0;">
+                            $$\text{RWA} = 12.5 \times K \times \text{EAD}, \quad \text{Min Capital} = 8\% \times \text{RWA}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE RWA & CAPITAL CHARGE CALCULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🏦</span>
+                        <div>
+                            <h2 class="card-title">Interactive Basel AIRB Capital Requirement Calculator</h2>
+                            <p class="card-subtitle">Compute regulatory capital $K$, RWA, and capital charges</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitAirb()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Loan Notional (EAD)</span>
+                            <span class="control-value" id="val-airb-ead">$50M</span>
+                        </div>
+                        <input type="range" id="input-airb-ead" min="5" max="200" step="5" value="50" oninput="updateAirb()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Borrower PD</span>
+                            <span class="control-value" id="val-airb-pd">0.80%</span>
+                        </div>
+                        <input type="range" id="input-airb-pd" min="0.03" max="10.0" step="0.05" value="0.80" oninput="updateAirb()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Loss Given Default (LGD)</span>
+                            <span class="control-value" id="val-airb-lgd">45%</span>
+                        </div>
+                        <input type="range" id="input-airb-lgd" min="10" max="90" step="5" value="45" oninput="updateAirb()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Asset Correlation ($\rho$)</span>
+                            <span class="control-value" id="val-airb-rho">18%</span>
+                        </div>
+                        <input type="range" id="input-airb-rho" min="8" max="30" step="1" value="18" oninput="updateAirb()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Capital Requirement ($K$)</span>
+                        <span class="kpi-value" id="kpi-airb-k">5.38%</span>
+                        <span class="kpi-sub">Required equity per unit EAD</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Risk-Weighted Assets (RWA)</span>
+                        <span class="kpi-value" id="kpi-airb-rwa">$33.6M</span>
+                        <span class="kpi-sub">RWA density: <strong id="kpi-airb-density">67.2%</strong></span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">8% Pillar 1 Capital</span>
+                        <span class="kpi-value" id="kpi-airb-mincap">$2.69M</span>
+                        <span class="kpi-sub">Minimum statutory equity</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">CET1 Buffer (at 12%)</span>
+                        <span class="kpi-value" id="kpi-airb-cet1">$4.03M</span>
+                        <span class="kpi-sub">Total capital including buffers</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: INTERVIEW Q&A
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-interview">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">Credit Markets Interview Masterclass</h2>
+                            <p class="card-subtitle">8 high-frequency interview questions for S&T, Credit Research, and CFA Level 2</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. Why is corporate bond duration shorter than an equivalent Treasury bond's duration?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Duration & Rates</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Corporate bond duration is shorter because of <em>credit risk discounting</em>. Future cash flows (coupons and par repayment at maturity) must be discounted not only by the risk-free rate $r$ but also by the survival probability $S(t) = e^{-\lambda t}$.</p>
+                        <p style="margin-top: 8px;">Because $S(t)$ decreases over time, the distant par payment at maturity carries significantly less probabilistic weight in the duration calculation than in a risk-free government bond. In high-yield or distressed bonds, this effect collapses modified duration, causing the bond to trade more like equity sensitive to credit spreads than a long-duration rates instrument.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. Walk me through how the Merton (1974) model views equity and debt as options.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Structural Models</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Under Merton's structural model, a firm's equity is a <strong>European call option</strong> on the underlying asset value of the firm ($V_T$) with a strike price equal to the face value of debt ($D$):</p>
+                        <div class="formula-card" style="margin: 8px 0;">$$E_T = \max(V_T - D, 0)$$</div>
+                        <p>If $V_T > D$, shareholders pay the debt and keep the excess equity value. If $V_T < D$, shareholders exercise limited liability, walk away with zero, and default. Conversely, debt is equivalent to a risk-free bond minus a put option: $D_0 = D e^{-rT} - \text{BSM\_Put}(V_0, D, r, T, \sigma_V)$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. What is the difference between physical ($\mathbb{P}$) and risk-neutral ($\mathbb{Q}$) default probability?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Pricing Theory</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Physical ($\mathbb{P}$) Default Probability:</strong> The real-world historical frequency of default measured by rating agencies (S&P/Moody's) from empirical bankruptcy data. Used for loan provisioning and economic capital.</li>
+                            <li><strong>Risk-Neutral ($\mathbb{Q}$) Default Probability:</strong> The default probability implied from market prices of CDS and corporate bond credit spreads, assuming risk neutrality.</li>
+                        </ul>
+                        <p style="margin-top: 8px;"><strong>Desk Nuance:</strong> Risk-neutral PD is almost always $2\times$ to $4\times$ higher than physical PD ($\text{PD}_{\mathbb{Q}} \gg \text{PD}_{\mathbb{P}}$) because market spreads include compensation for taking credit risk (credit risk premium), market illiquidity, and jump-to-default risk.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. Explain the difference between Expected Loss (EL) and Unexpected Loss (UL). How does a bank manage each?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Risk Management</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Expected Loss (EL):</strong> The statistical mean credit loss ($EL = PD \times LGD \times EAD$). It is considered a regular operating expense and is managed through <em>loan loss reserves / provisioning</em> (IFRS 9 / CECL) and priced directly into loan margins.</li>
+                            <li><strong>Unexpected Loss (UL):</strong> The volatility and extreme tail of credit losses beyond EL (e.g. at the 99.9% confidence level). It cannot be covered by provisions; it must be backed by <em>equity capital</em> (Common Equity Tier 1).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. A 5-year corporate bond trades at a spread of 180 bps and recovery is 40%. What is the annual implied default probability?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Mental Math</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Use the fundamental CDS/Spread rule of thumb: $S \approx \lambda \times (1 - R)$.</p>
+                        <div class="formula-card" style="margin: 8px 0;">
+                            $$\lambda \approx \frac{S}{1 - R} = \frac{180\text{ bps}}{1 - 0.40} = \frac{180\text{ bps}}{0.60} = 300\text{ bps} = 3.0\% \text{ per year}$$
+                        </div>
+                        <p>The annual implied risk-neutral hazard rate is approximately <strong>3.0%</strong>. Over 5 years, the approximate cumulative survival probability is $S(5) \approx e^{-0.03 \times 5} = e^{-0.15} \approx 86.1\%$, giving a 5-year cumulative default probability of $\approx 13.9\%$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. Why does increasing asset volatility ($\sigma_V$) in the Merton model transfer wealth from bondholders to equity holders?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Corporate Finance</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Because equity is a <strong>call option</strong> on firm assets ($E = \text{Call}(V, D)$), its Vega is strictly positive ($\partial E / \partial \sigma_V > 0$). Equity holders participate in all upside gains when $V_T \gg D$, but their downside is capped at zero by limited liability.</p>
+                        <p style="margin-top: 8px;">Conversely, bondholders have sold an implicit put option to equity. When volatility increases, the probability of firm assets falling below debt face value $D$ increases, increasing the value of the short put. Because firm value $V = E + D$ is unchanged, the gain to equity comes directly out of the market value of debt.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. What is the difference between Through-the-Cycle (TTC) and Point-in-Time (PIT) credit ratings?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Rating Methodologies</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Through-the-Cycle (TTC):</strong> External rating agencies (Moody's, S&P, Fitch) evaluate an obligor's creditworthiness across an entire economic business cycle (5–10 years). Temporary cyclical recessions do not cause downgrades unless the fundamental solvency of the firm is impaired.</li>
+                            <li><strong>Point-in-Time (PIT):</strong> Evaluates default probability given the borrower's current condition and today's macro environment. Credit default swap spreads and bank internal IFRS 9 staging models are PIT.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. What happens to bank capital requirements under the Basel AIRB formula when asset correlation ($\rho$) increases?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Basel Regulation</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> When asset correlation $\rho$ increases, the regulatory capital charge $K$ <strong>increases substantially</strong>.</p>
+                        <p style="margin-top: 8px;">In the Vasicek single-factor model, correlation $\rho$ measures the sensitivity of individual borrowers to the common systemic macro factor. When $\rho$ is high, defaults cluster together during a downturn (less diversification benefit). To protect against extreme joint defaults at the 99.9% VaR level, the bank must hold a significantly larger equity buffer.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 01: Credit Fundamentals</div>
+        <div style="margin-top: 6px;">
+            Next up: <a href="02_Credit_Spreads.html">Module 02: Credit Spreads (Z-Spread, ASW, OAS & Basis Trading) →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & DOT SYNC
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+
+                // Trigger resize for charts on active tab
+                setTimeout(() => {
+                    if (targetId === 'tab-framework') drawLossDist();
+                    if (targetId === 'tab-ratings') drawRatingChart();
+                    if (targetId === 'tab-merton') drawMerton();
+                    if (targetId === 'tab-duration') drawDuration();
+                }, 50);
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           STANDARD NORMAL DISTRIBUTION HELPER FUNCTIONS
+           ========================================================================== */
+        function normCdf(x) {
+            const a1 =  0.254829592, a2 = -0.284496736, a3 =  1.421413741;
+            const a4 = -1.453152027, a5 =  1.061405429, p  =  0.3275911;
+            const sign = x < 0 ? -1 : 1;
+            const absX = Math.abs(x) / Math.sqrt(2.0);
+            const t = 1.0 / (1.0 + p * absX);
+            const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+            return 0.5 * (1.0 + sign * erf);
+        }
+
+        function normPdf(x) {
+            return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+        }
+
+        function normInv(p) {
+            if (p <= 0 || p >= 1) return 0;
+            // Rational approximation for inverse standard normal
+            const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+            const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+            const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+            const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+
+            const q = p < 0.5 ? p : 1 - p;
+            let r;
+            if (q > 0.02425) {
+                const u = q - 0.5;
+                const r2 = u * u;
+                r = u * (((((a[0]*r2 + a[1])*r2 + a[2])*r2 + a[3])*r2 + a[4])*r2 + a[5]) /
+                        (((((b[0]*r2 + b[1])*r2 + b[2])*r2 + b[3])*r2 + b[4])*r2 + 1);
+            } else {
+                const u = Math.sqrt(-2 * Math.log(q));
+                r = (((((c[0]*u + c[1])*u + c[2])*u + c[3])*u + c[4])*u + c[5]) /
+                    ((((d[0]*u + d[1])*u + d[2])*u + d[3])*u + 1);
+            }
+            return p < 0.5 ? -r : r;
+        }
+
+        /* ==========================================================================
+           TAB 1: LOSS DISTRIBUTION & EL SIMULATOR
+           ========================================================================== */
+        const inEad = document.getElementById('input-ead');
+        const inPd = document.getElementById('input-pd');
+        const inRec = document.getElementById('input-recovery');
+        const inRho = document.getElementById('input-rho');
+
+        function updateELSim() {
+            const ead = parseFloat(inEad.value) * 1e6;
+            const pd = parseFloat(inPd.value) / 100;
+            const rec = parseFloat(inRec.value) / 100;
+            const lgd = 1 - rec;
+            const rho = parseFloat(inRho.value) / 100;
+
+            document.getElementById('val-ead').textContent = '$' + inEad.value + 'M';
+            document.getElementById('val-pd').textContent = inPd.value + '%';
+            document.getElementById('val-recovery').textContent = inRec.value + '%';
+            document.getElementById('val-rho').textContent = inRho.value + '%';
+
+            // Expected Loss
+            const el = ead * pd * lgd;
+            document.getElementById('res-el').textContent = '$' + Math.round(el).toLocaleString();
+            document.getElementById('res-el-pct').textContent = (pd * lgd * 100).toFixed(2) + '% of EAD (Provision)';
+            document.getElementById('res-lgd').textContent = (lgd * 100).toFixed(1) + '%';
+
+            // Vasicek 99.9% VaR
+            const invPd = normInv(pd);
+            const inv999 = normInv(0.999);
+            const condPd999 = normCdf((invPd + Math.sqrt(rho) * inv999) / Math.sqrt(1 - rho));
+            const varLoss = ead * lgd * condPd999;
+            const ul = varLoss - el;
+
+            document.getElementById('res-var').textContent = '$' + Math.round(varLoss).toLocaleString();
+            document.getElementById('res-ul').textContent = '$' + Math.round(ul).toLocaleString();
+
+            drawLossDist();
+        }
+
+        [inEad, inPd, inRec, inRho].forEach(input => input.addEventListener('input', updateELSim));
+
+        function reinitELCalc() {
+            inEad.value = 100;
+            inPd.value = 1.5;
+            inRec.value = 40;
+            inRho.value = 18;
+            updateELSim();
+        }
+
+        // Canvas for Loss Distribution
+        const lossCanvas = document.getElementById('lossDistCanvas');
+        const lossCtx = lossCanvas.getContext('2d');
+        const lossHud = document.getElementById('lossHud');
+        let lossHoverX = null;
+
+        function drawLossDist() {
+            if (!lossCanvas) return;
+            const W = lossCanvas.width;
+            const H = lossCanvas.height;
+            lossCtx.clearRect(0, 0, W, H);
+
+            const pd = parseFloat(inPd.value) / 100;
+            const rec = parseFloat(inRec.value) / 100;
+            const lgd = 1 - rec;
+            const rho = parseFloat(inRho.value) / 100;
+            const ead = parseFloat(inEad.value) * 1e6;
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Gridlines
+            lossCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            lossCtx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padT + (plotH / 5) * i;
+                lossCtx.beginPath();
+                lossCtx.moveTo(padL, y);
+                lossCtx.lineTo(W - padR, y);
+                lossCtx.stroke();
+            }
+
+            // Max loss rate to show
+            const maxLossRate = Math.min(1.0, Math.max(0.15, pd * lgd * 8));
+
+            // Vasicek density function
+            function vasicekDensity(x) {
+                if (x <= 0.0001 || x >= lgd * 0.999) return 0;
+                const q = x / lgd;
+                const invQ = normInv(q);
+                const invPD = normInv(pd);
+                const num = Math.sqrt(1 - rho) * normPdf((Math.sqrt(1 - rho) * invQ - invPD) / Math.sqrt(rho));
+                const den = Math.sqrt(rho) * normPdf(invQ) * lgd;
+                return num / den;
+            }
+
+            const points = [];
+            let maxDens = 0;
+            const steps = 150;
+            for (let i = 1; i <= steps; i++) {
+                const lossRate = (i / steps) * maxLossRate;
+                const dens = vasicekDensity(lossRate);
+                if (dens > maxDens) maxDens = dens;
+                points.push({ lossRate, dens });
+            }
+            if (maxDens === 0) maxDens = 1;
+
+            // Shaded Area for VaR 99.9%
+            const invPd = normInv(pd);
+            const varLossRate = lgd * normCdf((invPd + Math.sqrt(rho) * normInv(0.999)) / Math.sqrt(1 - rho));
+            const elLossRate = pd * lgd;
+
+            // Draw curve
+            lossCtx.beginPath();
+            points.forEach((pt, i) => {
+                const x = padL + (pt.lossRate / maxLossRate) * plotW;
+                const y = padT + plotH - (pt.dens / maxDens) * plotH;
+                if (i === 0) lossCtx.moveTo(x, y);
+                else lossCtx.lineTo(x, y);
+            });
+            lossCtx.strokeStyle = '#ef4444';
+            lossCtx.lineWidth = 2.5;
+            lossCtx.stroke();
+
+            // Fill area under curve
+            lossCtx.lineTo(padL + (points[points.length - 1].lossRate / maxLossRate) * plotW, padT + plotH);
+            lossCtx.lineTo(padL, padT + plotH);
+            lossCtx.closePath();
+            const grad = lossCtx.createLinearGradient(0, padT, 0, padT + plotH);
+            grad.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
+            grad.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+            lossCtx.fillStyle = grad;
+            lossCtx.fill();
+
+            // Vertical marker for EL
+            const elX = padL + (elLossRate / maxLossRate) * plotW;
+            if (elX <= W - padR) {
+                lossCtx.strokeStyle = '#f59e0b';
+                lossCtx.setLineDash([4, 4]);
+                lossCtx.lineWidth = 1.5;
+                lossCtx.beginPath();
+                lossCtx.moveTo(elX, padT);
+                lossCtx.lineTo(elX, padT + plotH);
+                lossCtx.stroke();
+                lossCtx.setLineDash([]);
+
+                lossCtx.fillStyle = '#f59e0b';
+                lossCtx.font = '11px JetBrains Mono';
+                lossCtx.fillText('EL: ' + (elLossRate * 100).toFixed(2) + '%', elX + 6, padT + 18);
+            }
+
+            // Vertical marker for 99.9% VaR
+            const varX = padL + (varLossRate / maxLossRate) * plotW;
+            if (varX <= W - padR) {
+                lossCtx.strokeStyle = '#dc2626';
+                lossCtx.setLineDash([5, 3]);
+                lossCtx.lineWidth = 2;
+                lossCtx.beginPath();
+                lossCtx.moveTo(varX, padT);
+                lossCtx.lineTo(varX, padT + plotH);
+                lossCtx.stroke();
+                lossCtx.setLineDash([]);
+
+                lossCtx.fillStyle = '#ef4444';
+                lossCtx.font = '11px JetBrains Mono';
+                lossCtx.fillText('99.9% VaR: ' + (varLossRate * 100).toFixed(2) + '%', varX + 6, padT + 36);
+            }
+
+            // Axes & Labels
+            lossCtx.strokeStyle = '#64748b';
+            lossCtx.lineWidth = 1;
+            lossCtx.beginPath();
+            lossCtx.moveTo(padL, padT);
+            lossCtx.lineTo(padL, padT + plotH);
+            lossCtx.lineTo(W - padR, padT + plotH);
+            lossCtx.stroke();
+
+            lossCtx.fillStyle = '#94a3b8';
+            lossCtx.font = '11px Inter';
+            lossCtx.fillText('Portfolio Loss Rate (% of EAD)', W / 2 - 60, H - 10);
+
+            // Tick marks
+            for (let i = 0; i <= 5; i++) {
+                const rate = (maxLossRate * (i / 5) * 100).toFixed(1) + '%';
+                const x = padL + (plotW / 5) * i;
+                lossCtx.fillText(rate, x - 14, padT + plotH + 18);
+            }
+
+            // Crosshair hover tracking
+            if (lossHoverX !== null && lossHoverX >= padL && lossHoverX <= W - padR) {
+                const normX = (lossHoverX - padL) / plotW;
+                const hoveredLossRate = normX * maxLossRate;
+                const hoveredDens = vasicekDensity(hoveredLossRate);
+                const hoveredY = padT + plotH - (hoveredDens / maxDens) * plotH;
+
+                lossCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                lossCtx.setLineDash([2, 2]);
+                lossCtx.beginPath();
+                lossCtx.moveTo(lossHoverX, padT);
+                lossCtx.lineTo(lossHoverX, padT + plotH);
+                lossCtx.stroke();
+                lossCtx.setLineDash([]);
+
+                // Intersection dot
+                lossCtx.fillStyle = '#ef4444';
+                lossCtx.beginPath();
+                lossCtx.arc(lossHoverX, hoveredY, 5, 0, Math.PI * 2);
+                lossCtx.fill();
+                lossCtx.strokeStyle = '#ffffff';
+                lossCtx.lineWidth = 2;
+                lossCtx.stroke();
+
+                // Update HUD
+                lossHud.style.display = 'block';
+                document.getElementById('hud-loss-rate').textContent = (hoveredLossRate * 100).toFixed(2) + '%';
+                document.getElementById('hud-loss-dollar').textContent = '$' + Math.round(hoveredLossRate * ead).toLocaleString();
+                document.getElementById('hud-loss-density').textContent = hoveredDens.toFixed(2);
+            }
+        }
+
+        lossCanvas.addEventListener('mousemove', e => {
+            const rect = lossCanvas.getBoundingClientRect();
+            const scaleX = lossCanvas.width / rect.width;
+            lossHoverX = (e.clientX - rect.left) * scaleX;
+            drawLossDist();
+        });
+
+        lossCanvas.addEventListener('mouseleave', () => {
+            lossHoverX = null;
+            lossHud.style.display = 'none';
+            drawLossDist();
+        });
+
+        /* ==========================================================================
+           TAB 2: RATINGS & MARKOV TRANSITION SIMULATOR
+           ========================================================================== */
+        // Standard 1-Year Average S&P Transition Matrix
+        const BASE_TRANSITIONS = {
+            'AAA': { 'AAA': 0.885, 'AA': 0.080, 'A': 0.025, 'BBB': 0.008, 'BB': 0.001, 'B': 0.001, 'CCC': 0.000, 'D': 0.000 },
+            'AA':  { 'AAA': 0.015, 'AA': 0.870, 'A': 0.095, 'BBB': 0.015, 'BB': 0.003, 'B': 0.001, 'CCC': 0.0005, 'D': 0.0005 },
+            'A':   { 'AAA': 0.001, 'AA': 0.025, 'A': 0.885, 'BBB': 0.075, 'BB': 0.009, 'B': 0.003, 'CCC': 0.001, 'D': 0.001 },
+            'BBB': { 'AAA': 0.000, 'AA': 0.003, 'A': 0.045, 'BBB': 0.870, 'BB': 0.060, 'B': 0.015, 'CCC': 0.005, 'D': 0.002 },
+            'BB':  { 'AAA': 0.000, 'AA': 0.001, 'A': 0.005, 'BBB': 0.065, 'BB': 0.800, 'B': 0.095, 'CCC': 0.025, 'D': 0.009 },
+            'B':   { 'AAA': 0.000, 'AA': 0.000, 'A': 0.002, 'BBB': 0.005, 'BB': 0.060, 'B': 0.800, 'CCC': 0.095, 'D': 0.038 },
+            'CCC': { 'AAA': 0.000, 'AA': 0.000, 'A': 0.000, 'BBB': 0.002, 'BB': 0.015, 'B': 0.120, 'CCC': 0.690, 'D': 0.173 }
+        };
+
+        const ratingCanvas = document.getElementById('ratingChartCanvas');
+        const ratingCtx = ratingCanvas.getContext('2d');
+        const ratingHud = document.getElementById('ratingHud');
+        let ratingHoverX = null;
+        let ratingCurveData = [];
+
+        function updateRatingSim() {
+            const initialRating = document.getElementById('select-rating').value;
+            const horizon = parseInt(document.getElementById('input-horizon').value);
+            const stress = parseFloat(document.getElementById('input-stress').value);
+
+            document.getElementById('val-horizon').textContent = horizon + ' Years';
+            document.getElementById('val-stress').textContent = stress.toFixed(1) + 'x ' + (stress > 1 ? '(Downturn)' : stress < 1 ? '(Benign)' : '(Baseline)');
+
+            // Project multi-year default curve using Markov matrix multiplication
+            const ratings = ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'D'];
+            let state = {};
+            ratings.forEach(r => state[r] = 0);
+            state[initialRating] = 1.0;
+
+            ratingCurveData = [{ year: 0, cumPd: 0, marginalPd: 0, survival: 1.0 }];
+
+            for (let t = 1; t <= 10; t++) {
+                let nextState = {};
+                ratings.forEach(r => nextState[r] = 0);
+
+                ratings.forEach(fromR => {
+                    if (state[fromR] > 0) {
+                        if (fromR === 'D') {
+                            nextState['D'] += state['D']; // Absorbing state
+                        } else {
+                            const row = BASE_TRANSITIONS[fromR];
+                            let defaultProb = Math.min(0.99, row['D'] * stress);
+                            let remaining = 1.0 - defaultProb;
+                            let baseRemaining = 1.0 - row['D'];
+
+                            ratings.forEach(toR => {
+                                if (toR === 'D') {
+                                    nextState['D'] += state[fromR] * defaultProb;
+                                } else {
+                                    let p = (row[toR] / baseRemaining) * remaining;
+                                    nextState[toR] += state[fromR] * p;
+                                }
+                            });
+                        }
+                    }
+                });
+
+                const prevCum = ratingCurveData[t - 1].cumPd;
+                const curCum = nextState['D'];
+                const marginal = curCum - prevCum;
+                const survival = 1 - curCum;
+
+                ratingCurveData.push({ year: t, cumPd: curCum, marginalPd: marginal, survival });
+                state = nextState;
+            }
+
+            const targetPoint = ratingCurveData[horizon];
+            document.getElementById('kpi-cum-pd').textContent = (targetPoint.cumPd * 100).toFixed(2) + '%';
+            document.getElementById('kpi-survival-prob').textContent = (targetPoint.survival * 100).toFixed(2) + '%';
+
+            // Hazard rate approximation: S(t) = exp(-lambda * t) => lambda = -ln(S)/t
+            const haz = targetPoint.survival > 0 ? -Math.log(targetPoint.survival) / horizon : 1.0;
+            document.getElementById('kpi-hazard-rate').textContent = (haz * 100).toFixed(2) + '%';
+
+            // Downgrade probability: sum of probabilities in ratings worse than initial
+            const initialIdx = ratings.indexOf(initialRating);
+            let downProb = 0;
+            for (let i = initialIdx + 1; i < ratings.length; i++) {
+                downProb += state[ratings[i]];
+            }
+            document.getElementById('kpi-downgrade-risk').textContent = (downProb * 100).toFixed(1) + '%';
+
+            drawRatingChart();
+        }
+
+        function reinitRatingTab() {
+            document.getElementById('select-rating').value = 'BBB';
+            document.getElementById('input-horizon').value = 5;
+            document.getElementById('input-stress').value = 1.0;
+            updateRatingSim();
+        }
+
+        function drawRatingChart() {
+            if (!ratingCanvas) return;
+            const W = ratingCanvas.width;
+            const H = ratingCanvas.height;
+            ratingCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Gridlines
+            ratingCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            ratingCtx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padT + (plotH / 5) * i;
+                ratingCtx.beginPath();
+                ratingCtx.moveTo(padL, y);
+                ratingCtx.lineTo(W - padR, y);
+                ratingCtx.stroke();
+            }
+
+            const maxPd = Math.max(0.05, Math.min(1.0, ratingCurveData[10].cumPd * 1.25));
+
+            // Draw Cumulative PD curve
+            ratingCtx.beginPath();
+            ratingCurveData.forEach((pt, i) => {
+                const x = padL + (pt.year / 10) * plotW;
+                const y = padT + plotH - (pt.cumPd / maxPd) * plotH;
+                if (i === 0) ratingCtx.moveTo(x, y);
+                else ratingCtx.lineTo(x, y);
+            });
+            ratingCtx.strokeStyle = '#ef4444';
+            ratingCtx.lineWidth = 3;
+            ratingCtx.stroke();
+
+            // Fill gradient under curve
+            ratingCtx.lineTo(padL + plotW, padT + plotH);
+            ratingCtx.lineTo(padL, padT + plotH);
+            ratingCtx.closePath();
+            const grad = ratingCtx.createLinearGradient(0, padT, 0, padT + plotH);
+            grad.addColorStop(0, 'rgba(220, 38, 38, 0.2)');
+            grad.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
+            ratingCtx.fillStyle = grad;
+            ratingCtx.fill();
+
+            // Data dots
+            ratingCurveData.forEach(pt => {
+                const x = padL + (pt.year / 10) * plotW;
+                const y = padT + plotH - (pt.cumPd / maxPd) * plotH;
+                ratingCtx.fillStyle = '#ef4444';
+                ratingCtx.beginPath();
+                ratingCtx.arc(x, y, 4, 0, Math.PI * 2);
+                ratingCtx.fill();
+            });
+
+            // Axes & Labels
+            ratingCtx.strokeStyle = '#64748b';
+            ratingCtx.lineWidth = 1;
+            ratingCtx.beginPath();
+            ratingCtx.moveTo(padL, padT);
+            ratingCtx.lineTo(padL, padT + plotH);
+            ratingCtx.lineTo(W - padR, padT + plotH);
+            ratingCtx.stroke();
+
+            ratingCtx.fillStyle = '#94a3b8';
+            ratingCtx.font = '11px Inter';
+            ratingCtx.fillText('Projection Horizon (Years)', W / 2 - 60, H - 10);
+
+            for (let t = 0; t <= 10; t += 2) {
+                const x = padL + (t / 10) * plotW;
+                ratingCtx.fillText('T=' + t, x - 10, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 5; i++) {
+                const val = (maxPd * (1 - i / 5) * 100).toFixed(1) + '%';
+                const y = padT + (plotH / 5) * i;
+                ratingCtx.fillText(val, padL - 48, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (ratingHoverX !== null && ratingHoverX >= padL && ratingHoverX <= W - padR) {
+                const normX = (ratingHoverX - padL) / plotW;
+                const hoveredYear = Math.min(10, Math.max(0, Math.round(normX * 10)));
+                const pt = ratingCurveData[hoveredYear];
+
+                const snapX = padL + (pt.year / 10) * plotW;
+                const snapY = padT + plotH - (pt.cumPd / maxPd) * plotH;
+
+                ratingCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ratingCtx.setLineDash([2, 2]);
+                ratingCtx.beginPath();
+                ratingCtx.moveTo(snapX, padT);
+                ratingCtx.lineTo(snapX, padT + plotH);
+                ratingCtx.stroke();
+                ratingCtx.setLineDash([]);
+
+                ratingCtx.fillStyle = '#ffffff';
+                ratingCtx.beginPath();
+                ratingCtx.arc(snapX, snapY, 6, 0, Math.PI * 2);
+                ratingCtx.fill();
+                ratingCtx.strokeStyle = '#ef4444';
+                ratingCtx.lineWidth = 2;
+                ratingCtx.stroke();
+
+                ratingHud.style.display = 'block';
+                document.getElementById('hud-rating-year').textContent = 'Year ' + pt.year;
+                document.getElementById('hud-rating-pd').textContent = (pt.cumPd * 100).toFixed(2) + '%';
+                document.getElementById('hud-rating-surv').textContent = (pt.survival * 100).toFixed(2) + '%';
+                document.getElementById('hud-rating-marg').textContent = (pt.marginalPd * 100).toFixed(2) + '%';
+            }
+        }
+
+        ratingCanvas.addEventListener('mousemove', e => {
+            const rect = ratingCanvas.getBoundingClientRect();
+            const scaleX = ratingCanvas.width / rect.width;
+            ratingHoverX = (e.clientX - rect.left) * scaleX;
+            drawRatingChart();
+        });
+
+        ratingCanvas.addEventListener('mouseleave', () => {
+            ratingHoverX = null;
+            ratingHud.style.display = 'none';
+            drawRatingChart();
+        });
+
+        /* ==========================================================================
+           TAB 3: MERTON STRUCTURAL MODEL SIMULATOR
+           ========================================================================== */
+        const inMertonV = document.getElementById('input-merton-v');
+        const inMertonD = document.getElementById('input-merton-d');
+        const inMertonVol = document.getElementById('input-merton-vol');
+        const inMertonT = document.getElementById('input-merton-t');
+
+        function updateMerton() {
+            const V = parseFloat(inMertonV.value);
+            const D = parseFloat(inMertonD.value);
+            const vol = parseFloat(inMertonVol.value) / 100;
+            const T = parseFloat(inMertonT.value);
+            const r = 0.03; // 3% risk-free benchmark
+
+            document.getElementById('val-merton-v').textContent = '$' + V + 'M';
+            document.getElementById('val-merton-d').textContent = '$' + D + 'M';
+            document.getElementById('val-merton-vol').textContent = inMertonVol.value + '%';
+            document.getElementById('val-merton-t').textContent = T.toFixed(1) + ' Years';
+
+            // Distance to default: DD = (ln(V/D) + (r - 0.5*vol^2)*T) / (vol * sqrt(T))
+            const numerator = Math.log(V / D) + (r - 0.5 * vol * vol) * T;
+            const denom = vol * Math.sqrt(T);
+            const dd = numerator / denom;
+            const pd = normCdf(-dd);
+
+            // BSM Call formula for Equity
+            const d1 = (Math.log(V / D) + (r + 0.5 * vol * vol) * T) / (vol * Math.sqrt(T));
+            const d2 = d1 - vol * Math.sqrt(T);
+            const equity = V * normCdf(d1) - D * Math.exp(-r * T) * normCdf(d2);
+            const debt = V - equity;
+
+            // Implied spread = -ln(Debt / (D * exp(-rT))) / T
+            const impliedYield = -Math.log(debt / D) / T;
+            const spreadBps = Math.max(0, (impliedYield - r) * 10000);
+
+            document.getElementById('kpi-merton-dd').textContent = dd.toFixed(2) + ' σ';
+            document.getElementById('kpi-merton-pd').textContent = (pd * 100).toFixed(2) + '%';
+            document.getElementById('kpi-merton-equity').textContent = '$' + equity.toFixed(1) + 'M';
+            document.getElementById('kpi-merton-debt').textContent = '$' + debt.toFixed(1) + 'M';
+            document.getElementById('kpi-merton-spread').textContent = Math.round(spreadBps) + ' bps';
+
+            drawMerton();
+        }
+
+        function reinitMerton() {
+            inMertonV.value = 100;
+            inMertonD.value = 80;
+            inMertonVol.value = 25;
+            inMertonT.value = 3.0;
+            updateMerton();
+        }
+
+        const mertonCanvas = document.getElementById('mertonCanvas');
+        const mertonCtx = mertonCanvas.getContext('2d');
+        const mertonHud = document.getElementById('mertonHud');
+        let mertonHoverX = null;
+
+        function drawMerton() {
+            if (!mertonCanvas) return;
+            const W = mertonCanvas.width;
+            const H = mertonCanvas.height;
+            mertonCtx.clearRect(0, 0, W, H);
+
+            const V = parseFloat(inMertonV.value);
+            const D = parseFloat(inMertonD.value);
+            const vol = parseFloat(inMertonVol.value) / 100;
+            const T = parseFloat(inMertonT.value);
+            const r = 0.03;
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Lognormal distribution parameters at T
+            const muLognorm = Math.log(V) + (r - 0.5 * vol * vol) * T;
+            const sigmaLognorm = vol * Math.sqrt(T);
+
+            const minV = Math.max(1, V * Math.exp(-3 * sigmaLognorm));
+            const maxV = V * Math.exp(3.5 * sigmaLognorm);
+
+            function lognormPdf(x) {
+                if (x <= 0) return 0;
+                return (1 / (x * sigmaLognorm * Math.sqrt(2 * Math.PI))) *
+                       Math.exp(-Math.pow(Math.log(x) - muLognorm, 2) / (2 * sigmaLognorm * sigmaLognorm));
+            }
+
+            // Find peak density
+            const modeV = Math.exp(muLognorm - sigmaLognorm * sigmaLognorm);
+            const maxDens = lognormPdf(modeV) || 1;
+
+            // Gridlines
+            mertonCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            mertonCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                mertonCtx.beginPath();
+                mertonCtx.moveTo(padL, y);
+                mertonCtx.lineTo(W - padR, y);
+                mertonCtx.stroke();
+            }
+
+            // Default Barrier X
+            const barrierX = padL + ((D - minV) / (maxV - minV)) * plotW;
+
+            // Shaded Default Zone (left of barrier)
+            if (barrierX > padL) {
+                mertonCtx.beginPath();
+                mertonCtx.moveTo(padL, padT + plotH);
+
+                const steps = 100;
+                for (let i = 0; i <= steps; i++) {
+                    const curV = minV + (i / steps) * (D - minV);
+                    const curX = padL + ((curV - minV) / (maxV - minV)) * plotW;
+                    const curDens = lognormPdf(curV);
+                    const curY = padT + plotH - (curDens / maxDens) * plotH;
+                    mertonCtx.lineTo(curX, curY);
+                }
+                mertonCtx.lineTo(barrierX, padT + plotH);
+                mertonCtx.closePath();
+                mertonCtx.fillStyle = 'rgba(220, 38, 38, 0.35)';
+                mertonCtx.fill();
+            }
+
+            // Full distribution curve
+            mertonCtx.beginPath();
+            const totalSteps = 200;
+            for (let i = 0; i <= totalSteps; i++) {
+                const curV = minV + (i / totalSteps) * (maxV - minV);
+                const curX = padL + ((curV - minV) / (maxV - minV)) * plotW;
+                const curDens = lognormPdf(curV);
+                const curY = padT + plotH - (curDens / maxDens) * plotH;
+                if (i === 0) mertonCtx.moveTo(curX, curY);
+                else mertonCtx.lineTo(curX, curY);
+            }
+            mertonCtx.strokeStyle = '#38bdf8';
+            mertonCtx.lineWidth = 2.5;
+            mertonCtx.stroke();
+
+            // Default Barrier Line
+            if (barrierX >= padL && barrierX <= W - padR) {
+                mertonCtx.strokeStyle = '#ef4444';
+                mertonCtx.setLineDash([5, 4]);
+                mertonCtx.lineWidth = 2;
+                mertonCtx.beginPath();
+                mertonCtx.moveTo(barrierX, padT);
+                mertonCtx.lineTo(barrierX, padT + plotH);
+                mertonCtx.stroke();
+                mertonCtx.setLineDash([]);
+
+                mertonCtx.fillStyle = '#ef4444';
+                mertonCtx.font = '11px JetBrains Mono';
+                mertonCtx.fillText('Debt Barrier D = $' + D + 'M', barrierX + 6, padT + 20);
+            }
+
+            // Axes & Labels
+            mertonCtx.strokeStyle = '#64748b';
+            mertonCtx.lineWidth = 1;
+            mertonCtx.beginPath();
+            mertonCtx.moveTo(padL, padT);
+            mertonCtx.lineTo(padL, padT + plotH);
+            mertonCtx.lineTo(W - padR, padT + plotH);
+            mertonCtx.stroke();
+
+            mertonCtx.fillStyle = '#94a3b8';
+            mertonCtx.font = '11px Inter';
+            mertonCtx.fillText('Terminal Firm Asset Value at T ($ Millions)', W / 2 - 100, H - 10);
+
+            for (let i = 0; i <= 5; i++) {
+                const curV = Math.round(minV + (i / 5) * (maxV - minV));
+                const x = padL + (plotW / 5) * i;
+                mertonCtx.fillText('$' + curV + 'M', x - 14, padT + plotH + 18);
+            }
+
+            // Crosshair hover tracking
+            if (mertonHoverX !== null && mertonHoverX >= padL && mertonHoverX <= W - padR) {
+                const normX = (mertonHoverX - padL) / plotW;
+                const hoveredV = minV + normX * (maxV - minV);
+                const hoveredDens = lognormPdf(hoveredV);
+                const hoveredY = padT + plotH - (hoveredDens / maxDens) * plotH;
+
+                mertonCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                mertonCtx.setLineDash([2, 2]);
+                mertonCtx.beginPath();
+                mertonCtx.moveTo(mertonHoverX, padT);
+                mertonCtx.lineTo(mertonHoverX, padT + plotH);
+                mertonCtx.stroke();
+                mertonCtx.setLineDash([]);
+
+                mertonCtx.fillStyle = hoveredV < D ? '#ef4444' : '#38bdf8';
+                mertonCtx.beginPath();
+                mertonCtx.arc(mertonHoverX, hoveredY, 5, 0, Math.PI * 2);
+                mertonCtx.fill();
+                mertonCtx.strokeStyle = '#ffffff';
+                mertonCtx.lineWidth = 2;
+                mertonCtx.stroke();
+
+                mertonHud.style.display = 'block';
+                document.getElementById('hud-merton-v').textContent = '$' + hoveredV.toFixed(1) + 'M';
+                document.getElementById('hud-merton-density').textContent = hoveredDens.toFixed(4);
+                document.getElementById('hud-merton-status').textContent = hoveredV < D ? 'DEFAULT ZONE' : 'SOLVENT (Equity Value)';
+                document.getElementById('hud-merton-status').style.color = hoveredV < D ? '#ef4444' : '#34d399';
+            }
+        }
+
+        mertonCanvas.addEventListener('mousemove', e => {
+            const rect = mertonCanvas.getBoundingClientRect();
+            const scaleX = mertonCanvas.width / rect.width;
+            mertonHoverX = (e.clientX - rect.left) * scaleX;
+            drawMerton();
+        });
+
+        mertonCanvas.addEventListener('mouseleave', () => {
+            mertonHoverX = null;
+            mertonHud.style.display = 'none';
+            drawMerton();
+        });
+
+        /* ==========================================================================
+           TAB 4: RISKY DURATION CALCULATOR & CHART
+           ========================================================================== */
+        const inDurCpn = document.getElementById('input-dur-coupon');
+        const inDurMat = document.getElementById('input-dur-mat');
+        const inDurRf = document.getElementById('input-dur-rf');
+        const inDurHaz = document.getElementById('input-dur-hazard');
+
+        function updateDuration() {
+            const cpn = parseFloat(inDurCpn.value) / 100;
+            const mat = parseInt(inDurMat.value);
+            const rf = parseFloat(inDurRf.value) / 100;
+            const haz = parseFloat(inDurHaz.value) / 10000;
+            const rec = 0.40; // 40% standard recovery
+
+            document.getElementById('val-dur-coupon').textContent = inDurCpn.value + '%';
+            document.getElementById('val-dur-mat').textContent = mat + ' Years';
+            document.getElementById('val-dur-rf').textContent = inDurRf.value + '%';
+            document.getElementById('val-dur-hazard').textContent = inDurHaz.value + ' bps';
+
+            // Risk-free bond price & duration
+            let priceRf = 0;
+            let weightedTimeRf = 0;
+            for (let t = 1; t <= mat; t++) {
+                const cf = t === mat ? cpn * 100 + 100 : cpn * 100;
+                const df = Math.exp(-rf * t);
+                priceRf += cf * df;
+                weightedTimeRf += t * cf * df;
+            }
+            const modDurRf = (weightedTimeRf / priceRf) / (1 + rf);
+
+            // Risky bond price & duration with default
+            let priceRisky = 0;
+            let weightedTimeRisky = 0;
+            for (let t = 1; t <= mat; t++) {
+                const cf = t === mat ? cpn * 100 + 100 : cpn * 100;
+                const surv = Math.exp(-haz * t);
+                const df = Math.exp(-rf * t);
+                priceRisky += cf * df * surv;
+                weightedTimeRisky += t * cf * df * surv;
+            }
+            // Add expected recovery on default
+            const defProb = 1 - Math.exp(-haz * mat);
+            priceRisky += 100 * rec * defProb * Math.exp(-rf * (mat / 2));
+
+            const riskyDur = weightedTimeRisky / priceRisky;
+            const gap = riskyDur - modDurRf;
+            const pv01 = (10e6 * (riskyDur / 100) * 0.0001) * 100;
+
+            document.getElementById('kpi-dur-rf').textContent = modDurRf.toFixed(2) + ' yrs';
+            document.getElementById('kpi-dur-risky').textContent = riskyDur.toFixed(2) + ' yrs';
+            document.getElementById('kpi-dur-gap').textContent = (gap >= 0 ? '+' : '') + gap.toFixed(2) + ' yrs';
+            document.getElementById('kpi-dur-pv01').textContent = '$' + Math.round(pv01).toLocaleString();
+
+            drawDuration();
+        }
+
+        function reinitDuration() {
+            inDurCpn.value = 5.0;
+            inDurMat.value = 10;
+            inDurRf.value = 3.0;
+            inDurHaz.value = 300;
+            updateDuration();
+        }
+
+        const durCanvas = document.getElementById('durationCanvas');
+        const durCtx = durCanvas.getContext('2d');
+        const durHud = document.getElementById('durHud');
+        let durHoverX = null;
+
+        function drawDuration() {
+            if (!durCanvas) return;
+            const W = durCanvas.width;
+            const H = durCanvas.height;
+            durCtx.clearRect(0, 0, W, H);
+
+            const cpn = parseFloat(inDurCpn.value) / 100;
+            const mat = parseInt(inDurMat.value);
+            const rf = parseFloat(inDurRf.value) / 100;
+            const haz = parseFloat(inDurHaz.value) / 10000;
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Plot Price-Yield curve from -200 bps to +200 bps yield shifts
+            const shifts = [];
+            const steps = 80;
+            for (let i = 0; i <= steps; i++) {
+                const shiftBps = -200 + (400 * i) / steps;
+                const dy = shiftBps / 10000;
+
+                // Price Risk Free
+                let pRf = 0;
+                for (let t = 1; t <= mat; t++) {
+                    const cf = t === mat ? cpn * 100 + 100 : cpn * 100;
+                    pRf += cf * Math.exp(-(rf + dy) * t);
+                }
+
+                // Price Risky
+                let pRk = 0;
+                for (let t = 1; t <= mat; t++) {
+                    const cf = t === mat ? cpn * 100 + 100 : cpn * 100;
+                    pRk += cf * Math.exp(-(rf + dy) * t) * Math.exp(-haz * t);
+                }
+                pRk += 40 * (1 - Math.exp(-haz * mat)) * Math.exp(-(rf + dy) * (mat / 2));
+
+                shifts.push({ shiftBps, pRf, pRk });
+            }
+
+            const minP = Math.min(...shifts.map(s => s.pRk)) * 0.9;
+            const maxP = Math.max(...shifts.map(s => s.pRf)) * 1.05;
+
+            // Gridlines
+            durCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            durCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                durCtx.beginPath();
+                durCtx.moveTo(padL, y);
+                durCtx.lineTo(W - padR, y);
+                durCtx.stroke();
+            }
+
+            // Draw Risk-Free Price Curve
+            durCtx.beginPath();
+            shifts.forEach((s, i) => {
+                const x = padL + (i / steps) * plotW;
+                const y = padT + plotH - ((s.pRf - minP) / (maxP - minP)) * plotH;
+                if (i === 0) durCtx.moveTo(x, y);
+                else durCtx.lineTo(x, y);
+            });
+            durCtx.strokeStyle = '#38bdf8';
+            durCtx.lineWidth = 2.5;
+            durCtx.stroke();
+
+            // Draw Risky Price Curve
+            durCtx.beginPath();
+            shifts.forEach((s, i) => {
+                const x = padL + (i / steps) * plotW;
+                const y = padT + plotH - ((s.pRk - minP) / (maxP - minP)) * plotH;
+                if (i === 0) durCtx.moveTo(x, y);
+                else durCtx.lineTo(x, y);
+            });
+            durCtx.strokeStyle = '#ef4444';
+            durCtx.lineWidth = 2.5;
+            durCtx.stroke();
+
+            // Legend
+            durCtx.fillStyle = '#38bdf8';
+            durCtx.font = '11px JetBrains Mono';
+            durCtx.fillText('■ Sovereign (Risk-Free)', padL + 20, padT + 20);
+
+            durCtx.fillStyle = '#ef4444';
+            durCtx.fillText('■ Corporate (Risky)', padL + 200, padT + 20);
+
+            // Axes & Labels
+            durCtx.strokeStyle = '#64748b';
+            durCtx.lineWidth = 1;
+            durCtx.beginPath();
+            durCtx.moveTo(padL, padT);
+            durCtx.lineTo(padL, padT + plotH);
+            durCtx.lineTo(W - padR, padT + plotH);
+            durCtx.stroke();
+
+            durCtx.fillStyle = '#94a3b8';
+            durCtx.font = '11px Inter';
+            durCtx.fillText('Yield Shift (Basis Points)', W / 2 - 60, H - 10);
+
+            for (let i = 0; i <= 4; i++) {
+                const bps = -200 + i * 100;
+                const x = padL + (plotW / 4) * i;
+                durCtx.fillText((bps > 0 ? '+' : '') + bps + ' bp', x - 18, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const priceVal = (minP + (maxP - minP) * (1 - i / 4)).toFixed(0);
+                const y = padT + (plotH / 4) * i;
+                durCtx.fillText('$' + priceVal, padL - 40, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (durHoverX !== null && durHoverX >= padL && durHoverX <= W - padR) {
+                const normX = (durHoverX - padL) / plotW;
+                const idx = Math.min(steps, Math.max(0, Math.round(normX * steps)));
+                const pt = shifts[idx];
+
+                const yRf = padT + plotH - ((pt.pRf - minP) / (maxP - minP)) * plotH;
+                const yRk = padT + plotH - ((pt.pRk - minP) / (maxP - minP)) * plotH;
+
+                durCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                durCtx.setLineDash([2, 2]);
+                durCtx.beginPath();
+                durCtx.moveTo(durHoverX, padT);
+                durCtx.lineTo(durHoverX, padT + plotH);
+                durCtx.stroke();
+                durCtx.setLineDash([]);
+
+                durCtx.fillStyle = '#38bdf8';
+                durCtx.beginPath();
+                durCtx.arc(durHoverX, yRf, 5, 0, Math.PI * 2);
+                durCtx.fill();
+
+                durCtx.fillStyle = '#ef4444';
+                durCtx.beginPath();
+                durCtx.arc(durHoverX, yRk, 5, 0, Math.PI * 2);
+                durCtx.fill();
+
+                durHud.style.display = 'block';
+                document.getElementById('hud-dur-shift').textContent = (pt.shiftBps > 0 ? '+' : '') + pt.shiftBps.toFixed(0) + ' bps';
+                document.getElementById('hud-dur-rfprice').textContent = '$' + pt.pRf.toFixed(2);
+                document.getElementById('hud-dur-riskprice').textContent = '$' + pt.pRk.toFixed(2);
+            }
+        }
+
+        durCanvas.addEventListener('mousemove', e => {
+            const rect = durCanvas.getBoundingClientRect();
+            const scaleX = durCanvas.width / rect.width;
+            durHoverX = (e.clientX - rect.left) * scaleX;
+            drawDuration();
+        });
+
+        durCanvas.addEventListener('mouseleave', () => {
+            durHoverX = null;
+            durHud.style.display = 'none';
+            drawDuration();
+        });
+
+        /* ==========================================================================
+           TAB 5: BASEL AIRB CALCULATOR
+           ========================================================================== */
+        const inAirbEad = document.getElementById('input-airb-ead');
+        const inAirbPd = document.getElementById('input-airb-pd');
+        const inAirbLgd = document.getElementById('input-airb-lgd');
+        const inAirbRho = document.getElementById('input-airb-rho');
+
+        function updateAirb() {
+            const ead = parseFloat(inAirbEad.value) * 1e6;
+            const pd = parseFloat(inAirbPd.value) / 100;
+            const lgd = parseFloat(inAirbLgd.value) / 100;
+            const rho = parseFloat(inAirbRho.value) / 100;
+
+            document.getElementById('val-airb-ead').textContent = '$' + inAirbEad.value + 'M';
+            document.getElementById('val-airb-pd').textContent = inAirbPd.value + '%';
+            document.getElementById('val-airb-lgd').textContent = inAirbLgd.value + '%';
+            document.getElementById('val-airb-rho').textContent = inAirbRho.value + '%';
+
+            // Basel AIRB Formula:
+            // K = [LGD * N((N^-1(PD) + sqrt(rho)*N^-1(0.999)) / sqrt(1 - rho)) - PD * LGD] * MaturityAdjustment
+            const invPd = normInv(pd);
+            const inv999 = normInv(0.999);
+            const conditionalPd = normCdf((invPd + Math.sqrt(rho) * inv999) / Math.sqrt(1 - rho));
+            const maturityAdj = 1.0; // Baseline 1-year horizon
+            const k = Math.max(0, (lgd * conditionalPd - pd * lgd) * maturityAdj);
+
+            const rwa = 12.5 * k * ead;
+            const density = (rwa / ead) * 100;
+            const minCap = 0.08 * rwa;
+            const totalCap = 0.12 * rwa;
+
+            document.getElementById('kpi-airb-k').textContent = (k * 100).toFixed(2) + '%';
+            document.getElementById('kpi-airb-rwa').textContent = '$' + (rwa / 1e6).toFixed(1) + 'M';
+            document.getElementById('kpi-airb-density').textContent = density.toFixed(1) + '%';
+            document.getElementById('kpi-airb-mincap').textContent = '$' + (minCap / 1e6).toFixed(2) + 'M';
+            document.getElementById('kpi-airb-cet1').textContent = '$' + (totalCap / 1e6).toFixed(2) + 'M';
+        }
+
+        function reinitAirb() {
+            inAirbEad.value = 50;
+            inAirbPd.value = 0.80;
+            inAirbLgd.value = 45;
+            inAirbRho.value = 18;
+            updateAirb();
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeX Auto-Render
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Initial computations
+            updateELSim();
+            updateRatingSim();
+            updateMerton();
+            updateDuration();
+            updateAirb();
+        });
+    </script>
+</body>
+</html>
