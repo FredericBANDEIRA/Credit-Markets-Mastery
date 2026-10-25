@@ -1,0 +1,2785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 02: Credit Spreads — Credit Academy</title>
+    <meta name="description" content="A rigorous, interactive guide to corporate credit spreads: Z-spread, Asset-Swap Spread (ASW), Option-Adjusted Spread (OAS), spread decomposition, and Cash-CDS basis trading.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        .alert-box.tip {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #a7f3d0;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Formula display container */
+        .formula-card {
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent-bright);
+            margin-bottom: 8px;
+        }
+
+        /* KPI summary stats */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .kpi-card .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-card .kpi-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-card.highlight .kpi-value {
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           CONTROLS & SLIDERS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* ==========================================================================
+           CANVAS CHARTS WRAPPER & TOOLTIP
+           ========================================================================== */
+        .chart-wrapper {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+
+        .chart-hud {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(15, 20, 25, 0.94);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .chart-hud .hud-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            line-height: 1.5;
+        }
+
+        .chart-hud .hud-label {
+            color: var(--text-muted);
+        }
+
+        .chart-hud .hud-val {
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .badge-spread {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .badge-g { color: #60a5fa; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-i { color: #a78bfa; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.3); }
+        .badge-z { color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-asw { color: #fbbf24; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-oas { color: #f87171; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        .interview-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-bright);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">02</span>
+                <span>Credit Spreads</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 02 • Relative Value & Spread Mechanics</div>
+            <h1>Credit Spreads</h1>
+            <p class="hero-description">
+                Mastering the full spectrum of spread metrics: Nominal G-Spread, I-Spread, Zero-Volatility Spread (Z-Spread),
+                Asset-Swap Spread (ASW), Option-Adjusted Spread (OAS), spread decomposition, and Cash-CDS basis trading.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-taxonomy" role="tab">
+                <span class="tab-num">01</span> Spread Taxonomy
+            </button>
+            <button class="tab-btn" data-tab="tab-asw" role="tab">
+                <span class="tab-num">02</span> Z-Spread vs ASW
+            </button>
+            <button class="tab-btn" data-tab="tab-oas" role="tab">
+                <span class="tab-num">03</span> OAS & Optionality
+            </button>
+            <button class="tab-btn" data-tab="tab-decomp" role="tab">
+                <span class="tab-num">04</span> Spread Decomposition
+            </button>
+            <button class="tab-btn" data-tab="tab-basis" role="tab">
+                <span class="tab-num">05</span> Cash-CDS Basis
+            </button>
+            <button class="tab-btn" data-tab="tab-interview" role="tab">
+                <span class="tab-num">06</span> Interview Q&A
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: SPREAD TAXONOMY & DEFINITIONS
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-taxonomy">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📐</span>
+                        <div>
+                            <h2 class="card-title">The Five Major Spread Metrics</h2>
+                            <p class="card-subtitle">From simple maturity matching to full zero-curve discounting and optionality</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Spread Metric</th>
+                                <th>Benchmark Curve</th>
+                                <th>Term Structure Sensitive?</th>
+                                <th>Embedded Options?</th>
+                                <th>Primary Trading Desk Usage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-spread badge-g">G-Spread (Nominal)</span></td>
+                                <td>On-the-run Government Bond</td>
+                                <td>❌ No (Single YTM)</td>
+                                <td>❌ No</td>
+                                <td>Retail quoting, media headlines, preliminary screen.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-spread badge-i">I-Spread</span></td>
+                                <td>Interest Rate Swap Rate (SOFR / €STR)</td>
+                                <td>❌ No (Interpolated Swap)</td>
+                                <td>❌ No</td>
+                                <td>European bond desks, corporate debt origination vs swap curve.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-spread badge-z">Z-Spread (Zero-Vol)</span></td>
+                                <td>Spot (Zero) Curve (Govt or Swap)</td>
+                                <td>✅ Yes (Each cashflow discounted)</td>
+                                <td>❌ No</td>
+                                <td>Standard institutional metric for option-free straight corporate bonds.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-spread badge-asw">Asset Swap (ASW)</span></td>
+                                <td>Floating Rate Note (SOFR/Euribor)</td>
+                                <td>✅ Yes (Via swap legs)</td>
+                                <td>❌ No</td>
+                                <td>Relative value desks, funding packages, synthetic credit replication.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-spread badge-oas">OAS (Option-Adjusted)</span></td>
+                                <td>Spot Curve + Volatility Tree</td>
+                                <td>✅ Yes (Monte Carlo / Trees)</td>
+                                <td>✅ Yes (Stripped)</td>
+                                <td>Callable/putable corporate bonds, MBS, structured high-yield debt.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid-2" style="margin-top: 24px;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 1rem;">1. Why G-Spread Is Flawed</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 12px;">
+                            The G-spread simply takes $YTM_{\text{corp}} - YTM_{\text{treasury}}$. This creates severe distortion when:
+                        </p>
+                        <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+                            <li>The yield curve is steeply sloped: a 10-year corporate bond with an 8-year duration is compared against a 10-year Treasury, distorting the true spread.</li>
+                            <li>Cash flow profiles differ: high-coupon bonds return capital much faster than par Treasuries.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 1rem;">2. The Rigor of the Z-Spread</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 12px;">
+                            The Zero-Volatility Spread adds a <em>constant basis point parallel shift</em> ($Z$) to every spot zero rate $z_t$ across the benchmark curve to equate present value to price:
+                        </p>
+                        <div class="formula-card" style="margin: 0;">
+                            $$P_{\text{dirty}} = \sum_{t=1}^N \frac{CF_t}{\left(1 + z_t + Z\right)^t}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE Z-SPREAD SOLVER -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🧮</span>
+                        <div>
+                            <h2 class="card-title">Interactive Z-Spread & Discounting Engine</h2>
+                            <p class="card-subtitle">Solve the exact Z-spread from bond clean price and benchmark zero spot rates</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitZSpread()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Bond Clean Price</span>
+                            <span class="control-value" id="val-z-price">98.50</span>
+                        </div>
+                        <input type="range" id="input-z-price" min="70.0" max="130.0" step="0.25" value="98.50" oninput="updateZSpread()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Coupon Rate (% p.a.)</span>
+                            <span class="control-value" id="val-z-coupon">4.50%</span>
+                        </div>
+                        <input type="range" id="input-z-coupon" min="0.0" max="10.0" step="0.25" value="4.50" oninput="updateZSpread()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Maturity (Years)</span>
+                            <span class="control-value" id="val-z-mat">5 Years</span>
+                        </div>
+                        <input type="range" id="input-z-mat" min="1" max="15" step="1" value="5" oninput="updateZSpread()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Benchmark Curve Slope</span>
+                            <span class="control-value" id="val-z-slope">+100 bps (Normal)</span>
+                        </div>
+                        <input type="range" id="input-z-slope" min="-100" max="250" step="25" value="100" oninput="updateZSpread()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Zero-Volatility Spread (Z)</span>
+                        <span class="kpi-value" id="kpi-z-spread">142 bps</span>
+                        <span class="kpi-sub">Exact zero-curve shift</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Bond Yield to Maturity</span>
+                        <span class="kpi-value" id="kpi-z-ytm">4.85%</span>
+                        <span class="kpi-sub">Semi-annual compounding</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Nominal G-Spread</span>
+                        <span class="kpi-value" id="kpi-z-gspread">135 bps</span>
+                        <span class="kpi-sub">vs 5Y Benchmark Govt (3.50%)</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Curvature Effect ($Z - G$)</span>
+                        <span class="kpi-value" id="kpi-z-diff">+7 bps</span>
+                        <span class="kpi-sub">Convexity & slope distortion</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="zCurveCanvas" width="900" height="280"></canvas>
+                    <div class="chart-hud" id="zHud">
+                        <div class="hud-row"><span class="hud-label">Maturity:</span><span class="hud-val" id="hud-z-mat">1.0y</span></div>
+                        <div class="hud-row"><span class="hud-label">Spot Zero Rate:</span><span class="hud-val" id="hud-z-spot">3.00%</span></div>
+                        <div class="hud-row"><span class="hud-label">Discounted CF:</span><span class="hud-val" id="hud-z-cf">$4.50</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: Z-SPREAD VS ASSET SWAP (ASW) SPREAD
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-asw">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🔄</span>
+                        <div>
+                            <h2 class="card-title">Z-Spread vs Asset Swap (ASW) Spread Mechanics</h2>
+                            <p class="card-subtitle">Par-Par Asset Swaps, Proceeds Asset Swaps, and the Premium/Discount divergence</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    An <strong>Asset Swap (ASW)</strong> converts a fixed-rate corporate bond into a synthetic floating-rate note (FRN) paying $\text{SOFR} + ASW$. In an institutional <em>Par-Par Asset Swap</em>:
+                </p>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">Leg 1: Bond Purchase</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            The investor buys the bond at market price $P$. If $P \neq 100$, an upfront exchange is made with the swap counterparty to bridge the gap between market value and par ($100 - P$).
+                        </p>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">Leg 2: The Swap Package</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            The investor passes the fixed bond coupon $C$ to the dealer and receives floating reference rate + constant spread: $\text{Floating} = \text{SOFR} + ASW_{\text{par}}$.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">The Par-Par Asset Swap Formula & Relationship to Z-Spread</div>
+                    $$ASW_{\text{par}} \approx \frac{C - S_{\text{swap}} + (100 - P) / \text{Annuity}}{P / 100} \approx Z\text{-Spread} + \frac{100 - P}{PV01}$$
+                </div>
+
+                <div class="alert-box tip">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>The Par Divergence Rule (Crucial for Interviews):</strong>
+                        <ul style="padding-left: 18px; margin-top: 6px;">
+                            <li><strong>Par Bond ($P = 100$):</strong> $ASW = Z\text{-Spread}$. The two metrics are identical!</li>
+                            <li><strong>Discount Bond ($P < 100$):</strong> $ASW > Z\text{-Spread}$. In a par-par swap, the investor pays only $P < 100$ but receives $100$ at maturity from the issuer. The swap dealer amortizes this upfront capital gain into a higher running spread.</li>
+                            <li><strong>Premium Bond ($P > 100$):</strong> $ASW < Z\text{-Spread}$. The investor paid $P > 100$ but receives only $100$ at maturity; the running spread is penalized to absorb the upfront loss.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE ASW VS Z-SPREAD SIMULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📊</span>
+                        <div>
+                            <h2 class="card-title">Live ASW vs Z-Spread Divergence Explorer</h2>
+                            <p class="card-subtitle">Examine how bond price premia/discounts distort running asset swap spreads</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitAsw()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Bond Market Price</span>
+                            <span class="control-value" id="val-asw-price">108.00 (Premium)</span>
+                        </div>
+                        <input type="range" id="input-asw-price" min="70.0" max="130.0" step="1.0" value="108.00" oninput="updateAsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>True Credit Risk (Z-Spread)</span>
+                            <span class="control-value" id="val-asw-z">150 bps</span>
+                        </div>
+                        <input type="range" id="input-asw-z" min="25" max="600" step="25" value="150" oninput="updateAsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Bond Maturity</span>
+                            <span class="control-value" id="val-asw-mat">5 Years</span>
+                        </div>
+                        <input type="range" id="input-asw-mat" min="2" max="15" step="1" value="5" oninput="updateAsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Par Swap Rate ($S_{\text{swap}}$)</span>
+                            <span class="control-value" id="val-asw-swap">3.50%</span>
+                        </div>
+                        <input type="range" id="input-asw-swap" min="1.0" max="7.0" step="0.25" value="3.50" oninput="updateAsw()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <span class="kpi-label">Zero-Vol Spread (Z)</span>
+                        <span class="kpi-value" id="kpi-asw-z">150 bps</span>
+                        <span class="kpi-sub">Pure zero-curve spread</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Par-Par Asset Swap (ASW)</span>
+                        <span class="kpi-value" id="kpi-asw-par">131 bps</span>
+                        <span class="kpi-sub">Running floating spread</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Spread Divergence ($ASW - Z$)</span>
+                        <span class="kpi-value" id="kpi-asw-diff">-19 bps</span>
+                        <span class="kpi-sub">Penalty for premium bond</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Proceeds (MV) ASW</span>
+                        <span class="kpi-value" id="kpi-asw-mv">147 bps</span>
+                        <span class="kpi-sub">Market value swap spread</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="aswCanvas" width="900" height="300"></canvas>
+                    <div class="chart-hud" id="aswHud">
+                        <div class="hud-row"><span class="hud-label">Price:</span><span class="hud-val" id="hud-asw-p">$100.0</span></div>
+                        <div class="hud-row"><span class="hud-label">Z-Spread:</span><span class="hud-val" id="hud-asw-z">150 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Par-Par ASW:</span><span class="hud-val" id="hud-asw-val">150 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Gap:</span><span class="hud-val" id="hud-asw-gap">0 bps</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: OPTION-ADJUSTED SPREAD (OAS)
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-oas">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <h2 class="card-title">Option-Adjusted Spread (OAS) & Callable Debt</h2>
+                            <p class="card-subtitle">Stripping embedded interest rate options to reveal true credit and liquidity premia</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Many corporate bonds and high-yield notes are <strong>callable</strong>: the issuer reserves the right to buy back the bond at a specified call price (e.g. 100 or 102) if market rates fall. The bondholder has effectively <em>sold a call option on bond price</em> to the issuer:
+                </p>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">Price Relationship</strong>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$P_{\text{callable}} = P_{\text{straight}} - \text{Call Option Value}$$
+                        </div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 8px;">
+                            Because the option value is positive, the callable bond trades at a lower price and a higher nominal yield than an identical non-callable bond.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">Spread Relationship</strong>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$\text{Z-Spread} = \text{OAS} + \text{Option Cost (bps)}$$
+                        </div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 8px;">
+                            <strong>OAS is strictly less than Z-Spread for callable bonds!</strong> The extra spread in Z-spread is not compensation for credit risk; it is the option premium paid to the investor for capping upside.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE OAS & CALLABLE BOND ANALYZER -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎛️</span>
+                        <div>
+                            <h2 class="card-title">Interactive OAS & Negative Convexity Visualizer</h2>
+                            <p class="card-subtitle">Examine how interest rate volatility inflates option costs and compresses OAS</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitOas()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Bond Coupon</span>
+                            <span class="control-value" id="val-oas-cpn">6.00%</span>
+                        </div>
+                        <input type="range" id="input-oas-cpn" min="2.0" max="10.0" step="0.25" value="6.00" oninput="updateOas()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Call Strike Price</span>
+                            <span class="control-value" id="val-oas-strike">102.00</span>
+                        </div>
+                        <input type="range" id="input-oas-strike" min="98.0" max="105.0" step="0.5" value="102.00" oninput="updateOas()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Rate Volatility ($\sigma$)</span>
+                            <span class="control-value" id="val-oas-vol">18%</span>
+                        </div>
+                        <input type="range" id="input-oas-vol" min="5" max="35" step="1" value="18" oninput="updateOas()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Base Treasury Yield</span>
+                            <span class="control-value" id="val-oas-yield">4.00%</span>
+                        </div>
+                        <input type="range" id="input-oas-yield" min="1.0" max="8.0" step="0.25" value="4.00" oninput="updateOas()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <span class="kpi-label">Nominal Z-Spread</span>
+                        <span class="kpi-value" id="kpi-oas-z">215 bps</span>
+                        <span class="kpi-sub">Total spread over spot curve</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Option-Adjusted Spread (OAS)</span>
+                        <span class="kpi-value" id="kpi-oas-oas">152 bps</span>
+                        <span class="kpi-sub">Pure credit/liquidity spread</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Option Cost in Spread</span>
+                        <span class="kpi-value" id="kpi-oas-optcost">63 bps</span>
+                        <span class="kpi-sub">Payment for short call</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Embedded Option Value</span>
+                        <span class="kpi-value" id="kpi-oas-optval">$2.85</span>
+                        <span class="kpi-sub">Per $100 par value</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="oasCanvas" width="900" height="300"></canvas>
+                    <div class="chart-hud" id="oasHud">
+                        <div class="hud-row"><span class="hud-label">Treasury Yield:</span><span class="hud-val" id="hud-oas-y">4.00%</span></div>
+                        <div class="hud-row"><span class="hud-label">Straight Price:</span><span class="hud-val" id="hud-oas-pstraight">$105.2</span></div>
+                        <div class="hud-row"><span class="hud-label">Callable Price:</span><span class="hud-val" id="hud-oas-pcall">$102.1</span></div>
+                        <div class="hud-row"><span class="hud-label">Convexity:</span><span class="hud-val" id="hud-oas-conv">Negative</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: SPREAD DECOMPOSITION & MACRO DRIVERS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-decomp">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🔬</span>
+                        <div>
+                            <h2 class="card-title">Spread Decomposition & The "Credit Spread Puzzle"</h2>
+                            <p class="card-subtitle">Why market spreads are 2x to 4x larger than empirical default losses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    In financial theory, one might naively expect a corporate bond spread to equal the expected loss rate: $\text{Spread} \approx \text{PD} \times \text{LGD}$. However, empirical studies show that pure default risk accounts for only <strong>25% to 40%</strong> of investment grade corporate bond spreads. The remaining 60% to 75% is composed of risk and liquidity premia:
+                </p>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.92rem;">1. Expected Default Loss</strong>
+                        <div class="formula-card" style="margin: 8px 0;">$$\text{EL} = \text{PD} \times \text{LGD}$$</div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                            The actuarial baseline loss expected from historical default rates.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--amber); font-size: 0.92rem;">2. Credit Risk Premium</strong>
+                        <div class="formula-card" style="margin: 8px 0;">$$\text{CRP} = \lambda_{\text{mkt}} \times \text{Vol}_{\text{credit}}$$</div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                            Compensation for systemic correlation: corporate defaults cluster in recessions when investor marginal utility is highest.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--blue); font-size: 0.92rem;">3. Liquidity & Tax Premium</strong>
+                        <div class="formula-card" style="margin: 8px 0;">$$\text{LP} = \text{Funding} + \text{BidAsk}$$</div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                            Cost of holding illiquid inventory, financing haircuts in repo, and state/local tax differentials vs Treasuries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE SPREAD DECOMPOSITION SIMULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📊</span>
+                        <div>
+                            <h2 class="card-title">Interactive Spread Waterfall & Component Decomposer</h2>
+                            <p class="card-subtitle">Adjust macro stress and liquidity conditions to decompose total market spread</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitDecomp()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>1-Year Default Probability (PD)</span>
+                            <span class="control-value" id="val-decomp-pd">0.60%</span>
+                        </div>
+                        <input type="range" id="input-decomp-pd" min="0.05" max="5.0" step="0.05" value="0.60" oninput="updateDecomp()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Loss Given Default (LGD)</span>
+                            <span class="control-value" id="val-decomp-lgd">60%</span>
+                        </div>
+                        <input type="range" id="input-decomp-lgd" min="20" max="90" step="5" value="60" oninput="updateDecomp()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Macro Risk Aversion Level</span>
+                            <span class="control-value" id="val-decomp-aversion">Medium (1.5x)</span>
+                        </div>
+                        <input type="range" id="input-decomp-aversion" min="1.0" max="3.5" step="0.25" value="1.5" oninput="updateDecomp()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Market Liquidity Stress</span>
+                            <span class="control-value" id="val-decomp-liq">Normal (30 bps)</span>
+                        </div>
+                        <input type="range" id="input-decomp-liq" min="10" max="150" step="10" value="30" oninput="updateDecomp()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Total Market Spread</span>
+                        <span class="kpi-value" id="kpi-decomp-total">138 bps</span>
+                        <span class="kpi-sub">Observed corporate spread</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Expected Default Loss</span>
+                        <span class="kpi-value" id="kpi-decomp-el">36 bps</span>
+                        <span class="kpi-sub" id="kpi-decomp-el-pct">26% of total spread</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Credit Risk Premium</span>
+                        <span class="kpi-value" id="kpi-decomp-crp">72 bps</span>
+                        <span class="kpi-sub" id="kpi-decomp-crp-pct">52% of total spread</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Liquidity & Friction Premium</span>
+                        <span class="kpi-value" id="kpi-decomp-liq">30 bps</span>
+                        <span class="kpi-sub" id="kpi-decomp-liq-pct">22% of total spread</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="decompCanvas" width="900" height="280"></canvas>
+                    <div class="chart-hud" id="decompHud">
+                        <div class="hud-row"><span class="hud-label">Component:</span><span class="hud-val" id="hud-decomp-name">Default Loss</span></div>
+                        <div class="hud-row"><span class="hud-label">Spread Value:</span><span class="hud-val" id="hud-decomp-val">36 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Share:</span><span class="hud-val" id="hud-decomp-share">26.1%</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: CASH-CDS BASIS & RELATIVE VALUE TRADING
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-basis">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚖️</span>
+                        <div>
+                            <h2 class="card-title">Cash-CDS Basis & Relative Value Trading</h2>
+                            <p class="card-subtitle">Arbitraging the spread gap between synthetic CDS and physical cash bonds</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">The Master Basis Definition</div>
+                    $$\text{Basis} = \text{CDS Spread} - \text{Cash Bond Spread (over Swap or Benchmark)}$$
+                </div>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--accent-bright); font-size: 1rem;">1. Negative Basis Trade ($\text{Basis} < 0$)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px;">
+                            Occurs when <strong>$\text{CDS} < \text{Cash Spread}$</strong> (cash bond is cheap relative to CDS).
+                        </p>
+                        <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6;">
+                            • <strong>Execution:</strong> Buy Cash Corporate Bond + Buy CDS Protection.<br>
+                            • <strong>Payoff:</strong> Lock in net positive carry: $\text{Bond Yield} - \text{Funding Cost} - \text{CDS Premium} > 0$.<br>
+                            • <strong>Default Protection:</strong> If entity defaults, CDS pays $1 - R$, fully offsetting the cash bond loss!
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--amber); font-size: 1rem;">2. Positive Basis Trade ($\text{Basis} > 0$)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px;">
+                            Occurs when <strong>$\text{CDS} > \text{Cash Spread}$</strong> (CDS is expensive relative to cash).
+                        </p>
+                        <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6;">
+                            • <strong>Execution:</strong> Short Cash Bond via Repo + Sell CDS Protection.<br>
+                            • <strong>Drivers:</strong> Synthetic short demand from macro hedgers who cannot borrow physical bonds, or cheapest-to-deliver option in CDS physical settlements.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE CASH-CDS BASIS SIMULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">💰</span>
+                        <div>
+                            <h2 class="card-title">Interactive Negative Basis Arbitrage Simulator</h2>
+                            <p class="card-subtitle">Calculate net levered carry, funding costs, and repo haircut economics</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitBasis()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Cash Bond Spread ($s_{\text{bond}}$)</span>
+                            <span class="control-value" id="val-basis-cash">240 bps</span>
+                        </div>
+                        <input type="range" id="input-basis-cash" min="50" max="600" step="10" value="240" oninput="updateBasis()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>5Y CDS Spread ($S_{\text{CDS}}$)</span>
+                            <span class="control-value" id="val-basis-cds">190 bps</span>
+                        </div>
+                        <input type="range" id="input-basis-cds" min="50" max="600" step="10" value="190" oninput="updateBasis()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Repo Haircut / Margin</span>
+                            <span class="control-value" id="val-basis-haircut">10%</span>
+                        </div>
+                        <input type="range" id="input-basis-haircut" min="2" max="30" step="1" value="10" oninput="updateBasis()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Repo Funding Spread vs SOFR</span>
+                            <span class="control-value" id="val-basis-repo">+20 bps</span>
+                        </div>
+                        <input type="range" id="input-basis-repo" min="-10" max="80" step="5" value="20" oninput="updateBasis()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Cash-CDS Basis</span>
+                        <span class="kpi-value" id="kpi-basis-basis">-50 bps</span>
+                        <span class="kpi-sub">Negative basis arbitrage</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Net Unlevered Carry</span>
+                        <span class="kpi-value" id="kpi-basis-carry">+30 bps</span>
+                        <span class="kpi-sub">$s_{\text{bond}} - S_{\text{CDS}} - \text{Repo}$</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Levered Return on Equity (ROE)</span>
+                        <span class="kpi-value" id="kpi-basis-roe">3.00%</span>
+                        <span class="kpi-sub">At 10x leverage (10% haircut)</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Annual Dollar P&L ($10M)</span>
+                        <span class="kpi-value" id="kpi-basis-pnl">$30,000</span>
+                        <span class="kpi-sub">Locked-in default-hedged carry</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="basisCanvas" width="900" height="280"></canvas>
+                    <div class="chart-hud" id="basisHud">
+                        <div class="hud-row"><span class="hud-label">Maturity:</span><span class="hud-val" id="hud-basis-t">5 Years</span></div>
+                        <div class="hud-row"><span class="hud-label">Cash Spread:</span><span class="hud-val" id="hud-basis-cash">240 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">CDS Spread:</span><span class="hud-val" id="hud-basis-cds">190 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Net Basis:</span><span class="hud-val" id="hud-basis-net">-50 bps</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: INTERVIEW Q&A
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-interview">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">Credit Spreads Interview Masterclass</h2>
+                            <p class="card-subtitle">8 high-frequency desk and research questions on spread metrics and RV trading</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. What is the fundamental difference between G-Spread, I-Spread, and Z-Spread?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Spread Metrics</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>G-Spread:</strong> Compares the corporate bond's YTM against the YTM of an on-the-run benchmark government bond. It does not account for yield curve shape or maturity mismatch.</li>
+                            <li><strong>I-Spread:</strong> Compares the bond's YTM against an linearly interpolated swap rate (e.g. SOFR/Euribor) of matching maturity.</li>
+                            <li><strong>Z-Spread:</strong> The constant basis point spread added to <em>every spot rate</em> on the benchmark zero curve to discount each individual cash flow to the bond's market price. It is the only metric among the three that properly accounts for the term structure of interest rates.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. Why does the Asset Swap (ASW) spread diverge from the Z-Spread when a bond trades away from par?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">ASW vs Z</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> In a standard <em>Par-Par Asset Swap</em>, the investor pays or receives the difference between market price and par upfront: $(100 - P)$. The swap dealer amortizes this upfront cash flow into the running spread:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Discount Bond ($P < 100$):</strong> $ASW > Z\text{-Spread}$. The investor receives the bond at a discount, and the swap dealer converts that upfront discount into a higher ongoing floating coupon.</li>
+                            <li><strong>Premium Bond ($P > 100$):</strong> $ASW < Z\text{-Spread}$. The investor pays a premium upfront, which penalizes and reduces the running spread over SOFR.</li>
+                        </ul>
+                        <p style="margin-top: 8px;">Only at par ($P = 100$) does $ASW = Z\text{-Spread}$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. Walk me through Option-Adjusted Spread (OAS). Why is OAS strictly less than Z-Spread for a callable bond?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Optionality & OAS</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> When an investor buys a callable bond, they are effectively buying a straight bond and <strong>selling a call option</strong> to the issuer on the bond's price:</p>
+                        <div class="formula-card" style="margin: 8px 0;">$$P_{\text{callable}} = P_{\text{straight}} - \text{Call Option Value}$$</div>
+                        <p>Because the bond price is lower, its nominal yield and Z-Spread are higher. The Z-Spread contains two parts: $\text{Z-Spread} = \text{OAS} + \text{Option Cost (bps)}$.</p>
+                        <p style="margin-top: 8px;">The <strong>Option-Adjusted Spread (OAS)</strong> strips out the cost of this embedded option using a binomial rate tree or Monte Carlo simulation, isolating the <em>pure credit and liquidity risk</em>. Therefore, for a callable bond, $\text{OAS} < \text{Z-Spread}$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. Explain the Negative Cash-CDS Basis trade. If it offers positive carry with hedged default, why does it persist?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Basis Trading</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> A negative basis ($\text{CDS Spread} < \text{Bond Credit Spread}$) allows a relative value trader to <strong>buy the cash bond and buy CDS protection</strong>, earning a net positive carry while fully covered against default.</p>
+                        <p style="margin-top: 8px;"><strong>Why it persists (Limits to Arbitrage):</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Funding & Repo Haircuts:</strong> Banks and hedge funds must fund the cash bond via repo, requiring 5%–15% equity haircut and paying repo financing spreads.</li>
+                            <li><strong>Counterparty Risk:</strong> The CDS protection seller could default simultaneously during a systemic crisis.</li>
+                            <li><strong>Delivery & Restructuring Risk:</strong> The CDS contract may expire before the bond matures, or the credit event definition might not cover certain debt restructurings.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. What is the "Credit Spread Puzzle" and how do credit desks explain it?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Empirical Credit</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> The "Credit Spread Puzzle" refers to the empirical finding that historical default losses ($PD \times LGD$) explain only <strong>25% to 40%</strong> of investment grade corporate credit spreads. Spreads are significantly wider than default actuarial losses would dictate.</p>
+                        <p style="margin-top: 8px;"><strong>Desk Explanations:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Systemic Risk Premium:</strong> Corporate defaults cluster heavily during macroeconomic recessions when investors' marginal utility of wealth is highest.</li>
+                            <li><strong>Liquidity Premium:</strong> Corporate bonds trade over-the-counter with wide bid-ask spreads and repo financing frictions compared to ultra-liquid sovereign debt.</li>
+                            <li><strong>Tax Differentials:</strong> In markets like the US, Treasury interest is exempt from state and local taxes, whereas corporate bond interest is fully taxable.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. A 5-year BBB bond has a Z-Spread of 220 bps and its 5-year CDS trades at 170 bps. What trade do you execute?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Desk Strategy</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> The Cash-CDS basis is $\text{Basis} = \text{CDS} - \text{Cash} = 170 - 220 = -50\text{ bps}$ (Negative Basis).</p>
+                        <p style="margin-top: 8px;"><strong>Execution Strategy:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Buy the physical 5-year BBB cash bond</strong> yielding $+220\text{ bps}$ over swap.</li>
+                            <li><strong>Buy 5-year CDS protection</strong> paying $-170\text{ bps}$.</li>
+                            <li><strong>Net Gross Carry:</strong> $+50\text{ bps}$ per annum. Assuming repo funding costs are $\le 20\text{ bps}$, this locks in a clean $+30\text{ bps}$ net unlevered carry with fully mitigated default risk.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. Why do callable bonds exhibit negative convexity at low yields?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Convexity Dynamics</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Normal option-free bonds exhibit <em>positive convexity</em>: as yields decline, their price increases at an accelerating rate ($\partial^2 P / \partial y^2 > 0$).</p>
+                        <p style="margin-top: 8px;">However, for a callable bond, as yields fall below the coupon rate, the probability that the issuer will call the bond approaches 100%. The bond price becomes compressed and capped near the call price (e.g. 102). Consequently, as yields fall, price appreciation slows down and eventually halts, turning the price-yield curve concave ($\partial^2 P / \partial y^2 < 0$, <strong>negative convexity</strong>).</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. How does a Par-Par Asset Swap differ from a Market Value (Proceeds) Asset Swap?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Asset Swap Structures</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Par-Par Asset Swap:</strong> The swap notional is set equal to the <em>par value</em> ($100$) of the bond. If the bond trades at $95$, the investor pays $95$ for the bond, but pays $100$ on the swap notional, requiring an upfront exchange of $5$ points from the dealer.</li>
+                            <li><strong>Market Value (Proceeds) Asset Swap:</strong> The swap notional is set equal to the <em>actual market value</em> ($P$) of the bond. No upfront cash exchange is needed between the investor and swap dealer. The investor pays the actual coupon received and receives floating reference rate plus a spread scaled to the invested market value.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 02: Credit Spreads</div>
+        <div style="margin-top: 6px;">
+            Next up: <a href="03_CDS_Mechanics.html">Module 03: CDS Mechanics (Contracts, Cashflows & The Big Bang Protocol) →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE INTERACTION & COMPUTATION SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & PROGRESS DOTS
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+
+                // Resize/redraw canvas on active tab
+                setTimeout(() => {
+                    if (targetId === 'tab-taxonomy') drawZCurve();
+                    if (targetId === 'tab-asw') drawAswChart();
+                    if (targetId === 'tab-oas') drawOasChart();
+                    if (targetId === 'tab-decomp') drawDecompChart();
+                    if (targetId === 'tab-basis') drawBasisChart();
+                }, 50);
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION TOGGLE
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           TAB 1: Z-SPREAD SOLVER ENGINE
+           ========================================================================== */
+        const inZPrice = document.getElementById('input-z-price');
+        const inZCoupon = document.getElementById('input-z-coupon');
+        const inZMat = document.getElementById('input-z-mat');
+        const inZSlope = document.getElementById('input-z-slope');
+
+        let zCurvePoints = [];
+
+        function updateZSpread() {
+            const price = parseFloat(inZPrice.value);
+            const coupon = parseFloat(inZCoupon.value);
+            const mat = parseInt(inZMat.value);
+            const slopeBps = parseFloat(inZSlope.value);
+
+            document.getElementById('val-z-price').textContent = price.toFixed(2);
+            document.getElementById('val-z-coupon').textContent = coupon.toFixed(2) + '%';
+            document.getElementById('val-z-mat').textContent = mat + ' Years';
+            document.getElementById('val-z-slope').textContent = (slopeBps >= 0 ? '+' : '') + slopeBps + ' bps ' + (slopeBps > 0 ? '(Normal)' : slopeBps < 0 ? '(Inverted)' : '(Flat)');
+
+            // Construct benchmark spot curve: base 3.0% + slope*(t/mat)
+            const baseSpot = 0.03;
+            const spotRates = [];
+            for (let t = 1; t <= mat; t++) {
+                const r = baseSpot + (slopeBps / 10000) * (t / mat);
+                spotRates.push(r);
+            }
+
+            // Approximate bond YTM via bisection
+            function bondPriceFromYield(y) {
+                let p = 0;
+                for (let t = 1; t <= mat; t++) {
+                    const cf = t === mat ? coupon + 100 : coupon;
+                    p += cf / Math.pow(1 + y, t);
+                }
+                return p;
+            }
+
+            let lowY = -0.05, highY = 0.35, ytm = 0.05;
+            for (let i = 0; i < 40; i++) {
+                ytm = (lowY + highY) / 2;
+                const p = bondPriceFromYield(ytm);
+                if (p > price) lowY = ytm;
+                else highY = ytm;
+            }
+
+            // Solve Z-Spread: price = sum(CF_t / (1 + spot_t + Z)^t)
+            function bondPriceFromZ(z) {
+                let p = 0;
+                for (let t = 1; t <= mat; t++) {
+                    const cf = t === mat ? coupon + 100 : coupon;
+                    p += cf / Math.pow(1 + spotRates[t - 1] + z, t);
+                }
+                return p;
+            }
+
+            let lowZ = -0.05, highZ = 0.25, zSpread = 0.01;
+            for (let i = 0; i < 50; i++) {
+                zSpread = (lowZ + highZ) / 2;
+                const p = bondPriceFromZ(zSpread);
+                if (p > price) lowZ = zSpread;
+                else highZ = zSpread;
+            }
+
+            // Benchmark government yield at matching maturity
+            const benchmarkGovtYtm = spotRates[mat - 1];
+            const gSpreadBps = (ytm - benchmarkGovtYtm) * 10000;
+            const zSpreadBps = zSpread * 10000;
+            const diffBps = zSpreadBps - gSpreadBps;
+
+            document.getElementById('kpi-z-spread').textContent = Math.round(zSpreadBps) + ' bps';
+            document.getElementById('kpi-z-ytm').textContent = (ytm * 100).toFixed(2) + '%';
+            document.getElementById('kpi-z-gspread').textContent = Math.round(gSpreadBps) + ' bps';
+            document.getElementById('kpi-z-diff').textContent = (diffBps >= 0 ? '+' : '') + Math.round(diffBps) + ' bps';
+
+            // Store curve points for drawing
+            zCurvePoints = [];
+            for (let t = 1; t <= mat; t++) {
+                const cf = t === mat ? coupon + 100 : coupon;
+                const spot = spotRates[t - 1];
+                const discRate = spot + zSpread;
+                const pv = cf / Math.pow(1 + discRate, t);
+                zCurvePoints.push({ t, spot, discRate, cf, pv });
+            }
+
+            drawZCurve();
+        }
+
+        function reinitZSpread() {
+            inZPrice.value = 98.50;
+            inZCoupon.value = 4.50;
+            inZMat.value = 5;
+            inZSlope.value = 100;
+            updateZSpread();
+        }
+
+        const zCanvas = document.getElementById('zCurveCanvas');
+        const zCtx = zCanvas.getContext('2d');
+        const zHud = document.getElementById('zHud');
+        let zHoverX = null;
+
+        function drawZCurve() {
+            if (!zCanvas || zCurvePoints.length === 0) return;
+            const W = zCanvas.width;
+            const H = zCanvas.height;
+            zCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+            const mat = zCurvePoints.length;
+
+            // Gridlines
+            zCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            zCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                zCtx.beginPath();
+                zCtx.moveTo(padL, y);
+                zCtx.lineTo(W - padR, y);
+                zCtx.stroke();
+            }
+
+            // Rates range
+            const allRates = zCurvePoints.flatMap(p => [p.spot, p.discRate]);
+            const minR = Math.min(...allRates) * 0.85;
+            const maxR = Math.max(...allRates) * 1.15;
+
+            // Draw Spot Zero Curve
+            zCtx.beginPath();
+            zCurvePoints.forEach((p, i) => {
+                const x = padL + (p.t / mat) * plotW;
+                const y = padT + plotH - ((p.spot - minR) / (maxR - minR)) * plotH;
+                if (i === 0) zCtx.moveTo(x, y);
+                else zCtx.lineTo(x, y);
+            });
+            zCtx.strokeStyle = '#38bdf8';
+            zCtx.lineWidth = 2.5;
+            zCtx.stroke();
+
+            // Draw Shifted Curve (Spot + Z)
+            zCtx.beginPath();
+            zCurvePoints.forEach((p, i) => {
+                const x = padL + (p.t / mat) * plotW;
+                const y = padT + plotH - ((p.discRate - minR) / (maxR - minR)) * plotH;
+                if (i === 0) zCtx.moveTo(x, y);
+                else zCtx.lineTo(x, y);
+            });
+            zCtx.strokeStyle = '#ef4444';
+            zCtx.lineWidth = 2.5;
+            zCtx.stroke();
+
+            // Shaded Z-Spread area between curves
+            zCtx.beginPath();
+            zCurvePoints.forEach((p, i) => {
+                const x = padL + (p.t / mat) * plotW;
+                const y = padT + plotH - ((p.discRate - minR) / (maxR - minR)) * plotH;
+                if (i === 0) zCtx.moveTo(x, y);
+                else zCtx.lineTo(x, y);
+            });
+            for (let i = zCurvePoints.length - 1; i >= 0; i--) {
+                const p = zCurvePoints[i];
+                const x = padL + (p.t / mat) * plotW;
+                const y = padT + plotH - ((p.spot - minR) / (maxR - minR)) * plotH;
+                zCtx.lineTo(x, y);
+            }
+            zCtx.closePath();
+            zCtx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+            zCtx.fill();
+
+            // Legend
+            zCtx.fillStyle = '#38bdf8';
+            zCtx.font = '11px JetBrains Mono';
+            zCtx.fillText('■ Spot Zero Curve', padL + 20, padT + 20);
+
+            zCtx.fillStyle = '#ef4444';
+            zCtx.fillText('■ Spot + Z-Spread Curve', padL + 180, padT + 20);
+
+            // Axes & Labels
+            zCtx.strokeStyle = '#64748b';
+            zCtx.lineWidth = 1;
+            zCtx.beginPath();
+            zCtx.moveTo(padL, padT);
+            zCtx.lineTo(padL, padT + plotH);
+            zCtx.lineTo(W - padR, padT + plotH);
+            zCtx.stroke();
+
+            zCtx.fillStyle = '#94a3b8';
+            zCtx.font = '11px Inter';
+            zCtx.fillText('Cash Flow Maturity (Years)', W / 2 - 60, H - 10);
+
+            for (let t = 1; t <= mat; t++) {
+                const x = padL + (t / mat) * plotW;
+                zCtx.fillText('T=' + t, x - 10, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const rateVal = (minR + (maxR - minR) * (1 - i / 4)) * 100;
+                const y = padT + (plotH / 4) * i;
+                zCtx.fillText(rateVal.toFixed(2) + '%', padL - 46, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (zHoverX !== null && zHoverX >= padL && zHoverX <= W - padR) {
+                const normX = (zHoverX - padL) / plotW;
+                const targetIdx = Math.min(mat - 1, Math.max(0, Math.round(normX * mat) - 1));
+                const pt = zCurvePoints[targetIdx];
+
+                const snapX = padL + (pt.t / mat) * plotW;
+                const snapY = padT + plotH - ((pt.discRate - minR) / (maxR - minR)) * plotH;
+
+                zCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                zCtx.setLineDash([2, 2]);
+                zCtx.beginPath();
+                zCtx.moveTo(snapX, padT);
+                zCtx.lineTo(snapX, padT + plotH);
+                zCtx.stroke();
+                zCtx.setLineDash([]);
+
+                zCtx.fillStyle = '#ef4444';
+                zCtx.beginPath();
+                zCtx.arc(snapX, snapY, 5, 0, Math.PI * 2);
+                zCtx.fill();
+                zCtx.strokeStyle = '#ffffff';
+                zCtx.lineWidth = 2;
+                zCtx.stroke();
+
+                zHud.style.display = 'block';
+                document.getElementById('hud-z-mat').textContent = pt.t + ' Years';
+                document.getElementById('hud-z-spot').textContent = (pt.spot * 100).toFixed(2) + '%';
+                document.getElementById('hud-z-cf').textContent = '$' + pt.cf.toFixed(2) + ' (PV: $' + pt.pv.toFixed(2) + ')';
+            }
+        }
+
+        zCanvas.addEventListener('mousemove', e => {
+            const rect = zCanvas.getBoundingClientRect();
+            const scaleX = zCanvas.width / rect.width;
+            zHoverX = (e.clientX - rect.left) * scaleX;
+            drawZCurve();
+        });
+
+        zCanvas.addEventListener('mouseleave', () => {
+            zHoverX = null;
+            zHud.style.display = 'none';
+            drawZCurve();
+        });
+
+        /* ==========================================================================
+           TAB 2: ASW VS Z-SPREAD SIMULATOR
+           ========================================================================== */
+        const inAswPrice = document.getElementById('input-asw-price');
+        const inAswZ = document.getElementById('input-asw-z');
+        const inAswMat = document.getElementById('input-asw-mat');
+        const inAswSwap = document.getElementById('input-asw-swap');
+
+        let aswCurveData = [];
+
+        function updateAsw() {
+            const price = parseFloat(inAswPrice.value);
+            const zSpreadBps = parseFloat(inAswZ.value);
+            const mat = parseInt(inAswMat.value);
+            const swapRate = parseFloat(inAswSwap.value) / 100;
+
+            document.getElementById('val-asw-price').textContent = price.toFixed(2) + ' ' + (price > 100 ? '(Premium)' : price < 100 ? '(Discount)' : '(At Par)');
+            document.getElementById('val-asw-z').textContent = zSpreadBps + ' bps';
+            document.getElementById('val-asw-mat').textContent = mat + ' Years';
+            document.getElementById('val-asw-swap').textContent = inAswSwap.value + '%';
+
+            // Annuity factor for Par-Par ASW: sum(1 / (1 + swap)^t)
+            let annuity = 0;
+            for (let t = 1; t <= mat; t++) {
+                annuity += 1 / Math.pow(1 + swapRate, t);
+            }
+
+            // Par-Par ASW = Z + (100 - P) / (Annuity * (P/100))
+            const priceAdjustment = (100 - price) / annuity;
+            const aswParBps = zSpreadBps + (priceAdjustment / (price / 100)) * 100;
+            const aswDiffBps = aswParBps - zSpreadBps;
+
+            // Proceeds (Market Value) ASW
+            const aswMvBps = (zSpreadBps * 100) / price;
+
+            document.getElementById('kpi-asw-z').textContent = Math.round(zSpreadBps) + ' bps';
+            document.getElementById('kpi-asw-par').textContent = Math.round(aswParBps) + ' bps';
+            document.getElementById('kpi-asw-diff').textContent = (aswDiffBps >= 0 ? '+' : '') + Math.round(aswDiffBps) + ' bps';
+            document.getElementById('kpi-asw-mv').textContent = Math.round(aswMvBps) + ' bps';
+
+            // Generate curve across prices from 70 to 130
+            aswCurveData = [];
+            for (let p = 70; p <= 130; p += 2) {
+                const adj = (100 - p) / annuity;
+                const aswVal = zSpreadBps + (adj / (p / 100)) * 100;
+                aswCurveData.push({ price: p, z: zSpreadBps, asw: aswVal, gap: aswVal - zSpreadBps });
+            }
+
+            drawAswChart();
+        }
+
+        function reinitAsw() {
+            inAswPrice.value = 108.00;
+            inAswZ.value = 150;
+            inAswMat.value = 5;
+            inAswSwap.value = 3.50;
+            updateAsw();
+        }
+
+        const aswCanvas = document.getElementById('aswCanvas');
+        const aswCtx = aswCanvas.getContext('2d');
+        const aswHud = document.getElementById('aswHud');
+        let aswHoverX = null;
+
+        function drawAswChart() {
+            if (!aswCanvas || aswCurveData.length === 0) return;
+            const W = aswCanvas.width;
+            const H = aswCanvas.height;
+            aswCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const minSpread = Math.min(...aswCurveData.map(d => d.asw)) * 0.9;
+            const maxSpread = Math.max(...aswCurveData.map(d => d.asw)) * 1.05;
+
+            // Gridlines
+            aswCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            aswCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                aswCtx.beginPath();
+                aswCtx.moveTo(padL, y);
+                aswCtx.lineTo(W - padR, y);
+                aswCtx.stroke();
+            }
+
+            // Draw Z-Spread flat horizontal reference line
+            const zVal = aswCurveData[0].z;
+            const zY = padT + plotH - ((zVal - minSpread) / (maxSpread - minSpread)) * plotH;
+            aswCtx.strokeStyle = '#34d399';
+            aswCtx.setLineDash([5, 4]);
+            aswCtx.lineWidth = 2;
+            aswCtx.beginPath();
+            aswCtx.moveTo(padL, zY);
+            aswCtx.lineTo(W - padR, zY);
+            aswCtx.stroke();
+            aswCtx.setLineDash([]);
+
+            // Draw Par-Par ASW downward-sloping curve
+            aswCtx.beginPath();
+            aswCurveData.forEach((d, i) => {
+                const x = padL + ((d.price - 70) / 60) * plotW;
+                const y = padT + plotH - ((d.asw - minSpread) / (maxSpread - minSpread)) * plotH;
+                if (i === 0) aswCtx.moveTo(x, y);
+                else aswCtx.lineTo(x, y);
+            });
+            aswCtx.strokeStyle = '#fbbf24';
+            aswCtx.lineWidth = 3;
+            aswCtx.stroke();
+
+            // Par intersection marker (P = 100)
+            const parX = padL + ((100 - 70) / 60) * plotW;
+            aswCtx.fillStyle = '#ffffff';
+            aswCtx.beginPath();
+            aswCtx.arc(parX, zY, 5, 0, Math.PI * 2);
+            aswCtx.fill();
+
+            aswCtx.fillStyle = '#94a3b8';
+            aswCtx.font = '10px JetBrains Mono';
+            aswCtx.fillText('Par Intersection (ASW = Z)', parX - 60, zY - 12);
+
+            // Legend
+            aswCtx.fillStyle = '#34d399';
+            aswCtx.font = '11px JetBrains Mono';
+            aswCtx.fillText('■ Z-Spread (Constant)', padL + 20, padT + 20);
+
+            aswCtx.fillStyle = '#fbbf24';
+            aswCtx.fillText('■ Par-Par ASW Spread', padL + 210, padT + 20);
+
+            // Axes & Labels
+            aswCtx.strokeStyle = '#64748b';
+            aswCtx.lineWidth = 1;
+            aswCtx.beginPath();
+            aswCtx.moveTo(padL, padT);
+            aswCtx.lineTo(padL, padT + plotH);
+            aswCtx.lineTo(W - padR, padT + plotH);
+            aswCtx.stroke();
+
+            aswCtx.fillStyle = '#94a3b8';
+            aswCtx.font = '11px Inter';
+            aswCtx.fillText('Bond Market Clean Price ($)', W / 2 - 50, H - 10);
+
+            for (let p = 70; p <= 130; p += 10) {
+                const x = padL + ((p - 70) / 60) * plotW;
+                aswCtx.fillText('$' + p, x - 10, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const sp = Math.round(minSpread + (maxSpread - minSpread) * (1 - i / 4));
+                const y = padT + (plotH / 4) * i;
+                aswCtx.fillText(sp + ' bp', padL - 46, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (aswHoverX !== null && aswHoverX >= padL && aswHoverX <= W - padR) {
+                const normX = (aswHoverX - padL) / plotW;
+                const hoveredPrice = Math.min(130, Math.max(70, Math.round(70 + normX * 60)));
+                const dataPt = aswCurveData.find(d => d.price === hoveredPrice) || aswCurveData[0];
+
+                const snapX = padL + ((dataPt.price - 70) / 60) * plotW;
+                const snapY = padT + plotH - ((dataPt.asw - minSpread) / (maxSpread - minSpread)) * plotH;
+
+                aswCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                aswCtx.setLineDash([2, 2]);
+                aswCtx.beginPath();
+                aswCtx.moveTo(snapX, padT);
+                aswCtx.lineTo(snapX, padT + plotH);
+                aswCtx.stroke();
+                aswCtx.setLineDash([]);
+
+                aswCtx.fillStyle = '#fbbf24';
+                aswCtx.beginPath();
+                aswCtx.arc(snapX, snapY, 5, 0, Math.PI * 2);
+                aswCtx.fill();
+                aswCtx.strokeStyle = '#ffffff';
+                aswCtx.lineWidth = 2;
+                aswCtx.stroke();
+
+                aswHud.style.display = 'block';
+                document.getElementById('hud-asw-p').textContent = '$' + dataPt.price.toFixed(2);
+                document.getElementById('hud-asw-z').textContent = Math.round(dataPt.z) + ' bps';
+                document.getElementById('hud-asw-val').textContent = Math.round(dataPt.asw) + ' bps';
+                document.getElementById('hud-asw-gap').textContent = (dataPt.gap >= 0 ? '+' : '') + Math.round(dataPt.gap) + ' bps';
+            }
+        }
+
+        aswCanvas.addEventListener('mousemove', e => {
+            const rect = aswCanvas.getBoundingClientRect();
+            const scaleX = aswCanvas.width / rect.width;
+            aswHoverX = (e.clientX - rect.left) * scaleX;
+            drawAswChart();
+        });
+
+        aswCanvas.addEventListener('mouseleave', () => {
+            aswHoverX = null;
+            aswHud.style.display = 'none';
+            drawAswChart();
+        });
+
+        /* ==========================================================================
+           TAB 3: OAS & NEGATIVE CONVEXITY SIMULATOR
+           ========================================================================== */
+        const inOasCpn = document.getElementById('input-oas-cpn');
+        const inOasStrike = document.getElementById('input-oas-strike');
+        const inOasVol = document.getElementById('input-oas-vol');
+        const inOasYield = document.getElementById('input-oas-yield');
+
+        let oasCurvePoints = [];
+
+        function updateOas() {
+            const cpn = parseFloat(inOasCpn.value);
+            const strike = parseFloat(inOasStrike.value);
+            const vol = parseFloat(inOasVol.value) / 100;
+            const yld = parseFloat(inOasYield.value) / 100;
+            const mat = 7; // 7-year callable bond
+
+            document.getElementById('val-oas-cpn').textContent = cpn.toFixed(2) + '%';
+            document.getElementById('val-oas-strike').textContent = strike.toFixed(2);
+            document.getElementById('val-oas-vol').textContent = inOasVol.value + '%';
+            document.getElementById('val-oas-yield').textContent = (yld * 100).toFixed(2) + '%';
+
+            // Straight Bond Price
+            let straightPrice = 0;
+            for (let t = 1; t <= mat; t++) {
+                const cf = t === mat ? cpn + 100 : cpn;
+                straightPrice += cf / Math.pow(1 + yld + 0.015, t); // +150 bps baseline OAS
+            }
+
+            // Black-Scholes call option on bond price
+            const d1 = (Math.log(straightPrice / strike) + 0.5 * vol * vol * 3) / (vol * Math.sqrt(3));
+            const d2 = d1 - vol * Math.sqrt(3);
+
+            function normCdfApprox(x) {
+                return 0.5 * (1 + Math.sign(x) * Math.sqrt(1 - Math.exp(-2 * x * x / Math.PI)));
+            }
+
+            const optVal = Math.max(0, straightPrice * normCdfApprox(d1) - strike * Math.exp(-yld * 3) * normCdfApprox(d2));
+            const callablePrice = Math.max(50, straightPrice - optVal);
+
+            // Option cost in spread
+            const optCostBps = (optVal / 4.8) * 100; // Divided by risky duration approx
+            const oasBps = 152;
+            const zSpreadBps = oasBps + optCostBps;
+
+            document.getElementById('kpi-oas-z').textContent = Math.round(zSpreadBps) + ' bps';
+            document.getElementById('kpi-oas-oas').textContent = Math.round(oasBps) + ' bps';
+            document.getElementById('kpi-oas-optcost').textContent = Math.round(optCostBps) + ' bps';
+            document.getElementById('kpi-oas-optval').textContent = '$' + optVal.toFixed(2);
+
+            // Generate curves across yields from 1% to 8%
+            oasCurvePoints = [];
+            for (let y = 0.01; y <= 0.08; y += 0.002) {
+                let pStr = 0;
+                for (let t = 1; t <= mat; t++) {
+                    const cf = t === mat ? cpn + 100 : cpn;
+                    pStr += cf / Math.pow(1 + y + 0.015, t);
+                }
+                const d1y = (Math.log(pStr / strike) + 0.5 * vol * vol * 3) / (vol * Math.sqrt(3));
+                const d2y = d1y - vol * Math.sqrt(3);
+                const optY = Math.max(0, pStr * normCdfApprox(d1y) - strike * Math.exp(-y * 3) * normCdfApprox(d2y));
+                const pCall = Math.max(50, pStr - optY);
+
+                oasCurvePoints.push({ yield: y, pStraight: pStr, pCall, strike });
+            }
+
+            drawOasChart();
+        }
+
+        function reinitOas() {
+            inOasCpn.value = 6.00;
+            inOasStrike.value = 102.00;
+            inOasVol.value = 18;
+            inOasYield.value = 4.00;
+            updateOas();
+        }
+
+        const oasCanvas = document.getElementById('oasCanvas');
+        const oasCtx = oasCanvas.getContext('2d');
+        const oasHud = document.getElementById('oasHud');
+        let oasHoverX = null;
+
+        function drawOasChart() {
+            if (!oasCanvas || oasCurvePoints.length === 0) return;
+            const W = oasCanvas.width;
+            const H = oasCanvas.height;
+            oasCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const minP = Math.min(...oasCurvePoints.map(p => p.pCall)) * 0.95;
+            const maxP = Math.max(...oasCurvePoints.map(p => p.pStraight)) * 1.05;
+
+            // Gridlines
+            oasCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            oasCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                oasCtx.beginPath();
+                oasCtx.moveTo(padL, y);
+                oasCtx.lineTo(W - padR, y);
+                zCtx.stroke();
+            }
+
+            // Draw Straight Bond Curve
+            oasCtx.beginPath();
+            oasCurvePoints.forEach((pt, i) => {
+                const x = padL + ((pt.yield - 0.01) / 0.07) * plotW;
+                const y = padT + plotH - ((pt.pStraight - minP) / (maxP - minP)) * plotH;
+                if (i === 0) oasCtx.moveTo(x, y);
+                else oasCtx.lineTo(x, y);
+            });
+            oasCtx.strokeStyle = '#38bdf8';
+            oasCtx.lineWidth = 2.5;
+            oasCtx.stroke();
+
+            // Draw Callable Bond Curve (Negative Convexity)
+            oasCtx.beginPath();
+            oasCurvePoints.forEach((pt, i) => {
+                const x = padL + ((pt.yield - 0.01) / 0.07) * plotW;
+                const y = padT + plotH - ((pt.pCall - minP) / (maxP - minP)) * plotH;
+                if (i === 0) oasCtx.moveTo(x, y);
+                else oasCtx.lineTo(x, y);
+            });
+            oasCtx.strokeStyle = '#ef4444';
+            oasCtx.lineWidth = 3;
+            oasCtx.stroke();
+
+            // Strike Price Line
+            const strike = oasCurvePoints[0].strike;
+            const strikeY = padT + plotH - ((strike - minP) / (maxP - minP)) * plotH;
+            oasCtx.strokeStyle = '#f59e0b';
+            oasCtx.setLineDash([4, 4]);
+            oasCtx.beginPath();
+            oasCtx.moveTo(padL, strikeY);
+            oasCtx.lineTo(W - padR, strikeY);
+            oasCtx.stroke();
+            oasCtx.setLineDash([]);
+
+            oasCtx.fillStyle = '#f59e0b';
+            oasCtx.font = '10px JetBrains Mono';
+            oasCtx.fillText('Call Price = $' + strike.toFixed(0), W - padR - 100, strikeY - 6);
+
+            // Legend
+            oasCtx.fillStyle = '#38bdf8';
+            oasCtx.font = '11px JetBrains Mono';
+            oasCtx.fillText('■ Straight Bond (Positive Convexity)', padL + 20, padT + 20);
+
+            oasCtx.fillStyle = '#ef4444';
+            oasCtx.fillText('■ Callable Bond (Negative Convexity Zone)', padL + 300, padT + 20);
+
+            // Axes & Labels
+            oasCtx.strokeStyle = '#64748b';
+            oasCtx.lineWidth = 1;
+            oasCtx.beginPath();
+            oasCtx.moveTo(padL, padT);
+            oasCtx.lineTo(padL, padT + plotH);
+            oasCtx.lineTo(W - padR, padT + plotH);
+            oasCtx.stroke();
+
+            oasCtx.fillStyle = '#94a3b8';
+            oasCtx.font = '11px Inter';
+            oasCtx.fillText('Underlying Treasury Benchmark Yield (%)', W / 2 - 80, H - 10);
+
+            for (let y = 1; y <= 8; y++) {
+                const x = padL + ((y / 100 - 0.01) / 0.07) * plotW;
+                oasCtx.fillText(y + '%', x - 8, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const pVal = (minP + (maxP - minP) * (1 - i / 4)).toFixed(0);
+                const y = padT + (plotH / 4) * i;
+                oasCtx.fillText('$' + pVal, padL - 40, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (oasHoverX !== null && oasHoverX >= padL && oasHoverX <= W - padR) {
+                const normX = (oasHoverX - padL) / plotW;
+                const hoveredIdx = Math.min(oasCurvePoints.length - 1, Math.max(0, Math.round(normX * (oasCurvePoints.length - 1))));
+                const pt = oasCurvePoints[hoveredIdx];
+
+                const snapX = padL + ((pt.yield - 0.01) / 0.07) * plotW;
+                const snapYCall = padT + plotH - ((pt.pCall - minP) / (maxP - minP)) * plotH;
+                const snapYStr = padT + plotH - ((pt.pStraight - minP) / (maxP - minP)) * plotH;
+
+                oasCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                oasCtx.setLineDash([2, 2]);
+                oasCtx.beginPath();
+                oasCtx.moveTo(snapX, padT);
+                oasCtx.lineTo(snapX, padT + plotH);
+                oasCtx.stroke();
+                oasCtx.setLineDash([]);
+
+                oasCtx.fillStyle = '#ef4444';
+                oasCtx.beginPath();
+                oasCtx.arc(snapX, snapYCall, 5, 0, Math.PI * 2);
+                oasCtx.fill();
+
+                oasCtx.fillStyle = '#38bdf8';
+                oasCtx.beginPath();
+                oasCtx.arc(snapX, snapYStr, 5, 0, Math.PI * 2);
+                oasCtx.fill();
+
+                oasHud.style.display = 'block';
+                document.getElementById('hud-oas-y').textContent = (pt.yield * 100).toFixed(2) + '%';
+                document.getElementById('hud-oas-pstraight').textContent = '$' + pt.pStraight.toFixed(2);
+                document.getElementById('hud-oas-pcall').textContent = '$' + pt.pCall.toFixed(2);
+                document.getElementById('hud-oas-conv').textContent = pt.yield < 0.045 ? 'NEGATIVE (Capped)' : 'Normal (Positive)';
+                document.getElementById('hud-oas-conv').style.color = pt.yield < 0.045 ? '#ef4444' : '#34d399';
+            }
+        }
+
+        oasCanvas.addEventListener('mousemove', e => {
+            const rect = oasCanvas.getBoundingClientRect();
+            const scaleX = oasCanvas.width / rect.width;
+            oasHoverX = (e.clientX - rect.left) * scaleX;
+            drawOasChart();
+        });
+
+        oasCanvas.addEventListener('mouseleave', () => {
+            oasHoverX = null;
+            oasHud.style.display = 'none';
+            drawOasChart();
+        });
+
+        /* ==========================================================================
+           TAB 4: SPREAD DECOMPOSITION SIMULATOR & WATERFALL
+           ========================================================================== */
+        const inDecompPd = document.getElementById('input-decomp-pd');
+        const inDecompLgd = document.getElementById('input-decomp-lgd');
+        const inDecompAversion = document.getElementById('input-decomp-aversion');
+        const inDecompLiq = document.getElementById('input-decomp-liq');
+
+        let decompData = {};
+
+        function updateDecomp() {
+            const pd = parseFloat(inDecompPd.value) / 100;
+            const lgd = parseFloat(inDecompLgd.value) / 100;
+            const aversion = parseFloat(inDecompAversion.value);
+            const liq = parseFloat(inDecompLiq.value);
+
+            document.getElementById('val-decomp-pd').textContent = inDecompPd.value + '%';
+            document.getElementById('val-decomp-lgd').textContent = inDecompLgd.value + '%';
+            document.getElementById('val-decomp-aversion').textContent = aversion.toFixed(2) + 'x ' + (aversion > 2 ? '(High Risk Aversion)' : '(Normal)');
+            document.getElementById('val-decomp-liq').textContent = liq + ' bps';
+
+            // Expected Loss Spread = PD * LGD
+            const elSpreadBps = pd * lgd * 10000;
+
+            // Credit Risk Premium = EL * (aversion - 1) * 2
+            const crpSpreadBps = elSpreadBps * (aversion * 1.3);
+
+            // Liquidity Premium
+            const liqSpreadBps = liq;
+
+            // Total Spread
+            const totalSpread = elSpreadBps + crpSpreadBps + liqSpreadBps;
+
+            document.getElementById('kpi-decomp-total').textContent = Math.round(totalSpread) + ' bps';
+            document.getElementById('kpi-decomp-el').textContent = Math.round(elSpreadBps) + ' bps';
+            document.getElementById('kpi-decomp-el-pct').textContent = ((elSpreadBps / totalSpread) * 100).toFixed(0) + '% of total spread';
+
+            document.getElementById('kpi-decomp-crp').textContent = Math.round(crpSpreadBps) + ' bps';
+            document.getElementById('kpi-decomp-crp-pct').textContent = ((crpSpreadBps / totalSpread) * 100).toFixed(0) + '% of total spread';
+
+            document.getElementById('kpi-decomp-liq').textContent = Math.round(liqSpreadBps) + ' bps';
+            document.getElementById('kpi-decomp-liq-pct').textContent = ((liqSpreadBps / totalSpread) * 100).toFixed(0) + '% of total spread';
+
+            decompData = { el: elSpreadBps, crp: crpSpreadBps, liq: liqSpreadBps, total: totalSpread };
+            drawDecompChart();
+        }
+
+        function reinitDecomp() {
+            inDecompPd.value = 0.60;
+            inDecompLgd.value = 60;
+            inDecompAversion.value = 1.5;
+            inDecompLiq.value = 30;
+            updateDecomp();
+        }
+
+        const decompCanvas = document.getElementById('decompCanvas');
+        const decompCtx = decompCanvas.getContext('2d');
+        const decompHud = document.getElementById('decompHud');
+
+        function drawDecompChart() {
+            if (!decompCanvas || !decompData.total) return;
+            const W = decompCanvas.width;
+            const H = decompCanvas.height;
+            decompCtx.clearRect(0, 0, W, H);
+
+            const padL = 70, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const items = [
+                { name: 'Expected Default Loss', val: decompData.el, color: '#f87171' },
+                { name: 'Credit Risk Premium', val: decompData.crp, color: '#fbbf24' },
+                { name: 'Liquidity & Friction', val: decompData.liq, color: '#60a5fa' },
+                { name: 'Total Market Spread', val: decompData.total, color: '#ef4444' }
+            ];
+
+            const maxVal = decompData.total * 1.25;
+
+            // Gridlines
+            decompCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            decompCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                decompCtx.beginPath();
+                decompCtx.moveTo(padL, y);
+                decompCtx.lineTo(W - padR, y);
+                decompCtx.stroke();
+            }
+
+            // Draw Bars
+            const barW = plotW / 6;
+            items.forEach((item, i) => {
+                const x = padL + (i + 0.6) * (plotW / 4.5);
+                const barH = (item.val / maxVal) * plotH;
+                const y = padT + plotH - barH;
+
+                decompCtx.fillStyle = item.color;
+                decompCtx.fillRect(x, y, barW, barH);
+
+                // Bar border
+                decompCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                decompCtx.lineWidth = 1;
+                decompCtx.strokeRect(x, y, barW, barH);
+
+                // Value on top
+                decompCtx.fillStyle = '#ffffff';
+                decompCtx.font = '12px JetBrains Mono';
+                decompCtx.fillText(Math.round(item.val) + ' bp', x + 6, y - 8);
+
+                // Label below
+                decompCtx.fillStyle = '#94a3b8';
+                decompCtx.font = '10px Inter';
+                const words = item.name.split(' ');
+                decompCtx.fillText(words[0], x, padT + plotH + 16);
+                if (words[1]) decompCtx.fillText(words.slice(1).join(' '), x, padT + plotH + 28);
+            });
+
+            // Axes
+            decompCtx.strokeStyle = '#64748b';
+            decompCtx.lineWidth = 1;
+            decompCtx.beginPath();
+            decompCtx.moveTo(padL, padT);
+            decompCtx.lineTo(padL, padT + plotH);
+            decompCtx.lineTo(W - padR, padT + plotH);
+            decompCtx.stroke();
+
+            for (let i = 0; i <= 4; i++) {
+                const val = Math.round(maxVal * (1 - i / 4));
+                const y = padT + (plotH / 4) * i;
+                decompCtx.fillStyle = '#94a3b8';
+                decompCtx.font = '11px JetBrains Mono';
+                decompCtx.fillText(val + ' bp', padL - 50, y + 4);
+            }
+        }
+
+        /* ==========================================================================
+           TAB 5: BASIS ARBITRAGE SIMULATOR
+           ========================================================================== */
+        const inBasisCash = document.getElementById('input-basis-cash');
+        const inBasisCds = document.getElementById('input-basis-cds');
+        const inBasisHaircut = document.getElementById('input-basis-haircut');
+        const inBasisRepo = document.getElementById('input-basis-repo');
+
+        let basisPoints = [];
+
+        function updateBasis() {
+            const cashSpread = parseFloat(inBasisCash.value);
+            const cdsSpread = parseFloat(inBasisCds.value);
+            const haircutPct = parseFloat(inBasisHaircut.value) / 100;
+            const repoSpread = parseFloat(inBasisRepo.value);
+
+            document.getElementById('val-basis-cash').textContent = cashSpread + ' bps';
+            document.getElementById('val-basis-cds').textContent = cdsSpread + ' bps';
+            document.getElementById('val-basis-haircut').textContent = inBasisHaircut.value + '%';
+            document.getElementById('val-basis-repo').textContent = (repoSpread >= 0 ? '+' : '') + repoSpread + ' bps';
+
+            // Basis = CDS - Cash
+            const basisBps = cdsSpread - cashSpread;
+
+            // Net Unlevered Carry = Cash Spread - CDS Spread - Repo Financing Cost
+            const netCarryBps = cashSpread - cdsSpread - repoSpread;
+
+            // Levered ROE = Net Carry / Haircut
+            const leveredRoe = (netCarryBps / (haircutPct * 10000)) * 100;
+
+            // $10M Notional Annual P&L
+            const dollarPnl = 10e6 * (netCarryBps / 10000);
+
+            document.getElementById('kpi-basis-basis').textContent = (basisBps >= 0 ? '+' : '') + Math.round(basisBps) + ' bps';
+            document.getElementById('kpi-basis-carry').textContent = (netCarryBps >= 0 ? '+' : '') + Math.round(netCarryBps) + ' bps';
+            document.getElementById('kpi-basis-roe').textContent = leveredRoe.toFixed(2) + '%';
+            document.getElementById('kpi-basis-pnl').textContent = '$' + Math.round(dollarPnl).toLocaleString();
+
+            // Generate term structure of basis across 1Y to 10Y
+            basisPoints = [];
+            for (let t = 1; t <= 10; t++) {
+                const cashT = cashSpread + (t - 5) * 6;
+                const cdsT = cdsSpread + (t - 5) * 8;
+                const bT = cdsT - cashT;
+                basisPoints.push({ t, cashT, cdsT, basis: bT });
+            }
+
+            drawBasisChart();
+        }
+
+        function reinitBasis() {
+            inBasisCash.value = 240;
+            inBasisCds.value = 190;
+            inBasisHaircut.value = 10;
+            inBasisRepo.value = 20;
+            updateBasis();
+        }
+
+        const basisCanvas = document.getElementById('basisCanvas');
+        const basisCtx = basisCanvas.getContext('2d');
+        const basisHud = document.getElementById('basisHud');
+        let basisHoverX = null;
+
+        function drawBasisChart() {
+            if (!basisCanvas || basisPoints.length === 0) return;
+            const W = basisCanvas.width;
+            const H = basisCanvas.height;
+            basisCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const allSpreads = basisPoints.flatMap(p => [p.cashT, p.cdsT]);
+            const minS = Math.min(...allSpreads) * 0.85;
+            const maxS = Math.max(...allSpreads) * 1.15;
+
+            // Gridlines
+            basisCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            basisCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                basisCtx.beginPath();
+                basisCtx.moveTo(padL, y);
+                basisCtx.lineTo(W - padR, y);
+                basisCtx.stroke();
+            }
+
+            // Draw Cash Bond Spread Curve
+            basisCtx.beginPath();
+            basisPoints.forEach((p, i) => {
+                const x = padL + ((p.t - 1) / 9) * plotW;
+                const y = padT + plotH - ((p.cashT - minS) / (maxS - minS)) * plotH;
+                if (i === 0) basisCtx.moveTo(x, y);
+                else basisCtx.lineTo(x, y);
+            });
+            basisCtx.strokeStyle = '#38bdf8';
+            basisCtx.lineWidth = 2.5;
+            basisCtx.stroke();
+
+            // Draw CDS Spread Curve
+            basisCtx.beginPath();
+            basisPoints.forEach((p, i) => {
+                const x = padL + ((p.t - 1) / 9) * plotW;
+                const y = padT + plotH - ((p.cdsT - minS) / (maxS - minS)) * plotH;
+                if (i === 0) basisCtx.moveTo(x, y);
+                else basisCtx.lineTo(x, y);
+            });
+            basisCtx.strokeStyle = '#ef4444';
+            basisCtx.lineWidth = 2.5;
+            basisCtx.stroke();
+
+            // Shaded Basis Gap
+            basisCtx.beginPath();
+            basisPoints.forEach((p, i) => {
+                const x = padL + ((p.t - 1) / 9) * plotW;
+                const y = padT + plotH - ((p.cashT - minS) / (maxS - minS)) * plotH;
+                if (i === 0) basisCtx.moveTo(x, y);
+                else basisCtx.lineTo(x, y);
+            });
+            for (let i = basisPoints.length - 1; i >= 0; i--) {
+                const p = basisPoints[i];
+                const x = padL + ((p.t - 1) / 9) * plotW;
+                const y = padT + plotH - ((p.cdsT - minS) / (maxS - minS)) * plotH;
+                basisCtx.lineTo(x, y);
+            }
+            basisCtx.closePath();
+            basisCtx.fillStyle = 'rgba(239, 68, 68, 0.18)';
+            basisCtx.fill();
+
+            // Legend
+            basisCtx.fillStyle = '#38bdf8';
+            basisCtx.font = '11px JetBrains Mono';
+            basisCtx.fillText('■ Cash Bond Spread', padL + 20, padT + 20);
+
+            basisCtx.fillStyle = '#ef4444';
+            basisCtx.fillText('■ CDS 5Y Curve (Basis Gap)', padL + 180, padT + 20);
+
+            // Axes & Labels
+            basisCtx.strokeStyle = '#64748b';
+            basisCtx.lineWidth = 1;
+            basisCtx.beginPath();
+            basisCtx.moveTo(padL, padT);
+            basisCtx.lineTo(padL, padT + plotH);
+            basisCtx.lineTo(W - padR, padT + plotH);
+            basisCtx.stroke();
+
+            basisCtx.fillStyle = '#94a3b8';
+            basisCtx.font = '11px Inter';
+            basisCtx.fillText('Contract Maturity (Years)', W / 2 - 60, H - 10);
+
+            for (let t = 1; t <= 10; t++) {
+                const x = padL + ((t - 1) / 9) * plotW;
+                basisCtx.fillText(t + 'Y', x - 8, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const sp = Math.round(minS + (maxS - minS) * (1 - i / 4));
+                const y = padT + (plotH / 4) * i;
+                basisCtx.fillText(sp + ' bp', padL - 46, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (basisHoverX !== null && basisHoverX >= padL && basisHoverX <= W - padR) {
+                const normX = (basisHoverX - padL) / plotW;
+                const targetIdx = Math.min(9, Math.max(0, Math.round(normX * 9)));
+                const pt = basisPoints[targetIdx];
+
+                const snapX = padL + ((pt.t - 1) / 9) * plotW;
+                const snapYCash = padT + plotH - ((pt.cashT - minS) / (maxS - minS)) * plotH;
+                const snapYCds = padT + plotH - ((pt.cdsT - minS) / (maxS - minS)) * plotH;
+
+                basisCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                basisCtx.setLineDash([2, 2]);
+                basisCtx.beginPath();
+                basisCtx.moveTo(snapX, padT);
+                basisCtx.lineTo(snapX, padT + plotH);
+                basisCtx.stroke();
+                basisCtx.setLineDash([]);
+
+                basisCtx.fillStyle = '#38bdf8';
+                basisCtx.beginPath();
+                basisCtx.arc(snapX, snapYCash, 5, 0, Math.PI * 2);
+                basisCtx.fill();
+
+                basisCtx.fillStyle = '#ef4444';
+                basisCtx.beginPath();
+                basisCtx.arc(snapX, snapYCds, 5, 0, Math.PI * 2);
+                basisCtx.fill();
+
+                basisHud.style.display = 'block';
+                document.getElementById('hud-basis-t').textContent = pt.t + ' Years';
+                document.getElementById('hud-basis-cash').textContent = Math.round(pt.cashT) + ' bps';
+                document.getElementById('hud-basis-cds').textContent = Math.round(pt.cdsT) + ' bps';
+                document.getElementById('hud-basis-net').textContent = (pt.basis >= 0 ? '+' : '') + Math.round(pt.basis) + ' bps';
+            }
+        }
+
+        basisCanvas.addEventListener('mousemove', e => {
+            const rect = basisCanvas.getBoundingClientRect();
+            const scaleX = basisCanvas.width / rect.width;
+            basisHoverX = (e.clientX - rect.left) * scaleX;
+            drawBasisChart();
+        });
+
+        basisCanvas.addEventListener('mouseleave', () => {
+            basisHoverX = null;
+            basisHud.style.display = 'none';
+            drawBasisChart();
+        });
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeX Auto-Render
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Run initial computations
+            updateZSpread();
+            updateAsw();
+            updateOas();
+            updateDecomp();
+            updateBasis();
+        });
+    </script>
+</body>
+</html>
