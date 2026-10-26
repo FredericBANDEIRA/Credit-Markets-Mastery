@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 06: Credit Indices — Credit Academy</title>
+    <meta name="description" content="A comprehensive quantitative guide to Credit Default Swap Indices: CDX and iTraxx families, semiannual rolls, index skew arbitrage, synthetic tranches, and default correlation trading.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        /* Formula Display Card */
+        .formula-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        /* KPI / Metric Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==========================================================================
+           CONTROLS, SLIDERS & BUTTONS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* ==========================================================================
+           CANVAS CHARTS WRAPPER & TOOLTIP
+           ========================================================================== */
+        .chart-wrapper {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+
+        .chart-hud {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(15, 20, 25, 0.94);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .chart-hud .hud-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            line-height: 1.5;
+        }
+
+        .chart-hud .hud-label {
+            color: var(--text-muted);
+        }
+
+        .chart-hud .hud-val {
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           TRANCHE WATERFALL GRAPHICS
+           ========================================================================== */
+        .tranche-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .tranche-block {
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .tranche-block:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .tranche-fill-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background: rgba(220, 38, 38, 0.25);
+            z-index: 1;
+            transition: width 0.3s ease;
+        }
+
+        .tranche-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .tranche-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tranche-points {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .tranche-stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .badge-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .badge-green { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-red { background: rgba(220, 38, 38, 0.12); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+        .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-blue { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-purple { background: rgba(139, 92, 246, 0.12); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        .interview-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-bright);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">06</span>
+                <span>Credit Indices</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 06 • Portfolio Credit & Structured Risk</div>
+            <h1>Credit Indices & Tranches</h1>
+            <p class="hero-description">
+                Liquid portfolio credit risk: CDX & iTraxx families, semiannual index roll mechanics, index skew arbitrage,
+                synthetic correlation tranches, and copula-based correlation trading.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-families" role="tab">
+                <span class="tab-num">01</span> Global Indices & Rolls
+            </button>
+            <button class="tab-btn" data-tab="tab-pricing" role="tab">
+                <span class="tab-num">02</span> Quoting & Pricing
+            </button>
+            <button class="tab-btn" data-tab="tab-skew" role="tab">
+                <span class="tab-num">03</span> Index Skew Arbitrage
+            </button>
+            <button class="tab-btn" data-tab="tab-tranches" role="tab">
+                <span class="tab-num">04</span> Synthetic Tranches
+            </button>
+            <button class="tab-btn" data-tab="tab-correlation" role="tab">
+                <span class="tab-num">05</span> Correlation Trading
+            </button>
+            <button class="tab-btn" data-tab="tab-interview" role="tab">
+                <span class="tab-num">06</span> Interview Q&A
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: GLOBAL INDICES & ROLL MECHANICS
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-families">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🌐</span>
+                        <div>
+                            <h2 class="card-title">The Benchmark CDS Index Families</h2>
+                            <p class="card-subtitle">CDX (North America/EM) and iTraxx (Europe/Asia) structure & conventions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Standardized CDS indices allow institutional investors to take macro credit views or hedge diversified corporate portfolios in a single, deeply liquid transaction. The market is divided into two primary geographic families managed by S&P Global (IHS Markit):
+                </p>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 8px;">North America & EM</span>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 10px;">CDX Family</h3>
+                        <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+                            <li><strong>CDX NA IG:</strong> 125 equally weighted North American investment-grade corporate entities. Standard coupon: <strong>100 bps</strong>. Quoted in <em>spread (bps)</em>.</li>
+                            <li><strong>CDX NA HY:</strong> 100 North American high-yield corporate issuers. Standard coupon: <strong>500 bps</strong>. Quoted in <em>price (points of par, e.g. 102.50)</em>.</li>
+                            <li><strong>CDX EM:</strong> Emerging market sovereign and corporate reference entities.</li>
+                            <li><strong>Weighting:</strong> Equal weight at inception ($1/125 = 0.8\%$ for IG; $1/100 = 1.0\%$ for HY).</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-green" style="margin-bottom: 8px;">Europe & Asia-Pacific</span>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 10px;">iTraxx Family</h3>
+                        <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+                            <li><strong>iTraxx Europe (Main):</strong> 125 equally weighted European investment-grade entities. Standard coupon: <strong>100 bps</strong>. Quoted in <em>spread (bps)</em>.</li>
+                            <li><strong>iTraxx Crossover:</strong> 75 European sub-investment grade (mostly BB/B rated) credits. Standard coupon: <strong>500 bps</strong>. Quoted in <em>spread (bps)</em>.</li>
+                            <li><strong>iTraxx Financials:</strong> Senior Financials (30 bank/insurer names) and Subordinated Financials (30 subordinated bank debt names).</li>
+                            <li><strong>iTraxx Asia ex-Japan & Japan:</strong> Regional liquid corporate benchmarks.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card-header" style="margin-top: 24px;">
+                    <div class="card-title-group">
+                        <span class="card-icon">🔄</span>
+                        <div>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">The Semiannual Roll & Default Lifecycle</h3>
+                            <p class="card-subtitle">March 20 & September 20 lifecycle, on-the-run liquidity, and default handling</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-3" style="margin-top: 16px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">1. Semiannual Index Roll</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            Every 6 months (March 20 & Sept 20), a new Series is issued (e.g. Series 41 $\to$ Series 42).
+                            Firms that were downgraded or lost trading liquidity are dropped; newly liquid firms are added.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">2. On-the-Run (OTR) vs Off-the-Run</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            The newest Series is **On-the-Run (OTR)** and commands $>90\%$ of market trading volume.
+                            Previous series become **Off-the-Run (OFR)**, trading at wider bid-ask spreads with declining liquidity.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--green); font-size: 0.95rem;">3. Constituent Default Settlement</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            If 1 of 125 names defaults:
+                            $$\text{Payout} = \frac{1}{125} \times (1 - R) \times \text{Notional}$$
+                            The index notional permanently drops by $1/125 = 0.8\%$, continuing to trade on remaining 124 names!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: QUOTING & PRICING CONVENTIONS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-pricing">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">💲</span>
+                        <div>
+                            <h2 class="card-title">Index Quoting Conventions: Spread vs Price</h2>
+                            <p class="card-subtitle">Mathematical link between quoted spreads, dollar prices, and upfront settlement</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Index Contract</th>
+                                <th>Constituents</th>
+                                <th>Fixed Running Coupon</th>
+                                <th>Quoting Convention</th>
+                                <th>Upfront Cash Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">CDX NA IG</span></td>
+                                <td>125 IG Names</td>
+                                <td>100 bps</td>
+                                <td><strong>Spread (bps)</strong></td>
+                                <td>$\text{Upfront} = (S_{\text{quoted}} - 100\text{ bps}) \times \text{RPV01} \times \text{Notional}$</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-red">CDX NA HY</span></td>
+                                <td>100 HY Names</td>
+                                <td>500 bps</td>
+                                <td><strong>Price (e.g. 102.50)</strong></td>
+                                <td>$\text{Points Upfront} = 100 - P \implies \text{Upfront} = (100 - P)\% \times \text{Notional}$</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-green">iTraxx Europe (Main)</span></td>
+                                <td>125 IG Names</td>
+                                <td>100 bps</td>
+                                <td><strong>Spread (bps)</strong></td>
+                                <td>$\text{Upfront} = (S_{\text{quoted}} - 100\text{ bps}) \times \text{RPV01} \times \text{Notional}$</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-amber">iTraxx Crossover</span></td>
+                                <td>75 Sub-IG Names</td>
+                                <td>500 bps</td>
+                                <td><strong>Spread (bps)</strong></td>
+                                <td>$\text{Upfront} = (S_{\text{quoted}} - 500\text{ bps}) \times \text{RPV01} \times \text{Notional}$</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">CDX HY Price-to-Spread Relationship</div>
+                    $$P = 100 - \left(S_{\text{implied}} - 500\text{ bps}\right) \times \text{RPV01}_{\text{index}} \times 100$$
+                    <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                        When HY spreads tighten below 500 bps, the index trades <strong>above par</strong> ($P > 100$). The protection buyer receives upfront points from the seller!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: THE INDEX SKEW (BASIS) & ARBITRAGE
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-skew">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚖️</span>
+                        <div>
+                            <h2 class="card-title">The Index Skew (Basis) & Relative Value Arbitrage</h2>
+                            <p class="card-subtitle">Market Index Spread vs Theoretical Single-Name Basket Spread</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Because an index is simply an equally weighted basket of $N$ single-name CDS contracts, no-arbitrage pricing suggests that the <strong>market index spread ($S_{\text{index}}$)</strong> should equal the <strong>intrinsic theoretical spread of the basket ($S_{\text{intrinsic}}$)</strong>.
+                </p>
+
+                <div class="formula-card">
+                    <div class="label">Index Skew Definition & Theoretical Basket Formula</div>
+                    $$\text{Index Skew} = S_{\text{index}} - S_{\text{intrinsic}}$$
+                    $$S_{\text{intrinsic}} \approx \frac{1}{N} \sum_{i=1}^N S_i \quad \text{or rigorously: } \sum_{i=1}^N \text{PV}(\text{CDS}_i) = \text{PV}(\text{Index})$$
+                </div>
+
+                <div class="grid-2" style="margin-top: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-red" style="margin-bottom: 6px;">Positive Skew (Index Rich)</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">$S_{\text{index}} > S_{\text{intrinsic}}$</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            Driven by heavy macro hedging demand. During risk-off panics, asset managers buy index protection rapidly, bidding up the index relative to individual names.
+                        </p>
+                        <p style="font-size: 0.85rem; color: var(--green); font-weight: 600; margin-top: 8px;">
+                            Arbitrage Trade: Sell Index Protection, Buy Single-Name Basket.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 6px;">Negative Skew (Index Cheap)</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">$S_{\text{index}} < S_{\text{intrinsic}}$</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            Driven by structured tranche hedging and balance sheet constraints. Banks selling synthetic CDO tranches sell index protection to hedge, depressing the index spread.
+                        </p>
+                        <p style="font-size: 0.85rem; color: var(--accent-bright); font-weight: 600; margin-top: 8px;">
+                            Arbitrage Trade: Buy Index Protection, Sell Single-Name Basket.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE SKEW ARBITRAGE SIMULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎛️</span>
+                        <div>
+                            <h2 class="card-title">Interactive Index Skew Arbitrage Simulator</h2>
+                            <p class="card-subtitle">Analyze basis dislocation, size the arbitrage legs, and calculate convergence P&L</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitSkewSim()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Market Index Spread ($S_{\text{index}}$)</span>
+                            <span class="control-value" id="val-skew-idx">85 bps</span>
+                        </div>
+                        <input type="range" id="input-skew-idx" min="30" max="250" step="1" value="85" oninput="updateSkewSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Intrinsic Basket Spread ($S_{\text{intrinsic}}$)</span>
+                            <span class="control-value" id="val-skew-basket">78 bps</span>
+                        </div>
+                        <input type="range" id="input-skew-basket" min="30" max="250" step="1" value="78" oninput="updateSkewSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Index Notional</span>
+                            <span class="control-value" id="val-skew-notional">$25M</span>
+                        </div>
+                        <input type="range" id="input-skew-notional" min="5" max="100" step="5" value="25" oninput="updateSkewSim()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Current Index Skew</span>
+                        <span class="kpi-value" id="kpi-skew-val">+7.0 bps</span>
+                        <span class="kpi-sub" id="kpi-skew-regime">Index Rich (Sell Index, Buy Basket)</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Recommended Strategy</span>
+                        <span class="kpi-value" id="kpi-skew-trade" style="font-size:1.05rem; color:var(--green);">Sell Index / Buy Basket</span>
+                        <span class="kpi-sub">Basis trade for convergence</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Index CS01 ($25M)</span>
+                        <span class="kpi-value" id="kpi-skew-cs01">$10,625 / bp</span>
+                        <span class="kpi-sub">Spread sensitivity</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Full Convergence Gain</span>
+                        <span class="kpi-value" id="kpi-skew-gain" style="color:var(--green);">+$74,375</span>
+                        <span class="kpi-sub">If skew converges to zero</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: SYNTHETIC TRANCHES & CAPITAL STRUCTURE
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-tranches">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🍰</span>
+                        <div>
+                            <h2 class="card-title">Synthetic Index Tranches: The Capital Structure of Credit</h2>
+                            <p class="card-subtitle">Attachment points, subordination, and loss absorption waterfall</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Synthetic tranches slice the loss distribution of a standardized portfolio (e.g. 125 names in iTraxx or CDX) into prioritized risk layers defined by an <strong>attachment point ($K_L$)</strong> and a <strong>detachment point ($K_U$)</strong>.
+                </p>
+
+                <!-- TRANCHE WATERFALL STACK -->
+                <div class="tranche-stack" id="trancheStack">
+                    <div class="tranche-block">
+                        <div class="tranche-fill-bar" id="fill-supersr" style="width: 0%;"></div>
+                        <div class="tranche-content">
+                            <div class="tranche-name">
+                                <span class="badge-tag badge-green">Super Senior</span>
+                                <span>30% — 100% (AAA)</span>
+                            </div>
+                            <div class="tranche-points">Thickness: 70% | High Subordination</div>
+                            <div class="tranche-stats">
+                                <span>Spread: <strong>8 bps</strong></span>
+                                <span id="loss-supersr">Loss: 0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tranche-block">
+                        <div class="tranche-fill-bar" id="fill-senior" style="width: 0%;"></div>
+                        <div class="tranche-content">
+                            <div class="tranche-name">
+                                <span class="badge-tag badge-blue">Senior</span>
+                                <span>15% — 30% (AA/A)</span>
+                            </div>
+                            <div class="tranche-points">Thickness: 15% | Moderate Protection</div>
+                            <div class="tranche-stats">
+                                <span>Spread: <strong>35 bps</strong></span>
+                                <span id="loss-senior">Loss: 0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tranche-block">
+                        <div class="tranche-fill-bar" id="fill-mezz" style="width: 0%;"></div>
+                        <div class="tranche-content">
+                            <div class="tranche-name">
+                                <span class="badge-tag badge-purple">Senior Mezzanine</span>
+                                <span>7% — 15% (BBB)</span>
+                            </div>
+                            <div class="tranche-points">Thickness: 8% | Borderline IG</div>
+                            <div class="tranche-stats">
+                                <span>Spread: <strong>110 bps</strong></span>
+                                <span id="loss-mezz">Loss: 0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tranche-block">
+                        <div class="tranche-fill-bar" id="fill-jrmezz" style="width: 0%;"></div>
+                        <div class="tranche-content">
+                            <div class="tranche-name">
+                                <span class="badge-tag badge-amber">Junior Mezzanine</span>
+                                <span>3% — 7% (BB)</span>
+                            </div>
+                            <div class="tranche-points">Thickness: 4% | High Yield Risk</div>
+                            <div class="tranche-stats">
+                                <span>Spread: <strong>260 bps</strong></span>
+                                <span id="loss-jrmezz">Loss: 0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tranche-block">
+                        <div class="tranche-fill-bar" id="fill-equity" style="width: 0%;"></div>
+                        <div class="tranche-content">
+                            <div class="tranche-name">
+                                <span class="badge-tag badge-red">Equity Tranche</span>
+                                <span>0% — 3% (First Loss)</span>
+                            </div>
+                            <div class="tranche-points">Thickness: 3% | Extreme Leverage</div>
+                            <div class="tranche-stats">
+                                <span>Quoted: <strong>500 bps + Upfront</strong></span>
+                                <span id="loss-equity">Loss: 0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULATE PORTFOLIO LOSSES -->
+                <div class="card-header" style="margin-top: 24px;">
+                    <div class="card-title-group">
+                        <span class="card-icon">💥</span>
+                        <div>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Interactive Default Waterfall Simulator</h3>
+                            <p class="card-subtitle">Simulate constituent defaults in a 125-name portfolio ($R = 40\% \implies 0.48\%$ net loss per default)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Number of Constituent Defaults</span>
+                            <span class="control-value" id="val-tranche-def">0 Defaults (0.0% Loss)</span>
+                        </div>
+                        <input type="range" id="input-tranche-def" min="0" max="60" step="1" value="0" oninput="updateTrancheWaterfall()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Cumulative Portfolio Loss</span>
+                        <span class="kpi-value" id="kpi-tranche-cumloss">0.00%</span>
+                        <span class="kpi-sub" id="kpi-tranche-loss-sub">Defaults × (1 - 40%) / 125</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Equity [0-3%] Impairment</span>
+                        <span class="kpi-value" id="kpi-tranche-eq-imp" style="color:var(--green);">0.0%</span>
+                        <span class="kpi-sub">First-loss absorption</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Junior Mezz [3-7%] Impairment</span>
+                        <span class="kpi-value" id="kpi-tranche-jrm-imp">0.0%</span>
+                        <span class="kpi-sub">Absorbs after 3% loss</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Senior [15-30%] Status</span>
+                        <span class="kpi-value" id="kpi-tranche-sr-status" style="color:var(--green);">Unimpaired</span>
+                        <span class="kpi-sub">Subordination buffer intact</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: CORRELATION TRADING & THE COPULA
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-correlation">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🔀</span>
+                        <div>
+                            <h2 class="card-title">Default Correlation Dynamics: Why Equity & Senior Move in Opposite Directions</h2>
+                            <p class="card-subtitle">The Gaussian copula framework and the correlation sensitivity ($\text{Vega}_\rho$)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    In portfolio credit, default correlation ($\rho$) dictates how defaults cluster in time.
+                    Crucially, <strong>correlation affects different tranches in opposite directions</strong>!
+                </p>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 6px;">Idiosyncratic Regime</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Low Correlation ($\rho \to 0$)</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            When defaults are independent, the Law of Large Numbers dictates that a predictable moderate number of defaults will almost certainly happen.
+                        </p>
+                        <ul style="padding-left: 20px; font-size: 0.83rem; color: var(--text-secondary); margin-top: 8px;">
+                            <li><strong>Equity Tranche [0-3%]:</strong> Virtually guaranteed to be wiped out! Equity spread is <strong>extremely high</strong>.</li>
+                            <li><strong>Senior Tranche [15-30%]:</strong> Extremely safe; portfolio loss variance is tiny, so losses cannot reach 15%. Senior spread is <strong>near zero</strong>.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-red" style="margin-bottom: 6px;">Systemic Shock Regime</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">High Correlation ($\rho \to 1$)</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            Entities default together or survive together. The bimodal distribution has mass at 0 defaults or total collapse.
+                        </p>
+                        <ul style="padding-left: 20px; font-size: 0.83rem; color: var(--text-secondary); margin-top: 8px;">
+                            <li><strong>Equity Tranche [0-3%]:</strong> There is now a strong probability that NO company defaults! Equity risk drops $\implies$ <strong>Equity spread tightens</strong>!</li>
+                            <li><strong>Senior Tranche [15-30%]:</strong> High risk of catastrophic joint collapse $\implies$ <strong>Senior spread widens dramatically</strong>!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CORRELATION SIMULATOR CANVAS -->
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📈</span>
+                        <div>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Interactive Tranche Correlation Engine</h3>
+                            <p class="card-subtitle">Vary average pairwise default correlation ($\rho$) to observe tranche spread and delta divergence</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitCorrelation()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Pairwise Default Correlation ($\rho$)</span>
+                            <span class="control-value" id="val-corr-rho">30% (Normal Market)</span>
+                        </div>
+                        <input type="range" id="input-corr-rho" min="1" max="80" step="1" value="30" oninput="updateCorrelation()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Index Base Spread ($S_{\text{index}}$)</span>
+                            <span class="control-value" id="val-corr-base">80 bps</span>
+                        </div>
+                        <input type="range" id="input-corr-base" min="30" max="250" step="5" value="80" oninput="updateCorrelation()">
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="corrCanvas" width="900" height="320"></canvas>
+                    <div class="chart-hud" id="corrHud">
+                        <div class="hud-row"><span class="hud-label">Correlation:</span><span class="hud-val" id="hud-corr-val">30%</span></div>
+                        <div class="hud-row"><span class="hud-label">Equity [0-3%]:</span><span class="hud-val" id="hud-corr-eq">1,240 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Mezz [3-7%]:</span><span class="hud-val" id="hud-corr-mezz">260 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Senior [15-30%]:</span><span class="hud-val" id="hud-corr-sr">38 bps</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tranche Layer</th>
+                                <th>Attachment - Detachment</th>
+                                <th>Implied Tranche Spread</th>
+                                <th>Index Delta ($\Delta = \partial S_T / \partial S_{\text{index}}$)</th>
+                                <th>Correlation Sensitivity ($\text{Vega}_\rho$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-tag badge-red">Equity Tranche</span></td>
+                                <td>0% — 3%</td>
+                                <td id="tbl-eq-spd" style="font-weight:700; color:var(--accent-bright); font-family:var(--font-mono);">1,240 bps</td>
+                                <td id="tbl-eq-delta" style="font-family:var(--font-mono);">16.4x</td>
+                                <td style="color:var(--accent-bright); font-weight:700;">Negative (Short $\rho$)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-amber">Junior Mezzanine</span></td>
+                                <td>3% — 7%</td>
+                                <td id="tbl-mezz-spd" style="font-weight:700; color:var(--amber); font-family:var(--font-mono);">260 bps</td>
+                                <td id="tbl-mezz-delta" style="font-family:var(--font-mono);">4.2x</td>
+                                <td style="color:var(--text-muted);">Slightly Positive</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">Senior Tranche</span></td>
+                                <td>15% — 30%</td>
+                                <td id="tbl-sr-spd" style="font-weight:700; color:var(--blue); font-family:var(--font-mono);">38 bps</td>
+                                <td id="tbl-sr-delta" style="font-family:var(--font-mono);">0.45x</td>
+                                <td style="color:var(--green); font-weight:700;">Positive (Long $\rho$)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: INTERVIEW Q&A MASTERCLASS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-interview">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">Credit Indices & Tranches Interview Masterclass</h2>
+                            <p class="card-subtitle">8 high-frequency desk interview questions on rolls, basis trades, and correlation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. How is a constituent default settled in an index, and what happens to the remaining contract?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Settlement</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> When 1 constituent out of 125 names in an index (e.g. CDX IG) defaults:</p>
+                        <ol style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Auction Discovery:</strong> The ISDA Determinations Committee holds a credit event auction to determine recovery rate $R$.</li>
+                            <li><strong>Cash Settlement:</strong> The protection seller pays the buyer $\frac{1}{125} \times (1 - R) \times \text{Notional}$.</li>
+                            <li><strong>Index Factor Reduction:</strong> The index notional factor is reduced by $1/125 = 0.8\%$ (e.g. from $1.000$ to $0.992$).</li>
+                            <li><strong>Ongoing Contract:</strong> The index continues to trade on the remaining 124 names with the reduced notional. Future coupon payments are calculated solely on the surviving $99.2\%$ notional.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. What is index skew and how does a proprietary trading desk arbitrage it?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Skew Arbitrage</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Index Skew is the difference between the quoted market index spread and the intrinsic theoretical spread of its 125 underlying single names: $\text{Skew} = S_{\text{index}} - S_{\text{intrinsic}}$.</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>If Index is Rich ($S_{\text{index}} > S_{\text{intrinsic}}$):</strong> Sell index protection (receive higher spread) and buy protection on all 125 single names in equal weight. When the basis converges, close out for profit.</li>
+                            <li><strong>If Index is Cheap ($S_{\text{index}} < S_{\text{intrinsic}}$):</strong> Buy index protection and sell protection on the 125 single names.</li>
+                            <li><strong>Desk Constraint:</strong> Skew arbitrage requires significant balance sheet capital to fund 125 single-name bilateral swaps and manages operational roll costs.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. Why does increasing default correlation help the equity tranche seller but hurt the senior tranche seller?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Correlation Math</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Correlation ($\rho$) changes the **variance** of portfolio default losses:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Equity Tranche [0-3%]:</strong> When correlation is low, losses cluster tightly around the mean; several defaults occur with certainty, wiping out the equity tranche. As correlation increases, the probability of **zero defaults** rises significantly. The equity tranche has a greater chance of escaping unscathed, so its risk drops and its spread tightens (benefiting the seller).</li>
+                            <li><strong>Senior Tranche [15-30%]:</strong> When correlation is low, diversification prevents cumulative losses from reaching the 15% attachment point. When correlation is high, the fat right tail allows massive joint defaults to wipe through senior layers. Senior spread widens sharply (hurting the seller).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. Why do institutional investors roll their CDS index positions every March and September?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Roll Mechanics</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Institutions roll from Off-the-Run (OFR) to On-the-Run (OTR) because:</p>
+                        <ol style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Liquidity & Bid-Ask:</strong> OTR accounts for $>90\%$ of trading volume with tightest bid-ask spreads (often $0.25\text{--}0.5\text{ bps}$ vs $1\text{--}2\text{ bps}$ for OFR).</li>
+                            <li><strong>Credit Quality Refresh:</strong> Ineligible or distressed names are removed during the roll, maintaining the index's pure high-liquidity benchmark status.</li>
+                            <li><strong>Mandate Compliance:</strong> Many UCITS, pension funds, and ETF prospectuses strictly mandate holding the on-the-run series.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. Why is CDX High Yield quoted in price while CDX Investment Grade is quoted in spread?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Market Conventions</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Historical cash market convention and spread volatility:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>CDX HY:</strong> High-yield corporate bonds trade as **dollar price** (percentage of par, e.g. 102.50) due to large default probabilities and high upfront points. Quoting CDX HY in points upfront / price aligns directly with the cash HY bond trading desks.</li>
+                            <li><strong>CDX IG:</strong> Investment-grade cash corporate bonds trade as a **spread over Treasuries** (e.g. +85 bps). Hence, quoting CDX IG in basis points aligns directly with IG syndicate and secondary cash desks.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. What is base correlation and why was it invented to replace compound correlation?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Copula Models</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Compound Correlation Failure:</strong> Solved for a single correlation $\rho$ per bespoke tranche $[K_L, K_U]$. It failed because for certain market quotes (mezzanine tranches during stress), either <em>no solution</em> existed or <em>two solutions</em> existed (a non-monotonic pricing function). Furthermore, the correlation smile could not price bespoke non-standard tranches consistently.</li>
+                            <li><strong>Base Correlation:</strong> Redefines all tranches as standard equity-first-loss layers $[0, K]$. Any bespoke tranche $[K_L, K_U]$ is priced as the difference between two base tranches: $[0, K_U] - [0, K_L]$. The base correlation curve is monotonic, uniquely invertible, and easily interpolated across attachment points.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. How do you delta-hedge an equity tranche position [0-3%] with the underlying index?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Delta Hedging</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> The tranche delta is defined as $\Delta = \frac{\partial \text{PV}_{\text{tranche}}}{\partial \text{PV}_{\text{index}}}$.</p>
+                        <p style="margin-top: 6px;">For an equity tranche [0-3%], leverage is immense ($\Delta \approx 15\text{x}$ to $20\text{x}$). To delta-hedge a $\$10\text{M}$ long equity protection position:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li>Sell $\$10\text{M} \times 16.4 = \$164\text{M}$ of index protection!</li>
+                            <li>This leaves the desk spread-neutral for small parallel moves. However, the desk is exposed to severe **gamma**, **correlation risk ($\text{Vega}_\rho$)**, and **Jump-to-Default (JTD)** if an idiosyncratic name blows up overnight.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. Explain the negative basis phenomenon in synthetic CDO tranches during the 2008 financial crisis.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Crisis Mechanics</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> During 2008, cash ABS/corporate bond yields blew out significantly wider than synthetic CDS/CDO spreads (a huge negative basis: $\text{Cash Yield} - \text{Swap Rate} > \text{CDS Spread}$).</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Funding & Balance Sheet Squeeze:</strong> Cash bonds required funded balance sheet cash, which dried up as interbank repo markets froze.</li>
+                            <li><strong>Synthetic Liquidity:</strong> CDS and synthetic CDO tranches were unfunded derivative contracts requiring only margin collateral. Investors dumped cash bonds at fire-sale prices while using synthetics to hedge, resulting in massive dislocations between cash and synthetic markets.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 06: Credit Indices</div>
+        <div style="margin-top: 6px;">
+            Next up: <a href="07_Credit_Events.html">Module 07: Credit Events & Auctions →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & DOT SYNC
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+
+                // Resize/redraw canvas on active tab
+                setTimeout(() => {
+                    if (targetId === 'tab-correlation') drawCorrelation();
+                }, 50);
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION TOGGLE
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           TAB 3: SKEW ARBITRAGE SIMULATOR
+           ========================================================================== */
+        const inSkewIdx = document.getElementById('input-skew-idx');
+        const inSkewBasket = document.getElementById('input-skew-basket');
+        const inSkewNotional = document.getElementById('input-skew-notional');
+
+        function updateSkewSim() {
+            const sIdx = parseFloat(inSkewIdx.value);
+            const sBsk = parseFloat(inSkewBasket.value);
+            const notional = parseFloat(inSkewNotional.value) * 1e6;
+
+            document.getElementById('val-skew-idx').textContent = sIdx + ' bps';
+            document.getElementById('val-skew-basket').textContent = sBsk + ' bps';
+            document.getElementById('val-skew-notional').textContent = '$' + inSkewNotional.value + 'M';
+
+            const skew = sIdx - sBsk;
+            const rpv01 = 4.25;
+            const cs01 = notional * rpv01 * 0.0001;
+
+            const skewEl = document.getElementById('kpi-skew-val');
+            skewEl.textContent = (skew >= 0 ? '+' : '') + skew.toFixed(1) + ' bps';
+            skewEl.style.color = skew > 0 ? 'var(--accent-bright)' : skew < 0 ? 'var(--blue)' : 'var(--text-primary)';
+
+            const regimeEl = document.getElementById('kpi-skew-regime');
+            const tradeEl = document.getElementById('kpi-skew-trade');
+
+            if (skew > 1) {
+                regimeEl.textContent = 'Index Rich (Sell Index, Buy Basket)';
+                tradeEl.textContent = 'Sell Index / Buy Basket';
+                tradeEl.style.color = 'var(--green)';
+            } else if (skew < -1) {
+                regimeEl.textContent = 'Index Cheap (Buy Index, Sell Basket)';
+                tradeEl.textContent = 'Buy Index / Sell Basket';
+                tradeEl.style.color = 'var(--accent-bright)';
+            } else {
+                regimeEl.textContent = 'Fairly Valued (No Arbitrage)';
+                tradeEl.textContent = 'Arbitrage Neutral';
+                tradeEl.style.color = 'var(--text-muted)';
+            }
+
+            document.getElementById('kpi-skew-cs01').textContent = '$' + Math.round(cs01).toLocaleString() + ' / bp';
+
+            const convergenceGain = Math.abs(skew) * cs01;
+            document.getElementById('kpi-skew-gain').textContent = '+$' + Math.round(convergenceGain).toLocaleString();
+        }
+
+        function reinitSkewSim() {
+            inSkewIdx.value = 85;
+            inSkewBasket.value = 78;
+            inSkewNotional.value = 25;
+            updateSkewSim();
+        }
+
+        /* ==========================================================================
+           TAB 4: TRANCHE WATERFALL SIMULATOR
+           ========================================================================== */
+        const inTrancheDef = document.getElementById('input-tranche-def');
+
+        function updateTrancheWaterfall() {
+            const defaults = parseInt(inTrancheDef.value);
+            // 125 names, R = 40% -> each default adds 0.60 / 125 = 0.48% cumulative loss
+            const lossPct = (defaults * (1 - 0.40) / 125) * 100;
+
+            document.getElementById('val-tranche-def').textContent = defaults + ' Defaults (' + lossPct.toFixed(2) + '% Portfolio Loss)';
+            document.getElementById('kpi-tranche-cumloss').textContent = lossPct.toFixed(2) + '%';
+            document.getElementById('kpi-tranche-loss-sub').textContent = defaults + ' defaults × 0.48% net loss';
+
+            // Tranche loss fractions:
+            // Equity: 0% - 3% (thickness 3%)
+            const eqLoss = Math.min(3, Math.max(0, lossPct));
+            const eqImpPct = (eqLoss / 3) * 100;
+            document.getElementById('fill-equity').style.width = eqImpPct + '%';
+            document.getElementById('loss-equity').textContent = 'Loss: ' + eqImpPct.toFixed(1) + '%';
+            document.getElementById('kpi-tranche-eq-imp').textContent = eqImpPct.toFixed(1) + '%';
+            document.getElementById('kpi-tranche-eq-imp').style.color = eqImpPct > 0 ? 'var(--accent-bright)' : 'var(--green)';
+
+            // Junior Mezz: 3% - 7% (thickness 4%)
+            const jrmLoss = Math.min(4, Math.max(0, lossPct - 3));
+            const jrmImpPct = (jrmLoss / 4) * 100;
+            document.getElementById('fill-jrmezz').style.width = jrmImpPct + '%';
+            document.getElementById('loss-jrmezz').textContent = 'Loss: ' + jrmImpPct.toFixed(1) + '%';
+            document.getElementById('kpi-tranche-jrm-imp').textContent = jrmImpPct.toFixed(1) + '%';
+
+            // Senior Mezz: 7% - 15% (thickness 8%)
+            const mezzLoss = Math.min(8, Math.max(0, lossPct - 7));
+            const mezzImpPct = (mezzLoss / 8) * 100;
+            document.getElementById('fill-mezz').style.width = mezzImpPct + '%';
+            document.getElementById('loss-mezz').textContent = 'Loss: ' + mezzImpPct.toFixed(1) + '%';
+
+            // Senior: 15% - 30% (thickness 15%)
+            const srLoss = Math.min(15, Math.max(0, lossPct - 15));
+            const srImpPct = (srLoss / 15) * 100;
+            document.getElementById('fill-senior').style.width = srImpPct + '%';
+            document.getElementById('loss-senior').textContent = 'Loss: ' + srImpPct.toFixed(1) + '%';
+
+            const srStatusEl = document.getElementById('kpi-tranche-sr-status');
+            if (srImpPct > 0) {
+                srStatusEl.textContent = 'Loss: ' + srImpPct.toFixed(1) + '%';
+                srStatusEl.style.color = 'var(--accent-bright)';
+            } else {
+                srStatusEl.textContent = 'Unimpaired';
+                srStatusEl.style.color = 'var(--green)';
+            }
+
+            // Super Senior: 30% - 100% (thickness 70%)
+            const ssrLoss = Math.min(70, Math.max(0, lossPct - 30));
+            const ssrImpPct = (ssrLoss / 70) * 100;
+            document.getElementById('fill-supersr').style.width = ssrImpPct + '%';
+            document.getElementById('loss-supersr').textContent = 'Loss: ' + ssrImpPct.toFixed(1) + '%';
+        }
+
+        /* ==========================================================================
+           TAB 5: CORRELATION ENGINE CANVAS
+           ========================================================================== */
+        const inCorrRho = document.getElementById('input-corr-rho');
+        const inCorrBase = document.getElementById('input-corr-base');
+        const corrCanvas = document.getElementById('corrCanvas');
+        const corrCtx = corrCanvas.getContext('2d');
+        const corrHud = document.getElementById('corrHud');
+        let corrHoverX = null;
+
+        let corrSimulationData = [];
+
+        function updateCorrelation() {
+            const rho = parseFloat(inCorrRho.value) / 100;
+            const baseSpread = parseFloat(inCorrBase.value);
+
+            document.getElementById('val-corr-rho').textContent = inCorrRho.value + '% ' + (rho <= 0.15 ? '(Idiosyncratic)' : rho >= 0.5 ? '(High Systemic)' : '(Normal)');
+            document.getElementById('val-corr-base').textContent = baseSpread + ' bps';
+
+            // Model tranche spreads as function of rho and base spread
+            // Equity: high spread at rho=0, drops as rho increases
+            // Senior: near zero at rho=0, surges as rho increases
+            // Mezz: humped / moderately sensitive
+            corrSimulationData = [];
+            for (let r = 1; r <= 80; r++) {
+                const normR = r / 100;
+                // Empirical copula scaling approximations
+                const eqSpread = baseSpread * (22.0 - 15.0 * normR);
+                const mezzSpread = baseSpread * (2.8 + 1.2 * normR);
+                const srSpread = baseSpread * (0.05 + 1.1 * Math.pow(normR, 1.8));
+                corrSimulationData.push({ rho: normR, eq: eqSpread, mezz: mezzSpread, sr: srSpread });
+            }
+
+            // Current points
+            const curIdx = Math.min(79, Math.max(0, Math.round(rho * 100) - 1));
+            const curPt = corrSimulationData[curIdx];
+
+            document.getElementById('tbl-eq-spd').textContent = Math.round(curPt.eq) + ' bps';
+            document.getElementById('tbl-mezz-spd').textContent = Math.round(curPt.mezz) + ' bps';
+            document.getElementById('tbl-sr-spd').textContent = Math.round(curPt.sr) + ' bps';
+
+            document.getElementById('tbl-eq-delta').textContent = (curPt.eq / baseSpread).toFixed(1) + 'x';
+            document.getElementById('tbl-mezz-delta').textContent = (curPt.mezz / baseSpread).toFixed(1) + 'x';
+            document.getElementById('tbl-sr-delta').textContent = (curPt.sr / baseSpread).toFixed(2) + 'x';
+
+            drawCorrelation();
+        }
+
+        function reinitCorrelation() {
+            inCorrRho.value = 30;
+            inCorrBase.value = 80;
+            updateCorrelation();
+        }
+
+        function drawCorrelation() {
+            if (!corrCanvas || corrSimulationData.length === 0) return;
+            const W = corrCanvas.width;
+            const H = corrCanvas.height;
+            corrCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const maxSpd = 2000;
+
+            // Gridlines
+            corrCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            corrCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                corrCtx.beginPath();
+                corrCtx.moveTo(padL, y);
+                corrCtx.lineTo(W - padR, y);
+                corrCtx.stroke();
+
+                const val = Math.round(maxSpd * (1 - i / 4));
+                corrCtx.fillStyle = '#64748b';
+                corrCtx.font = '11px JetBrains Mono';
+                corrCtx.fillText(val + ' bps', padL - 54, y + 4);
+            }
+
+            // Draw Equity Tranche Curve (Red line - slopes DOWN as correlation increases)
+            corrCtx.beginPath();
+            corrSimulationData.forEach((pt, i) => {
+                const x = padL + (pt.rho / 0.8) * plotW;
+                const y = padT + plotH - (Math.min(maxSpd, pt.eq) / maxSpd) * plotH;
+                if (i === 0) corrCtx.moveTo(x, y);
+                else corrCtx.lineTo(x, y);
+            });
+            corrCtx.strokeStyle = '#ef4444';
+            corrCtx.lineWidth = 3;
+            corrCtx.stroke();
+
+            // Draw Mezzanine Tranche Curve (Amber line)
+            corrCtx.beginPath();
+            corrSimulationData.forEach((pt, i) => {
+                const x = padL + (pt.rho / 0.8) * plotW;
+                const y = padT + plotH - (Math.min(maxSpd, pt.mezz) / maxSpd) * plotH;
+                if (i === 0) corrCtx.moveTo(x, y);
+                else corrCtx.lineTo(x, y);
+            });
+            corrCtx.strokeStyle = '#f59e0b';
+            corrCtx.lineWidth = 2.5;
+            corrCtx.stroke();
+
+            // Draw Senior Tranche Curve (Blue line - slopes UP as correlation increases)
+            corrCtx.beginPath();
+            corrSimulationData.forEach((pt, i) => {
+                const x = padL + (pt.rho / 0.8) * plotW;
+                const y = padT + plotH - (Math.min(maxSpd, pt.sr) / maxSpd) * plotH;
+                if (i === 0) corrCtx.moveTo(x, y);
+                else corrCtx.lineTo(x, y);
+            });
+            corrCtx.strokeStyle = '#38bdf8';
+            corrCtx.lineWidth = 3;
+            corrCtx.stroke();
+
+            // Current Rho vertical line
+            const curRho = parseFloat(inCorrRho.value) / 100;
+            const curX = padL + (curRho / 0.8) * plotW;
+            corrCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            corrCtx.setLineDash([4, 4]);
+            corrCtx.beginPath();
+            corrCtx.moveTo(curX, padT);
+            corrCtx.lineTo(curX, padT + plotH);
+            corrCtx.stroke();
+            corrCtx.setLineDash([]);
+
+            // Legend
+            corrCtx.fillStyle = '#ef4444';
+            corrCtx.font = '11px JetBrains Mono';
+            corrCtx.fillText('■ Equity [0-3%] (Slopes Down)', padL + 20, padT + 20);
+
+            corrCtx.fillStyle = '#f59e0b';
+            corrCtx.fillText('■ Mezzanine [3-7%]', padL + 240, padT + 20);
+
+            corrCtx.fillStyle = '#38bdf8';
+            corrCtx.fillText('■ Senior [15-30%] (Slopes Up)', padL + 400, padT + 20);
+
+            // Axes
+            corrCtx.strokeStyle = '#64748b';
+            corrCtx.lineWidth = 1;
+            corrCtx.beginPath();
+            corrCtx.moveTo(padL, padT);
+            corrCtx.lineTo(padL, padT + plotH);
+            corrCtx.lineTo(W - padR, padT + plotH);
+            corrCtx.stroke();
+
+            corrCtx.fillStyle = '#94a3b8';
+            corrCtx.font = '11px Inter';
+            for (let r = 10; r <= 80; r += 10) {
+                const x = padL + ((r / 100) / 0.8) * plotW;
+                corrCtx.fillText(r + '%', x - 10, padT + plotH + 20);
+            }
+            corrCtx.fillText('Default Correlation (ρ)', W / 2 - 50, H - 10);
+
+            // Crosshair hover tracking
+            if (corrHoverX !== null && corrHoverX >= padL && corrHoverX <= W - padR) {
+                const normX = (corrHoverX - padL) / plotW;
+                const targetIdx = Math.min(corrSimulationData.length - 1, Math.max(0, Math.round(normX * (corrSimulationData.length - 1))));
+                const pt = corrSimulationData[targetIdx];
+
+                const snapX = padL + (pt.rho / 0.8) * plotW;
+
+                corrCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                corrCtx.setLineDash([2, 2]);
+                corrCtx.beginPath();
+                corrCtx.moveTo(snapX, padT);
+                corrCtx.lineTo(snapX, padT + plotH);
+                corrCtx.stroke();
+                corrCtx.setLineDash([]);
+
+                corrHud.style.display = 'block';
+                document.getElementById('hud-corr-val').textContent = (pt.rho * 100).toFixed(0) + '%';
+                document.getElementById('hud-corr-eq').textContent = Math.round(pt.eq) + ' bps';
+                document.getElementById('hud-corr-mezz').textContent = Math.round(pt.mezz) + ' bps';
+                document.getElementById('hud-corr-sr').textContent = Math.round(pt.sr) + ' bps';
+            }
+        }
+
+        corrCanvas.addEventListener('mousemove', e => {
+            const rect = corrCanvas.getBoundingClientRect();
+            const scaleX = corrCanvas.width / rect.width;
+            corrHoverX = (e.clientX - rect.left) * scaleX;
+            drawCorrelation();
+        });
+
+        corrCanvas.addEventListener('mouseleave', () => {
+            corrHoverX = null;
+            corrHud.style.display = 'none';
+            drawCorrelation();
+        });
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeX Auto-Render
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Initial computations
+            updateSkewSim();
+            updateTrancheWaterfall();
+            updateCorrelation();
+        });
+    </script>
+</body>
+</html>
