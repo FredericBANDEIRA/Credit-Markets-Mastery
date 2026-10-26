@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 05: Credit Curves — Credit Academy</title>
+    <meta name="description" content="A rigorous quantitative guide to Credit Curves: term structure of default, piecewise constant hazard rate bootstrapping, curve trades (steepeners/flatteners), roll-down carry, and desk risk management.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        /* Formula Display Card */
+        .formula-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        /* KPI / Metric Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==========================================================================
+           CONTROLS, SLIDERS & BUTTONS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toggle.active {
+            background: rgba(220, 38, 38, 0.15);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        /* ==========================================================================
+           CANVAS CHARTS WRAPPER & TOOLTIP
+           ========================================================================== */
+        .chart-wrapper {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+
+        .chart-hud {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(15, 20, 25, 0.94);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .chart-hud .hud-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            line-height: 1.5;
+        }
+
+        .chart-hud .hud-label {
+            color: var(--text-muted);
+        }
+
+        .chart-hud .hud-val {
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .badge-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .badge-green { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-red { background: rgba(220, 38, 38, 0.12); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+        .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-blue { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        .interview-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-bright);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">05</span>
+                <span>Credit Curves</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 05 • Term Structure & Relative Value</div>
+            <h1>Credit Curves</h1>
+            <p class="hero-description">
+                Constructing the term structure of default: piecewise constant hazard rate bootstrapping,
+                curve shapes (upward, inverted, humped), CS01-neutral curve trades (steepeners/flatteners), and roll-down carry dynamics.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-shapes" role="tab">
+                <span class="tab-num">01</span> Term Structure & Shapes
+            </button>
+            <button class="tab-btn" data-tab="tab-bootstrap-theory" role="tab">
+                <span class="tab-num">02</span> Bootstrapping Theory
+            </button>
+            <button class="tab-btn" data-tab="tab-bootstrap-engine" role="tab">
+                <span class="tab-num">03</span> Interactive Bootstrapper
+            </button>
+            <button class="tab-btn" data-tab="tab-trades" role="tab">
+                <span class="tab-num">04</span> Curve Trades & Steepeners
+            </button>
+            <button class="tab-btn" data-tab="tab-carry" role="tab">
+                <span class="tab-num">05</span> Roll-Down & Carry
+            </button>
+            <button class="tab-btn" data-tab="tab-interview" role="tab">
+                <span class="tab-num">06</span> Interview Q&A
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: TERM STRUCTURE & CURVE SHAPES
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-shapes">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📈</span>
+                        <div>
+                            <h2 class="card-title">The Term Structure of Credit Spreads</h2>
+                            <p class="card-subtitle">Pillars, market liquidity, and canonical curve topologies</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Just like risk-free government curves, credit default swap spreads vary across tenors ($1\text{Y}, 2\text{Y}, 3\text{Y}, 5\text{Y}, 7\text{Y}, 10\text{Y}, 30\text{Y}$).
+                    The <strong>5-year tenor</strong> is the undisputed global benchmark, representing over $70\text{--}75\%$ of all single-name CDS liquidity.
+                </p>
+
+                <div class="grid-4" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <span class="badge-tag badge-green" style="margin-bottom: 8px;">1. Upward Sloping</span>
+                        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Normal / IG Benchmark</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Healthy corporate issuers (IG) have negligible short-term default risk. Uncertainty, leverage creep, and rating migration risk increase with time.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <span class="badge-tag badge-red" style="margin-bottom: 8px;">2. Inverted Curve</span>
+                        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Distressed / Restructuring</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                            High near-term refinancing cliff or liquidity squeeze ($S_{1Y} \gg S_{5Y}$). If the company survives 1–2 years, post-restructuring survival chances brighten.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <span class="badge-tag badge-amber" style="margin-bottom: 8px;">3. Humped Curve</span>
+                        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Maturity Wall Risk</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Specific medium-term debt maturity (e.g. 3Y bond maturity wall). Spreads peak around the bullet refinancing horizon, then subside for longer tenors.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 8px;">4. Flat Curve</span>
+                        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">Stationary Hazard Rate</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Constant hazard intensity $\lambda(t) = \bar{\lambda}$. Often observed in mature High Yield credits where default intensity is elevated but stationary.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="alert-box info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Desks Rule of Thumb:</strong> When an investment grade curve inverts ($1\text{Y CDS} > 5\text{Y CDS}$), it is the strongest possible market signal of impending distress. Hedge funds look to buy short-dated protection or short the equity via put options.
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE SHAPE VISUALIZER -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📊</span>
+                        <div>
+                            <h2 class="card-title">Interactive Curve Topology Explorer</h2>
+                            <p class="card-subtitle">Select regimes to inspect term structure dynamics across 1Y to 10Y pillars</p>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn-toggle active" id="btn-shape-normal" onclick="setShapeRegime('normal')">Normal (IG)</button>
+                        <button class="btn-toggle" id="btn-shape-inverted" onclick="setShapeRegime('inverted')">Inverted (Distressed)</button>
+                        <button class="btn-toggle" id="btn-shape-humped" onclick="setShapeRegime('humped')">Humped (Wall)</button>
+                        <button class="btn-toggle" id="btn-shape-flat" onclick="setShapeRegime('flat')">Flat (Stationary)</button>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="shapesCanvas" width="900" height="320"></canvas>
+                    <div class="chart-hud" id="shapesHud">
+                        <div class="hud-row"><span class="hud-label">Tenor:</span><span class="hud-val" id="hud-shape-tenor">5.0Y</span></div>
+                        <div class="hud-row"><span class="hud-label">Par CDS:</span><span class="hud-val" id="hud-shape-spread">110 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Slope (T - 1Y):</span><span class="hud-val" id="hud-shape-slope">+60 bps</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="table-shapes-summary">
+                        <thead>
+                            <tr>
+                                <th>Curve Regime</th>
+                                <th>1Y CDS</th>
+                                <th>2Y CDS</th>
+                                <th>3Y CDS</th>
+                                <th>5Y CDS (Benchmark)</th>
+                                <th>10Y CDS</th>
+                                <th>2s10s Slope</th>
+                                <th>Market Diagnosis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-tag badge-green">Normal (IG)</span></td>
+                                <td>35 bps</td>
+                                <td>55 bps</td>
+                                <td>75 bps</td>
+                                <td>110 bps</td>
+                                <td>145 bps</td>
+                                <td style="color: var(--green); font-weight: 700;">+90 bps</td>
+                                <td>Solvent, stable balance sheet, long-term uncertainty discount</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-red">Inverted (Distressed)</span></td>
+                                <td>850 bps</td>
+                                <td>720 bps</td>
+                                <td>600 bps</td>
+                                <td>480 bps</td>
+                                <td>400 bps</td>
+                                <td style="color: var(--accent-bright); font-weight: 700;">-320 bps</td>
+                                <td>Critical near-term liquidity squeeze / restructuring imminent</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-amber">Humped (Maturity Wall)</span></td>
+                                <td>120 bps</td>
+                                <td>210 bps</td>
+                                <td>380 bps</td>
+                                <td>290 bps</td>
+                                <td>220 bps</td>
+                                <td style="color: var(--amber); font-weight: 700;">+10 bps</td>
+                                <td>High concentration of debt maturing at year 3; clears afterwards</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">Flat (Stationary)</span></td>
+                                <td>250 bps</td>
+                                <td>250 bps</td>
+                                <td>250 bps</td>
+                                <td>250 bps</td>
+                                <td>250 bps</td>
+                                <td style="font-weight: 700;">0 bps</td>
+                                <td>Homogeneous default intensity across all planning horizons</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: BOOTSTRAPPING THEORY
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-bootstrap-theory">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📐</span>
+                        <div>
+                            <h2 class="card-title">Piecewise Constant Hazard Rate Bootstrapping</h2>
+                            <p class="card-subtitle">Exact mathematical calibration of default intensities from quoted market CDS spreads</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Because CDS contracts are quoted at discrete market pillars ($T_1 = 1\text{Y}, T_2 = 2\text{Y}, \dots, T_M = 10\text{Y}$), quantitative desks assume the hazard rate $\lambda(t)$ is <strong>piecewise constant</strong> over each interval $[T_{k-1}, T_k]$.
+                </p>
+
+                <div class="formula-card">
+                    <div class="label">Piecewise Hazard Intensity & Survival Functions</div>
+                    $$\lambda(t) = \lambda_k \quad \text{for } t \in (T_{k-1}, T_k]$$
+                    $$S(t) = S(T_{k-1}) \cdot \exp\left(-\lambda_k (t - T_{k-1})\right) \quad \text{for } t \in (T_{k-1}, T_k]$$
+                    $$S(T_k) = \prod_{j=1}^k e^{-\lambda_j (T_j - T_{j-1})} = \exp\left(-\sum_{j=1}^k \lambda_j \Delta T_j\right)$$
+                </div>
+
+                <div class="grid-3" style="margin-top: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">Step 1: First Pillar Calibration ($T_1$)</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 8px;">
+                            For the 1-year CDS trading at par spread $S_1$, there is only one unknown hazard rate $\lambda_1$:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0; padding: 10px;">
+                            $$S_1 \cdot \text{RPV01}_1(\lambda_1) = \text{ProtLeg}_1(\lambda_1)$$
+                            $$\lambda_1 \approx \frac{S_1}{1 - R}$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">Step 2: Second Pillar Calibration ($T_2$)</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 8px;">
+                            With $\lambda_1$ already known, cash flows over $[0, T_1]$ are fixed. We solve for $\lambda_2$ such that the 2-year CDS reprices at par spread $S_2$:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0; padding: 10px;">
+                            $$S_2 \left[\text{RPV01}_{0 \to 1} + \text{RPV01}_{1 \to 2}(\lambda_2)\right] = \text{Prot}_{0 \to 1} + \text{Prot}_{1 \to 2}(\lambda_2)$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--green); font-size: 0.95rem;">Step 3: Recursive Induction ($T_k$)</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 8px;">
+                            Repeat inductively for each subsequent pillar $T_k \in \{3\text{Y}, 5\text{Y}, 7\text{Y}, 10\text{Y}\}$.
+                            Each step is a 1-dimensional root-finding problem that is strictly monotonic and guaranteed to have a unique solution.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WHY PIECEWISE CONSTANT OVER SPLINES -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <h2 class="card-title">Why Desks Use Piecewise Constant (ISDA Standard) Instead of Splines</h2>
+                            <p class="card-subtitle">Local determinism vs oscillations and negative forward hazard rates</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--green); font-size: 0.95rem;">✓ Piecewise Constant Intensity (ISDA Model)</strong>
+                        <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.65;">
+                            <li><strong>Local Independence:</strong> Changing the 5Y quoted spread only alters $\lambda$ for $t > 3\text{Y}$; short-dated hazard rates ($\lambda_1, \lambda_2$) remain 100% untouched.</li>
+                            <li><strong>Positivity Guarantee:</strong> As long as the quoted term structure does not imply negative forward credit risk, $\lambda_k > 0$.</li>
+                            <li><strong>Market Standard:</strong> The ISDA Standard Model used for daily Big Bang upfront settlement strictly mandates piecewise constant hazard rates.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">✗ Cubic Spline Interpolation Pitfalls</strong>
+                        <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.65;">
+                            <li><strong>Global Feedback (Runge's Phenomenon):</strong> Adjusting the 10Y CDS quote ripples backward and changes the 1Y forward hazard rate.</li>
+                            <li><strong>Negative Forward Hazards:</strong> High polynomial curvature can easily cause instantaneous hazard rates to dip below zero ($\lambda(t) < 0$), creating negative default probabilities.</li>
+                            <li><strong>Arb Opportunities:</strong> Unstable forward hazard curves produce non-monotonic survival probabilities ($S(t_2) > S(t_1)$).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: INTERACTIVE BOOTSTRAPPER ENGINE
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-bootstrap-engine">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">💻</span>
+                        <div>
+                            <h2 class="card-title">Live Piecewise Hazard Rate Bootstrapper</h2>
+                            <p class="card-subtitle">Calibrate piecewise intensities ($\lambda_k$) and forward default curves from 5 market pillars</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitBootstrapper()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>1Y CDS Spread</span>
+                            <span class="control-value" id="val-boot-1y">50 bps</span>
+                        </div>
+                        <input type="range" id="input-boot-1y" min="10" max="1000" step="5" value="50" oninput="updateBootstrapper()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>2Y CDS Spread</span>
+                            <span class="control-value" id="val-boot-2y">80 bps</span>
+                        </div>
+                        <input type="range" id="input-boot-2y" min="10" max="1000" step="5" value="80" oninput="updateBootstrapper()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>3Y CDS Spread</span>
+                            <span class="control-value" id="val-boot-3y">110 bps</span>
+                        </div>
+                        <input type="range" id="input-boot-3y" min="15" max="1200" step="5" value="110" oninput="updateBootstrapper()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>5Y CDS (Benchmark)</span>
+                            <span class="control-value" id="val-boot-5y">160 bps</span>
+                        </div>
+                        <input type="range" id="input-boot-5y" min="20" max="1500" step="5" value="160" oninput="updateBootstrapper()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>10Y CDS Spread</span>
+                            <span class="control-value" id="val-boot-10y">210 bps</span>
+                        </div>
+                        <input type="range" id="input-boot-10y" min="30" max="1800" step="5" value="210" oninput="updateBootstrapper()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Assumed Recovery ($R$)</span>
+                            <span class="control-value" id="val-boot-rec">40%</span>
+                        </div>
+                        <input type="range" id="input-boot-rec" min="10" max="80" step="5" value="40" oninput="updateBootstrapper()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">1Y Hazard ($\lambda_1$)</span>
+                        <span class="kpi-value" id="kpi-lambda-1">0.83%</span>
+                        <span class="kpi-sub">83 bps intensity [0, 1Y]</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">2Y Fwd Hazard ($\lambda_2$)</span>
+                        <span class="kpi-value" id="kpi-lambda-2">1.83%</span>
+                        <span class="kpi-sub">183 bps intensity [1Y, 2Y]</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">3Y Fwd Hazard ($\lambda_3$)</span>
+                        <span class="kpi-value" id="kpi-lambda-3">2.83%</span>
+                        <span class="kpi-sub">283 bps intensity [2Y, 3Y]</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">3Y-5Y Fwd Hazard ($\lambda_4$)</span>
+                        <span class="kpi-value" id="kpi-lambda-4">3.92%</span>
+                        <span class="kpi-sub">392 bps intensity [3Y, 5Y]</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">5Y-10Y Fwd Hazard ($\lambda_5$)</span>
+                        <span class="kpi-value" id="kpi-lambda-5">4.33%</span>
+                        <span class="kpi-sub">433 bps intensity [5Y, 10Y]</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">10Y Cumulative Default</span>
+                        <span class="kpi-value" id="kpi-cum-def-10y">32.6%</span>
+                        <span class="kpi-sub">$F(10\text{Y}) = 1 - S(10\text{Y})$</span>
+                    </div>
+                </div>
+
+                <!-- DUAL CANVAS CHARTS -->
+                <div class="chart-wrapper">
+                    <canvas id="bootstrapCanvas" width="900" height="340"></canvas>
+                    <div class="chart-hud" id="bootstrapHud">
+                        <div class="hud-row"><span class="hud-label">Maturity:</span><span class="hud-val" id="hud-boot-t">5.0y</span></div>
+                        <div class="hud-row"><span class="hud-label">Par CDS Quote:</span><span class="hud-val" id="hud-boot-par">160 bps</span></div>
+                        <div class="hud-row"><span class="hud-label">Instant Hazard λ(t):</span><span class="hud-val" id="hud-boot-lambda">3.92%</span></div>
+                        <div class="hud-row"><span class="hud-label">Survival Prob S(t):</span><span class="hud-val" id="hud-boot-surv">86.4%</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="table-bootstrap-results">
+                        <thead>
+                            <tr>
+                                <th>Pillar ($T_k$)</th>
+                                <th>Market Par Spread</th>
+                                <th>Calibrated Piecewise Hazard ($\lambda_k$)</th>
+                                <th>Survival Probability $S(T_k)$</th>
+                                <th>Cumulative Default $F(T_k)$</th>
+                                <th>Period Default Density</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-bootstrap">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: CURVE TRADES: STEEPENERS & FLATTENERS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-trades">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚖️</span>
+                        <div>
+                            <h2 class="card-title">Curve Trading: Steepeners, Flatteners & CS01 Neutrality</h2>
+                            <p class="card-subtitle">Relative value positioning along the credit curve without taking directional market spread risk</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-green" style="margin-bottom: 8px;">Bull / Bear Steepener</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Curve Steepener Trade</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            A curve steepener expresses the view that long-end spreads will widen relative to the short end ($S_{\text{long}} - S_{\text{short}} \uparrow$):
+                        </p>
+                        <ul style="padding-left: 20px; font-size: 0.84rem; color: var(--text-secondary); margin: 10px 0;">
+                            <li><strong>Buy Protection:</strong> Long-dated CDS (e.g. 5Y or 10Y)</li>
+                            <li><strong>Sell Protection:</strong> Short-dated CDS (e.g. 1Y or 2Y)</li>
+                            <li><strong>Wins When:</strong> Curve steepens (economic expansion, or long-term debt issuance surge).</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-red" style="margin-bottom: 8px;">Distress / Credit Event</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Curve Flattener Trade</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            A curve flattener expresses the view that short-end spreads will widen faster than long-end spreads ($S_{\text{long}} - S_{\text{short}} \downarrow$):
+                        </p>
+                        <ul style="padding-left: 20px; font-size: 0.84rem; color: var(--text-secondary); margin: 10px 0;">
+                            <li><strong>Buy Protection:</strong> Short-dated CDS (e.g. 1Y or 2Y)</li>
+                            <li><strong>Sell Protection:</strong> Long-dated CDS (e.g. 5Y or 10Y)</li>
+                            <li><strong>Wins When:</strong> Curve flattens or inverts (liquidity crisis, debt maturity cliff).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">The CS01 Neutral Sizing Rule</div>
+                    $$\text{CS01}_{\text{short}} \times \text{Notional}_{\text{short}} = \text{CS01}_{\text{long}} \times \text{Notional}_{\text{long}}$$
+                    $$\text{Hedge Ratio } H = \frac{\text{Notional}_{\text{short}}}{\text{Notional}_{\text{long}}} = \frac{\text{RPV01}_{\text{long}}}{\text{RPV01}_{\text{short}}} > 1.0$$
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 6px;">
+                        Because short-dated CDS has a much smaller RPV01 ($\approx 1.8$ for 2Y vs $\approx 4.2$ for 5Y), you must trade <strong>significantly more notional on the short leg</strong> to eliminate parallel spread risk.
+                    </p>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE CURVE TRADE SIMULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎛️</span>
+                        <div>
+                            <h2 class="card-title">Interactive Curve Trade Simulator & P&L Engine</h2>
+                            <p class="card-subtitle">Size a 2s5s or 5s10s curve position and stress-test parallel vs curve rotation shifts</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitTradeSim()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Strategy Choice</span>
+                            <span class="control-value" id="val-trade-strat">Curve Steepener</span>
+                        </div>
+                        <select id="select-trade-strat" onchange="updateTradeSim()">
+                            <option value="steepener" selected>Curve Steepener (Buy 5Y, Sell 2Y)</option>
+                            <option value="flattener">Curve Flattener (Buy 2Y, Sell 5Y)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Long-Leg (5Y) Notional</span>
+                            <span class="control-value" id="val-trade-notional">$10M</span>
+                        </div>
+                        <input type="range" id="input-trade-notional" min="1" max="50" step="1" value="10" oninput="updateTradeSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Parallel Market Shift</span>
+                            <span class="control-value" id="val-trade-parallel">0 bps (Neutral)</span>
+                        </div>
+                        <input type="range" id="input-trade-parallel" min="-100" max="100" step="5" value="0" oninput="updateTradeSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Curve Twist / Rotation</span>
+                            <span class="control-value" id="val-trade-twist">+25 bps (Steepening)</span>
+                        </div>
+                        <input type="range" id="input-trade-twist" min="-100" max="100" step="5" value="25" oninput="updateTradeSim()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Hedge Ratio (2Y / 5Y)</span>
+                        <span class="kpi-value" id="kpi-trade-ratio">2.28x</span>
+                        <span class="kpi-sub">RPV01(5Y) / RPV01(2Y)</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Short Leg (2Y) Notional</span>
+                        <span class="kpi-value" id="kpi-trade-short-notional">$22.8M</span>
+                        <span class="kpi-sub">For CS01 neutrality</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">5Y Leg CS01</span>
+                        <span class="kpi-value" id="kpi-trade-cs01-5y">$4,250 / bp</span>
+                        <span class="kpi-sub">Dollar spread sensitivity</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">2Y Leg CS01</span>
+                        <span class="kpi-value" id="kpi-trade-cs01-2y">-$4,250 / bp</span>
+                        <span class="kpi-sub">Exact delta offset</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Estimated Net P&L</span>
+                        <span class="kpi-value" id="kpi-trade-pnl" style="color: var(--green);">+$106,250</span>
+                        <span class="kpi-sub" id="kpi-trade-pnl-sub">From 25 bps curve twist</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Net Jump-to-Default (JTD)</span>
+                        <span class="kpi-value" id="kpi-trade-jtd" style="color: var(--accent-bright);">-$7.68M</span>
+                        <span class="kpi-sub">Residual overnight default risk</span>
+                    </div>
+                </div>
+
+                <div class="alert-box danger">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>The Hidden Danger of Curve Steepeners (JTD Asymmetry):</strong> While a 2s5s steepener is perfectly hedged against small spread movements ($\text{Net CS01} \approx 0$), it carries <strong>massive negative Jump-to-Default (JTD)</strong>! Because you sold $22.8\text{M}$ of short-dated protection and bought only $10\text{M}$ of long-dated protection, an overnight bankruptcy hits you with a net loss of $(10\text{M} - 22.8\text{M}) \times 0.60 = -\$7.68\text{M}$.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: ROLL-DOWN & CARRY DYNAMICS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-carry">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⏳</span>
+                        <div>
+                            <h2 class="card-title">Credit Curve Roll-Down & Carry Mechanics</h2>
+                            <p class="card-subtitle">How steep curves generate structural P&L for protection sellers without spread changes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    When a credit curve is upward-sloping and the market spread environment remains unchanged over time, an aging CDS position naturally "rolls down" the curve to a lower spread.
+                </p>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--green); font-size: 0.95rem;">1. Running Coupon Carry</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            The quarterly cash coupon received by the protection seller:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$\text{Coupon Carry} = \text{Notional} \times C \times \Delta t$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--cyan); font-size: 0.95rem;">2. Roll-Down Capital Gain</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            As the 5Y contract becomes a 4Y contract, its par spread drops from $S_{5Y}$ to $S_{4Y}$:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$\text{Roll P\&L} \approx \text{Notional} \times (S_{5Y} - S_{4Y}) \times \text{RPV01}_4$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">3. Break-Even Widening Cushion</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            Total carry + roll provides an insurance buffer against market spread widening:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$\Delta S_{\text{breakeven}} = \frac{\text{Carry} + \text{Roll P\&L}}{\text{CS01}}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE ROLL-DOWN MATRIX CALCULATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📊</span>
+                        <div>
+                            <h2 class="card-title">Interactive Roll-Down & Total Carry Calculator</h2>
+                            <p class="card-subtitle">Simulate 1-year holding period returns for a 5Y protection seller</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Initial 5Y CDS Spread</span>
+                            <span class="control-value" id="val-roll-s5">160 bps</span>
+                        </div>
+                        <input type="range" id="input-roll-s5" min="30" max="600" step="5" value="160" oninput="updateRollDown()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>4Y CDS Spread (1Y Aging)</span>
+                            <span class="control-value" id="val-roll-s4">130 bps</span>
+                        </div>
+                        <input type="range" id="input-roll-s4" min="20" max="550" step="5" value="130" oninput="updateRollDown()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Contract Running Coupon</span>
+                            <span class="control-value" id="val-roll-cpn">100 bps</span>
+                        </div>
+                        <select id="select-roll-cpn" onchange="updateRollDown()">
+                            <option value="100" selected>100 bps — Investment Grade</option>
+                            <option value="500">500 bps — High Yield</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Position Notional</span>
+                            <span class="control-value" id="val-roll-notional">$10M</span>
+                        </div>
+                        <input type="range" id="input-roll-notional" min="1" max="50" step="1" value="10" oninput="updateRollDown()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">1Y Coupon Carry</span>
+                        <span class="kpi-value" id="kpi-roll-carry">+$100,000</span>
+                        <span class="kpi-sub">Cash received from buyer</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">1Y Roll-Down Capital Gain</span>
+                        <span class="kpi-value" id="kpi-roll-gain">+$104,100</span>
+                        <span class="kpi-sub">From 30 bps spread drop</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Total 1Y Holding P&L</span>
+                        <span class="kpi-value" id="kpi-roll-total" style="color: var(--green);">+$204,100</span>
+                        <span class="kpi-sub">+2.04% return on notional</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Break-Even Spread Widening</span>
+                        <span class="kpi-value" id="kpi-roll-be">+58.8 bps</span>
+                        <span class="kpi-sub">Market buffer before loss</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: INTERVIEW Q&A MASTERCLASS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-interview">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">Credit Curves Interview Masterclass</h2>
+                            <p class="card-subtitle">8 high-frequency desk interview questions on curve shapes, bootstrapping, and relative value</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. Why does an inverted CDS curve signal immediate restructuring or default danger?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Curve Diagnosis</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Under normal conditions, credit curves slope upward because long-term uncertainty is greater than near-term uncertainty.</p>
+                        <p style="margin-top: 6px;">An inversion ($1\text{Y CDS} > 5\text{Y CDS}$) indicates the market prices an acute, imminent liquidity crisis or debt maturity cliff within 12 months. If the issuer successfully survives or restructures this near-term bottleneck, its survival probability over the subsequent 4 years actually improves (the "conditional survival" effect). Hence, short-end protection is priced at an emergency premium.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. Walk me through the step-by-step logic of bootstrapping piecewise constant hazard rates.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Bootstrapping</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ol style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Start at $T_1$ (1Y):</strong> Calibrate $\lambda_1$ by setting $\text{PV}(\text{Prot}_1) = S_1 \times \text{RPV01}_1$. Since $\lambda(t) = \lambda_1$ for $t \in [0, 1]$, this yields a closed-form root $\lambda_1 \approx S_1 / (1 - R)$.</li>
+                            <li><strong>Move to $T_2$ (2Y):</strong> Fix $\lambda_1$ on $[0, 1]$. The unknown is $\lambda_2$ on $(1, 2]$. Compute the 2Y premium and protection legs as the sum of interval 1 (known) and interval 2 (function of $\lambda_2$). Solve for $\lambda_2$ such that $\text{NPV}_2 = 0$.</li>
+                            <li><strong>Iterate recursively:</strong> Continue sequentially through $3\text{Y}, 5\text{Y}, 7\text{Y}, 10\text{Y}$. Because the equations are monotonic, a 1D Newton-Raphson or Brent's method converges within 4–5 iterations.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. How do you size a CS01-neutral 2Y vs 5Y curve steepener, and which leg has larger notional?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Trade Sizing</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> To isolate curve twist from parallel spread moves, set $\text{CS01}_{\text{short}} = \text{CS01}_{\text{long}}$:</p>
+                        <div class="formula-card" style="margin: 8px 0;">
+                            $$\text{Notional}_{\text{short}} \times \text{RPV01}_{\text{short}} = \text{Notional}_{\text{long}} \times \text{RPV01}_{\text{long}} \implies \text{Notional}_{\text{short}} = \text{Notional}_{\text{long}} \times \frac{\text{RPV01}_{\text{long}}}{\text{RPV01}_{\text{short}}}$$
+                        </div>
+                        <p>Because $\text{RPV01}_{\text{long}}$ ($\approx 4.2$) is more than double $\text{RPV01}_{\text{short}}$ ($\approx 1.8$), the <strong>short-dated (2Y) leg requires more than 2x the notional</strong> of the long-dated (5Y) leg.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. What is curve roll-down, and why is an upward-sloping credit curve profitable for protection sellers?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Roll-Down Carry</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Roll-down is the capital appreciation an existing contract experiences as time passes along an unchanged upward-sloping curve.</p>
+                        <p style="margin-top: 6px;">If you sell 5Y protection at 160 bps and 4Y CDS is priced at 130 bps, after 1 year your position has 4 years remaining. Its market spread has tightened by 30 bps, giving the seller an upfront mark-to-market gain of $\Delta S \times \text{RPV01}_4$ <em>in addition</em> to collecting the 1-year coupon carry.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. If 1Y CDS is 100 bps and 2Y CDS is 150 bps with $R = 40\%$, calculate the forward hazard rate for year 2.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Mental Math</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Using the rule of thumb $\lambda \approx S / (1 - R)$ with $1 - R = 0.60$:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li>$\lambda_1 \approx 100 / 0.60 = 167\text{ bps}$ ($1.67\%$).</li>
+                            <li>Average $\bar{\lambda}_2 \approx 150 / 0.60 = 250\text{ bps}$ ($2.50\%$).</li>
+                            <li>Total cumulative hazard over 2 years: $2 \times 250 = 500\text{ bps}$.</li>
+                            <li>Forward hazard for year 2: $\lambda_{1 \to 2} = 500 - 167 = \mathbf{333\text{ bps}}$ ($\mathbf{3.33\%}$).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. What is the primary tail risk of a CS01-neutral curve steepener?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Tail Risk</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> <strong>Jump-to-Default (JTD) asymmetry.</strong></p>
+                        <p style="margin-top: 6px;">In a steepener, you bought $10\text{M}$ 5Y protection and sold $\approx \$23\text{M}$ 2Y protection to be spread-neutral. If default strikes overnight, you collect $(1 - R) \times \$10\text{M}$ on your long leg, but must pay $(1 - R) \times \$23\text{M}$ on your short leg. You suffer an instant net loss of $(1 - R) \times \$13\text{M} \approx -\$7.8\text{M}$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. Why does the ISDA standard model use piecewise constant intensity rather than smooth splines?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Model Architecture</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ol style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Locality of Hedging:</strong> A price shift in 5Y only affects $\lambda$ in $[3\text{Y}, 5\text{Y}]$, keeping earlier cashflows and hedges unchanged. Splines create nonlocal feedback across all tenors.</li>
+                            <li><strong>Arbitrage Immunity:</strong> Splines often oscillate, resulting in negative forward hazard rates ($\lambda(t) < 0$) or increasing survival curves ($S(t_2) > S(t_1)$). Piecewise constant intensities are strictly non-negative if market spreads are arbitrage-free.</li>
+                            <li><strong>Market Settlement:</strong> It is the globally mandated standard for clearinghouses (ICE, LCH) and Bloomberg CDSW calculations.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. Explain how a credit curve butterfly trade (e.g. 2Y / 5Y / 10Y) is structured.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Butterfly Trades</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> A butterfly trades the curvature of the term structure:</p>
+                        <div class="formula-card" style="margin: 8px 0;">
+                            $$\text{Butterfly Spread} = 2 \times S_{5Y} - (S_{2Y} + S_{10Y})$$
+                        </div>
+                        <p>To execute a long butterfly (expecting 5Y spread to richen/widen relative to the wings):</p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li>Buy 5Y protection (the body).</li>
+                            <li>Sell 2Y protection and 10Y protection (the wings).</li>
+                            <li>Weight notionals such that both <strong>Total CS01 = 0</strong> and <strong>Curve Slope Sensitivity = 0</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 05: Credit Curves</div>
+        <div style="margin-top: 6px;">
+            Next up: <a href="06_Credit_Indices.html">Module 06: Credit Indices (CDX, iTraxx & Tranches) →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & DOT SYNC
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+
+                // Resize/redraw canvas on active tab
+                setTimeout(() => {
+                    if (targetId === 'tab-shapes') drawShapes();
+                    if (targetId === 'tab-bootstrap-engine') drawBootstrapper();
+                }, 50);
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION TOGGLE
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           TAB 1: CURVE SHAPES CANVAS
+           ========================================================================== */
+        let currentShapeRegime = 'normal';
+        const shapesCanvas = document.getElementById('shapesCanvas');
+        const shapesCtx = shapesCanvas.getContext('2d');
+        const shapesHud = document.getElementById('shapesHud');
+        let shapesHoverX = null;
+
+        const curvePillars = [1, 2, 3, 5, 7, 10];
+        const shapeProfiles = {
+            normal: [35, 55, 75, 110, 130, 145],
+            inverted: [850, 720, 600, 480, 430, 400],
+            humped: [120, 210, 380, 290, 250, 220],
+            flat: [250, 250, 250, 250, 250, 250]
+        };
+
+        function setShapeRegime(regime) {
+            currentShapeRegime = regime;
+            document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('btn-shape-' + regime);
+            if (btn) btn.classList.add('active');
+            drawShapes();
+        }
+
+        function drawShapes() {
+            if (!shapesCanvas) return;
+            const W = shapesCanvas.width;
+            const H = shapesCanvas.height;
+            shapesCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const currentData = shapeProfiles[currentShapeRegime];
+            const maxSpread = currentShapeRegime === 'inverted' ? 1000 : 400;
+
+            // Gridlines
+            shapesCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            shapesCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                shapesCtx.beginPath();
+                shapesCtx.moveTo(padL, y);
+                shapesCtx.lineTo(W - padR, y);
+                shapesCtx.stroke();
+
+                const val = Math.round(maxSpread * (1 - i / 4));
+                shapesCtx.fillStyle = '#64748b';
+                shapesCtx.font = '11px JetBrains Mono';
+                shapesCtx.fillText(val + ' bps', padL - 52, y + 4);
+            }
+
+            // Draw Curve
+            shapesCtx.beginPath();
+            curvePillars.forEach((t, i) => {
+                const x = padL + ((t - 1) / 9) * plotW;
+                const y = padT + plotH - (currentData[i] / maxSpread) * plotH;
+                if (i === 0) shapesCtx.moveTo(x, y);
+                else shapesCtx.lineTo(x, y);
+            });
+
+            const strokeColor = currentShapeRegime === 'normal' ? '#10b981' :
+                                currentShapeRegime === 'inverted' ? '#ef4444' :
+                                currentShapeRegime === 'humped' ? '#f59e0b' : '#3b82f6';
+
+            shapesCtx.strokeStyle = strokeColor;
+            shapesCtx.lineWidth = 3.5;
+            shapesCtx.stroke();
+
+            // Gradient Fill under curve
+            const grad = shapesCtx.createLinearGradient(0, padT, 0, padT + plotH);
+            grad.addColorStop(0, strokeColor + '33');
+            grad.addColorStop(1, strokeColor + '00');
+            shapesCtx.lineTo(padL + plotW, padT + plotH);
+            shapesCtx.lineTo(padL, padT + plotH);
+            shapesCtx.closePath();
+            shapesCtx.fillStyle = grad;
+            shapesCtx.fill();
+
+            // Data Points
+            curvePillars.forEach((t, i) => {
+                const x = padL + ((t - 1) / 9) * plotW;
+                const y = padT + plotH - (currentData[i] / maxSpread) * plotH;
+
+                shapesCtx.fillStyle = '#0f1419';
+                shapesCtx.strokeStyle = strokeColor;
+                shapesCtx.lineWidth = 2.5;
+                shapesCtx.beginPath();
+                shapesCtx.arc(x, y, 6, 0, Math.PI * 2);
+                shapesCtx.fill();
+                shapesCtx.stroke();
+
+                // Spread label above point
+                shapesCtx.fillStyle = '#ffffff';
+                shapesCtx.font = 'bold 11px JetBrains Mono';
+                shapesCtx.fillText(currentData[i] + ' bps', x - 18, y - 12);
+            });
+
+            // X Axis
+            shapesCtx.strokeStyle = '#64748b';
+            shapesCtx.lineWidth = 1;
+            shapesCtx.beginPath();
+            shapesCtx.moveTo(padL, padT + plotH);
+            shapesCtx.lineTo(W - padR, padT + plotH);
+            shapesCtx.stroke();
+
+            shapesCtx.fillStyle = '#94a3b8';
+            shapesCtx.font = '11px Inter';
+            curvePillars.forEach(t => {
+                const x = padL + ((t - 1) / 9) * plotW;
+                shapesCtx.fillText(t + 'Y', x - 8, padT + plotH + 20);
+            });
+
+            // Hover tracking
+            if (shapesHoverX !== null && shapesHoverX >= padL && shapesHoverX <= W - padR) {
+                const norm = (shapesHoverX - padL) / plotW;
+                const approxTenor = 1 + norm * 9;
+
+                // Find closest pillar
+                let closestIdx = 0;
+                let minDiff = 999;
+                curvePillars.forEach((t, i) => {
+                    const diff = Math.abs(t - approxTenor);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIdx = i;
+                    }
+                });
+
+                const snapT = curvePillars[closestIdx];
+                const snapSpread = currentData[closestIdx];
+                const snapX = padL + ((snapT - 1) / 9) * plotW;
+                const snapY = padT + plotH - (snapSpread / maxSpread) * plotH;
+
+                shapesCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                shapesCtx.setLineDash([2, 2]);
+                shapesCtx.beginPath();
+                shapesCtx.moveTo(snapX, padT);
+                shapesCtx.lineTo(snapX, padT + plotH);
+                shapesCtx.stroke();
+                shapesCtx.setLineDash([]);
+
+                shapesHud.style.display = 'block';
+                document.getElementById('hud-shape-tenor').textContent = snapT + 'Y';
+                document.getElementById('hud-shape-spread').textContent = snapSpread + ' bps';
+                const slope = snapSpread - currentData[0];
+                document.getElementById('hud-shape-slope').textContent = (slope >= 0 ? '+' : '') + slope + ' bps';
+            }
+        }
+
+        shapesCanvas.addEventListener('mousemove', e => {
+            const rect = shapesCanvas.getBoundingClientRect();
+            const scaleX = shapesCanvas.width / rect.width;
+            shapesHoverX = (e.clientX - rect.left) * scaleX;
+            drawShapes();
+        });
+
+        shapesCanvas.addEventListener('mouseleave', () => {
+            shapesHoverX = null;
+            shapesHud.style.display = 'none';
+            drawShapes();
+        });
+
+        /* ==========================================================================
+           TAB 3: INTERACTIVE BOOTSTRAPPER ENGINE
+           ========================================================================== */
+        const inBoot1y = document.getElementById('input-boot-1y');
+        const inBoot2y = document.getElementById('input-boot-2y');
+        const inBoot3y = document.getElementById('input-boot-3y');
+        const inBoot5y = document.getElementById('input-boot-5y');
+        const inBoot10y = document.getElementById('input-boot-10y');
+        const inBootRec = document.getElementById('input-boot-rec');
+
+        const bootstrapPillars = [1, 2, 3, 5, 10];
+        let calibratedLambdas = [];
+        let pillarSurvivals = [];
+        let curvePlotPoints = [];
+
+        function updateBootstrapper() {
+            const s1 = parseFloat(inBoot1y.value);
+            const s2 = parseFloat(inBoot2y.value);
+            const s3 = parseFloat(inBoot3y.value);
+            const s5 = parseFloat(inBoot5y.value);
+            const s10 = parseFloat(inBoot10y.value);
+            const rec = parseFloat(inBootRec.value) / 100;
+            const lgd = 1 - rec;
+
+            document.getElementById('val-boot-1y').textContent = s1 + ' bps';
+            document.getElementById('val-boot-2y').textContent = s2 + ' bps';
+            document.getElementById('val-boot-3y').textContent = s3 + ' bps';
+            document.getElementById('val-boot-5y').textContent = s5 + ' bps';
+            document.getElementById('val-boot-10y').textContent = s10 + ' bps';
+            document.getElementById('val-boot-rec').textContent = inBootRec.value + '%';
+
+            // Sequential Piecewise Constant Bootstrapping
+            // Pillar 1: [0, 1Y] -> lambda_1 = S1 / LGD
+            const lambda1 = (s1 / 10000) / lgd;
+            const surv1 = Math.exp(-lambda1 * 1.0);
+
+            // Pillar 2: [1Y, 2Y] -> lambda_2 = (2*S2 - S1) / LGD
+            const lambda2 = Math.max(0.0001, (2 * (s2 / 10000) - (s1 / 10000)) / lgd);
+            const surv2 = surv1 * Math.exp(-lambda2 * 1.0);
+
+            // Pillar 3: [2Y, 3Y] -> lambda_3 = (3*S3 - 2*S2) / LGD
+            const lambda3 = Math.max(0.0001, (3 * (s3 / 10000) - 2 * (s2 / 10000)) / lgd);
+            const surv3 = surv2 * Math.exp(-lambda3 * 1.0);
+
+            // Pillar 4: [3Y, 5Y] -> lambda_4 = (5*S5 - 3*S3) / (2 * LGD)
+            const lambda4 = Math.max(0.0001, (5 * (s5 / 10000) - 3 * (s3 / 10000)) / (2 * lgd));
+            const surv5 = surv3 * Math.exp(-lambda4 * 2.0);
+
+            // Pillar 5: [5Y, 10Y] -> lambda_5 = (10*S10 - 5*S5) / (5 * LGD)
+            const lambda5 = Math.max(0.0001, (10 * (s10 / 10000) - 5 * (s5 / 10000)) / (5 * lgd));
+            const surv10 = surv5 * Math.exp(-lambda5 * 5.0);
+
+            calibratedLambdas = [lambda1, lambda2, lambda3, lambda4, lambda5];
+            pillarSurvivals = [surv1, surv2, surv3, surv5, surv10];
+
+            document.getElementById('kpi-lambda-1').textContent = (lambda1 * 100).toFixed(2) + '%';
+            document.getElementById('kpi-lambda-2').textContent = (lambda2 * 100).toFixed(2) + '%';
+            document.getElementById('kpi-lambda-3').textContent = (lambda3 * 100).toFixed(2) + '%';
+            document.getElementById('kpi-lambda-4').textContent = (lambda4 * 100).toFixed(2) + '%';
+            document.getElementById('kpi-lambda-5').textContent = (lambda5 * 100).toFixed(2) + '%';
+            document.getElementById('kpi-cum-def-10y').textContent = ((1 - surv10) * 100).toFixed(1) + '%';
+
+            // Generate high-res curve points for canvas
+            curvePlotPoints = [];
+            const steps = 100;
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * 10;
+                let activeLambda = lambda1;
+                let survT = 1.0;
+
+                if (t <= 1) {
+                    activeLambda = lambda1;
+                    survT = Math.exp(-lambda1 * t);
+                } else if (t <= 2) {
+                    activeLambda = lambda2;
+                    survT = surv1 * Math.exp(-lambda2 * (t - 1));
+                } else if (t <= 3) {
+                    activeLambda = lambda3;
+                    survT = surv2 * Math.exp(-lambda3 * (t - 2));
+                } else if (t <= 5) {
+                    activeLambda = lambda4;
+                    survT = surv3 * Math.exp(-lambda4 * (t - 3));
+                } else {
+                    activeLambda = lambda5;
+                    survT = surv5 * Math.exp(-lambda5 * (t - 5));
+                }
+
+                // Interpolated par quote for display
+                let parQuote = s1;
+                if (t <= 1) parQuote = s1;
+                else if (t <= 2) parQuote = s1 + (s2 - s1) * (t - 1);
+                else if (t <= 3) parQuote = s2 + (s3 - s2) * (t - 2);
+                else if (t <= 5) parQuote = s3 + (s5 - s3) * ((t - 3) / 2);
+                else parQuote = s5 + (s10 - s5) * ((t - 5) / 5);
+
+                curvePlotPoints.push({ t, lambda: activeLambda, surv: survT, def: 1 - survT, parQuote });
+            }
+
+            // Populate table
+            const tbody = document.getElementById('tbody-bootstrap');
+            const spreads = [s1, s2, s3, s5, s10];
+            const intervals = ['[0, 1Y]', '[1Y, 2Y]', '[2Y, 3Y]', '[3Y, 5Y]', '[5Y, 10Y]'];
+            tbody.innerHTML = '';
+
+            bootstrapPillars.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                const lam = calibratedLambdas[idx];
+                const s = pillarSurvivals[idx];
+                const def = 1 - s;
+                const prevS = idx === 0 ? 1.0 : pillarSurvivals[idx - 1];
+                const periodDef = prevS - s;
+
+                tr.innerHTML = `
+                    <td><strong>${p}Y</strong> <span style="font-size:0.75rem; color:var(--text-muted);">${intervals[idx]}</span></td>
+                    <td><span class="badge-tag badge-blue">${spreads[idx]} bps</span></td>
+                    <td><strong style="color:var(--accent-bright); font-family:var(--font-mono);">${(lam * 100).toFixed(2)}%</strong> (${Math.round(lam * 10000)} bps)</td>
+                    <td><span style="color:var(--green); font-family:var(--font-mono);">${(s * 100).toFixed(2)}%</span></td>
+                    <td><span style="color:var(--amber); font-family:var(--font-mono);">${(def * 100).toFixed(2)}%</span></td>
+                    <td style="font-family:var(--font-mono);">${(periodDef * 100).toFixed(2)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            drawBootstrapper();
+        }
+
+        function reinitBootstrapper() {
+            inBoot1y.value = 50;
+            inBoot2y.value = 80;
+            inBoot3y.value = 110;
+            inBoot5y.value = 160;
+            inBoot10y.value = 210;
+            inBootRec.value = 40;
+            updateBootstrapper();
+        }
+
+        const bootCanvas = document.getElementById('bootstrapCanvas');
+        const bootCtx = bootCanvas.getContext('2d');
+        const bootHud = document.getElementById('bootstrapHud');
+        let bootHoverX = null;
+
+        function drawBootstrapper() {
+            if (!bootCanvas || curvePlotPoints.length === 0) return;
+            const W = bootCanvas.width;
+            const H = bootCanvas.height;
+            bootCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Gridlines
+            bootCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            bootCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                bootCtx.beginPath();
+                bootCtx.moveTo(padL, y);
+                bootCtx.lineTo(W - padR, y);
+                bootCtx.stroke();
+
+                const pVal = ((1 - i / 4) * 100).toFixed(0);
+                bootCtx.fillStyle = '#64748b';
+                bootCtx.font = '11px JetBrains Mono';
+                bootCtx.fillText(pVal + '%', padL - 42, y + 4);
+            }
+
+            // Draw Survival Probability S(t) (Green line)
+            bootCtx.beginPath();
+            curvePlotPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / 10) * plotW;
+                const y = padT + plotH - pt.surv * plotH;
+                if (i === 0) bootCtx.moveTo(x, y);
+                else bootCtx.lineTo(x, y);
+            });
+            bootCtx.strokeStyle = '#10b981';
+            bootCtx.lineWidth = 3;
+            bootCtx.stroke();
+
+            // Draw Cumulative Default F(t) (Red line)
+            bootCtx.beginPath();
+            curvePlotPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / 10) * plotW;
+                const y = padT + plotH - pt.def * plotH;
+                if (i === 0) bootCtx.moveTo(x, y);
+                else bootCtx.lineTo(x, y);
+            });
+            bootCtx.strokeStyle = '#ef4444';
+            bootCtx.lineWidth = 2.5;
+            bootCtx.stroke();
+
+            // Draw Piecewise Step Hazard Rate lambda(t) (Amber dashed step line)
+            // Normalized: 10% hazard = top of chart
+            bootCtx.beginPath();
+            curvePlotPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / 10) * plotW;
+                const y = padT + plotH - (pt.lambda / 0.10) * plotH;
+                if (i === 0) bootCtx.moveTo(x, y);
+                else bootCtx.lineTo(x, y);
+            });
+            bootCtx.strokeStyle = '#f59e0b';
+            bootCtx.lineWidth = 2;
+            bootCtx.setLineDash([4, 4]);
+            bootCtx.stroke();
+            bootCtx.setLineDash([]);
+
+            // Pillar Vertical Guide Lines
+            bootstrapPillars.forEach(p => {
+                const px = padL + (p / 10) * plotW;
+                bootCtx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                bootCtx.beginPath();
+                bootCtx.moveTo(px, padT);
+                bootCtx.lineTo(px, padT + plotH);
+                bootCtx.stroke();
+            });
+
+            // Legend
+            bootCtx.fillStyle = '#10b981';
+            bootCtx.font = '11px JetBrains Mono';
+            bootCtx.fillText('■ Survival S(t)', padL + 20, padT + 20);
+
+            bootCtx.fillStyle = '#ef4444';
+            bootCtx.fillText('■ Cumulative Default F(t)', padL + 160, padT + 20);
+
+            bootCtx.fillStyle = '#f59e0b';
+            bootCtx.fillText('--- Piecewise Hazard λ(t) (10% scale)', padL + 370, padT + 20);
+
+            // Axes
+            bootCtx.strokeStyle = '#64748b';
+            bootCtx.lineWidth = 1;
+            bootCtx.beginPath();
+            bootCtx.moveTo(padL, padT);
+            bootCtx.lineTo(padL, padT + plotH);
+            bootCtx.lineTo(W - padR, padT + plotH);
+            bootCtx.stroke();
+
+            bootCtx.fillStyle = '#94a3b8';
+            bootCtx.font = '11px Inter';
+            for (let t = 1; t <= 10; t++) {
+                const x = padL + (t / 10) * plotW;
+                bootCtx.fillText(t + 'Y', x - 8, padT + plotH + 20);
+            }
+
+            // Hover crosshair tracking
+            if (bootHoverX !== null && bootHoverX >= padL && bootHoverX <= W - padR) {
+                const normX = (bootHoverX - padL) / plotW;
+                const targetIdx = Math.min(curvePlotPoints.length - 1, Math.max(0, Math.round(normX * (curvePlotPoints.length - 1))));
+                const pt = curvePlotPoints[targetIdx];
+
+                const snapX = padL + (pt.t / 10) * plotW;
+                const snapYSurv = padT + plotH - pt.surv * plotH;
+
+                bootCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                bootCtx.setLineDash([2, 2]);
+                bootCtx.beginPath();
+                bootCtx.moveTo(snapX, padT);
+                bootCtx.lineTo(snapX, padT + plotH);
+                bootCtx.stroke();
+                bootCtx.setLineDash([]);
+
+                bootCtx.fillStyle = '#10b981';
+                bootCtx.beginPath();
+                bootCtx.arc(snapX, snapYSurv, 5, 0, Math.PI * 2);
+                bootCtx.fill();
+
+                bootHud.style.display = 'block';
+                document.getElementById('hud-boot-t').textContent = pt.t.toFixed(1) + 'y';
+                document.getElementById('hud-boot-par').textContent = Math.round(pt.parQuote) + ' bps';
+                document.getElementById('hud-boot-lambda').textContent = (pt.lambda * 100).toFixed(2) + '%';
+                document.getElementById('hud-boot-surv').textContent = (pt.surv * 100).toFixed(2) + '%';
+            }
+        }
+
+        bootCanvas.addEventListener('mousemove', e => {
+            const rect = bootCanvas.getBoundingClientRect();
+            const scaleX = bootCanvas.width / rect.width;
+            bootHoverX = (e.clientX - rect.left) * scaleX;
+            drawBootstrapper();
+        });
+
+        bootCanvas.addEventListener('mouseleave', () => {
+            bootHoverX = null;
+            bootHud.style.display = 'none';
+            drawBootstrapper();
+        });
+
+        /* ==========================================================================
+           TAB 4: CURVE TRADE SIMULATOR
+           ========================================================================== */
+        const selTradeStrat = document.getElementById('select-trade-strat');
+        const inTradeNotional = document.getElementById('input-trade-notional');
+        const inTradeParallel = document.getElementById('input-trade-parallel');
+        const inTradeTwist = document.getElementById('input-trade-twist');
+
+        function updateTradeSim() {
+            const strat = selTradeStrat.value;
+            const notional5y = parseFloat(inTradeNotional.value) * 1e6;
+            const parallelBps = parseFloat(inTradeParallel.value);
+            const twistBps = parseFloat(inTradeTwist.value);
+
+            document.getElementById('val-trade-strat').textContent = strat === 'steepener' ? 'Curve Steepener' : 'Curve Flattener';
+            document.getElementById('val-trade-notional').textContent = '$' + inTradeNotional.value + 'M';
+            document.getElementById('val-trade-parallel').textContent = (parallelBps >= 0 ? '+' : '') + parallelBps + ' bps';
+            document.getElementById('val-trade-twist').textContent = (twistBps >= 0 ? '+' : '') + twistBps + ' bps ' + (twistBps > 0 ? '(Steepening)' : twistBps < 0 ? '(Flattening)' : '(Flat)');
+
+            // RPV01 assumptions for 2Y and 5Y
+            const rpv01_2y = 1.86;
+            const rpv01_5y = 4.25;
+            const hedgeRatio = rpv01_5y / rpv01_2y;
+            const notional2y = notional5y * hedgeRatio;
+
+            // CS01 of individual legs
+            const cs01_5y = notional5y * rpv01_5y * 0.0001;
+            const cs01_2y = notional2y * rpv01_2y * 0.0001;
+
+            // Spread shifts
+            // Steepener: +twist means 5Y widens by +twist/2, 2Y tightens by -twist/2
+            // Flattener is opposite
+            const dS5 = parallelBps + (strat === 'steepener' ? twistBps / 2 : -twistBps / 2);
+            const dS2 = parallelBps + (strat === 'steepener' ? -twistBps / 2 : twistBps / 2);
+
+            // P&L calculation
+            // Steepener: Long 5Y protection (profits from +dS5), Short 2Y protection (profits from -dS2)
+            let pnl5y = 0;
+            let pnl2y = 0;
+
+            if (strat === 'steepener') {
+                pnl5y = cs01_5y * dS5;
+                pnl2y = -cs01_2y * dS2;
+            } else {
+                pnl5y = -cs01_5y * dS5;
+                pnl2y = cs01_2y * dS2;
+            }
+
+            const totalPnl = pnl5y + pnl2y;
+
+            // Jump to Default net loss (assuming R = 40%)
+            // Steepener: +10M 5Y, -22.8M 2Y -> Net notional = -12.8M
+            const netNotionalDefault = strat === 'steepener' ? (notional5y - notional2y) : (notional2y - notional5y);
+            const jtdNet = netNotionalDefault * 0.60;
+
+            document.getElementById('kpi-trade-ratio').textContent = hedgeRatio.toFixed(2) + 'x';
+            document.getElementById('kpi-trade-short-notional').textContent = '$' + (notional2y / 1e6).toFixed(1) + 'M';
+            document.getElementById('kpi-trade-cs01-5y').textContent = (strat === 'steepener' ? '+' : '-') + '$' + Math.round(cs01_5y).toLocaleString() + ' / bp';
+            document.getElementById('kpi-trade-cs01-2y').textContent = (strat === 'steepener' ? '-' : '+') + '$' + Math.round(cs01_2y).toLocaleString() + ' / bp';
+
+            const pnlEl = document.getElementById('kpi-trade-pnl');
+            pnlEl.textContent = (totalPnl >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(totalPnl)).toLocaleString();
+            pnlEl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--accent-bright)';
+
+            document.getElementById('kpi-trade-pnl-sub').textContent = 'Parallel: ' + (parallelBps >= 0 ? '+' : '') + parallelBps + ' bp | Twist: ' + (twistBps >= 0 ? '+' : '') + twistBps + ' bp';
+
+            const jtdEl = document.getElementById('kpi-trade-jtd');
+            jtdEl.textContent = (jtdNet >= 0 ? '+' : '-') + '$' + (Math.abs(jtdNet) / 1e6).toFixed(2) + 'M';
+            jtdEl.style.color = jtdNet >= 0 ? 'var(--green)' : 'var(--accent-bright)';
+        }
+
+        function reinitTradeSim() {
+            selTradeStrat.value = 'steepener';
+            inTradeNotional.value = 10;
+            inTradeParallel.value = 0;
+            inTradeTwist.value = 25;
+            updateTradeSim();
+        }
+
+        /* ==========================================================================
+           TAB 5: ROLL-DOWN & CARRY CALCULATOR
+           ========================================================================== */
+        const inRollS5 = document.getElementById('input-roll-s5');
+        const inRollS4 = document.getElementById('input-roll-s4');
+        const selRollCpn = document.getElementById('select-roll-cpn');
+        const inRollNotional = document.getElementById('input-roll-notional');
+
+        function updateRollDown() {
+            const s5 = parseFloat(inRollS5.value);
+            const s4 = parseFloat(inRollS4.value);
+            const cpnBps = parseFloat(selRollCpn.value);
+            const notional = parseFloat(inRollNotional.value) * 1e6;
+
+            document.getElementById('val-roll-s5').textContent = s5 + ' bps';
+            document.getElementById('val-roll-s4').textContent = s4 + ' bps';
+            document.getElementById('val-roll-cpn').textContent = cpnBps + ' bps';
+            document.getElementById('val-roll-notional').textContent = '$' + inRollNotional.value + 'M';
+
+            // 1 Year coupon carry = Notional * Coupon
+            const couponCarry = notional * (cpnBps / 10000);
+
+            // Roll-down capital gain = Notional * (S5 - S4) * RPV01(4Y)
+            // Approximate RPV01 for 4Y: 3.47
+            const rpv01_4y = 3.47;
+            const spreadTightening = (s5 - s4) / 10000;
+            const rollGain = notional * spreadTightening * rpv01_4y;
+
+            const totalPnl = couponCarry + rollGain;
+            const cs01_5y = notional * 4.25 * 0.0001;
+            const breakevenSpreadWidening = cs01_5y > 0 ? (totalPnl / cs01_5y) : 0;
+
+            document.getElementById('kpi-roll-carry').textContent = '+$' + Math.round(couponCarry).toLocaleString();
+            document.getElementById('kpi-roll-gain').textContent = (rollGain >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(rollGain)).toLocaleString();
+
+            const totalEl = document.getElementById('kpi-roll-total');
+            totalEl.textContent = (totalPnl >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(totalPnl)).toLocaleString();
+            totalEl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--accent-bright)';
+
+            document.getElementById('kpi-roll-be').textContent = '+' + breakevenSpreadWidening.toFixed(1) + ' bps';
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeX Auto-Render
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Initial computations
+            drawShapes();
+            updateBootstrapper();
+            updateTradeSim();
+            updateRollDown();
+        });
+    </script>
+</body>
+</html>
