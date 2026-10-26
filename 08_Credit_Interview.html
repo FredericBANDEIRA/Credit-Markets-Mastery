@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 08: Credit Interview Cheat Sheet & Flashcards — Credit Academy</title>
+    <meta name="description" content="The definitive quantitative credit derivatives interview cheat sheet: master formula tables, interactive flashcards, mental math drills, trade pitches, and desk conventions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        /* Formula Display Card */
+        .formula-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        /* KPI / Metric Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==========================================================================
+           CONTROLS, SLIDERS & BUTTONS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* ==========================================================================
+           INTERACTIVE FLASHCARD COMPONENT
+           ========================================================================== */
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 24px auto;
+            max-width: 720px;
+            min-height: 340px;
+        }
+
+        .flashcard {
+            width: 100%;
+            min-height: 340px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            min-height: 340px;
+            backface-visibility: hidden;
+            border-radius: var(--radius);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+            box-sizing: border-box;
+        }
+
+        .flashcard-front {
+            background: linear-gradient(145deg, var(--surface) 0%, var(--surface-elevated) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+        }
+
+        .flashcard-back {
+            background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--surface) 100%);
+            border: 1px solid var(--accent);
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .flashcard-tag {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--accent-bright);
+            text-transform: uppercase;
+        }
+
+        .flashcard-num {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .flashcard-q {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.45;
+            margin: auto 0;
+        }
+
+        .flashcard-hint {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flashcard-a {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            line-height: 1.7;
+            margin: auto 0;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .flashcard-btn {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flashcard-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .flashcard-filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-chip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip.active {
+            background: rgba(220, 38, 38, 0.18);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .badge-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .badge-green { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-red { background: rgba(220, 38, 38, 0.12); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+        .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-blue { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-purple { background: rgba(139, 92, 246, 0.12); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+            .flashcard-container { min-height: 380px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">08</span>
+                <span>Interview Cheat Sheet</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 08 • Desk Mastery Capstone</div>
+            <h1>Credit Interview Cheat Sheet & Flashcards</h1>
+            <p class="hero-description">
+                The ultimate desk-ready synthesis: master equation cheat sheets, market rule-of-thumb tables,
+                interactive 3D flashcards, rapid mental math heuristics, and trade pitch frameworks.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-formulas" role="tab">
+                <span class="tab-num">01</span> Master Formulas
+            </button>
+            <button class="tab-btn" data-tab="tab-conventions" role="tab">
+                <span class="tab-num">02</span> Market Conventions
+            </button>
+            <button class="tab-btn" data-tab="tab-flashcards" role="tab">
+                <span class="tab-num">03</span> Interactive Flashcards
+            </button>
+            <button class="tab-btn" data-tab="tab-mental" role="tab">
+                <span class="tab-num">04</span> Mental Math Drills
+            </button>
+            <button class="tab-btn" data-tab="tab-pitches" role="tab">
+                <span class="tab-num">05</span> Trade Pitches
+            </button>
+            <button class="tab-btn" data-tab="tab-masterclass" role="tab">
+                <span class="tab-num">06</span> 12-Question Masterclass
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: MASTER FORMULA CHEAT SHEET
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-formulas">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📐</span>
+                        <div>
+                            <h2 class="card-title">Credit Derivatives Master Formula Matrix</h2>
+                            <p class="card-subtitle">Comprehensive mathematical reference across all 8 modules</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Column 1 -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="formula-card">
+                            <div class="label">1. Expected Loss (EL) & Recovery</div>
+                            $$\text{EL} = \text{PD} \times \text{LGD} \times \text{EAD} = \text{PD} \times (1 - R) \times \text{EAD}$$
+                            <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px;">LGD is loss given default; $R$ is recovery rate (standard senior unsecured: 40%).</p>
+                        </div>
+
+                        <div class="formula-card">
+                            <div class="label">2. Fundamental Par CDS Rule of Thumb</div>
+                            $$S_{\text{par}} \approx \lambda(1 - R) \iff \lambda \approx \frac{S_{\text{par}}}{1 - R}$$
+                            <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px;">Exact under constant hazard rate $\lambda$ and flat risk-free interest rates.</p>
+                        </div>
+
+                        <div class="formula-card">
+                            <div class="label">3. Survival & Cumulative Default Functions</div>
+                            $$S(t) = \exp\left(-\int_0^t \lambda(u)\,du\right) \xrightarrow{\lambda = \text{const}} S(t) = e^{-\lambda t}$$
+                            $$F(t) = 1 - S(t) = 1 - e^{-\lambda t}, \quad f(t) = \lambda e^{-\lambda t}$$
+                        </div>
+
+                        <div class="formula-card">
+                            <div class="label">4. Cash-CDS Basis & Negative Basis Arb</div>
+                            $$\text{Basis} = S_{\text{CDS}} - Z_{\text{bond}} \approx S_{\text{CDS}} - \text{ASW}_{\text{bond}}$$
+                            <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px;">If Basis $< 0$: Buy bond + asset swap to floating + Buy CDS protection (locks in risk-free spread).</p>
+                        </div>
+                    </div>
+
+                    <!-- Column 2 -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="formula-card">
+                            <div class="label">5. Risky PV01 (RPV01 / Spread01)</div>
+                            $$\text{RPV01} = \sum_{i=1}^N \Delta t_i D(0, t_i) S(t_i) + \frac{1}{2} \sum_{i=1}^N \Delta t_i D(0, t_i) [S(t_{i-1}) - S(t_i)]$$
+                            $$\text{Continuous Approx:} \quad \text{RPV01} \approx \frac{1 - e^{-(r + \lambda)T}}{r + \lambda}$$
+                        </div>
+
+                        <div class="formula-card">
+                            <div class="label">6. CDS Upfront Cash Settlement</div>
+                            $$\text{Upfront (Clean)} = (S_{\text{par}} - C) \times \text{RPV01} \times \text{Notional}$$
+                            $$\text{Dirty Upfront} = \text{Clean Upfront} + \text{Accrued Interest}$$
+                        </div>
+
+                        <div class="formula-card">
+                            <div class="label">7. CS01-Neutral Curve Hedge Ratio</div>
+                            $$\text{Hedge Ratio } H = \frac{\text{Notional}_{\text{short}}}{\text{Notional}_{\text{long}}} = \frac{\text{RPV01}_{\text{long}}}{\text{RPV01}_{\text{short}}} > 1.0$$
+                        </div>
+
+                        <div class="formula-card">
+                            <div class="label">8. Jump to Default (JTD)</div>
+                            $$\text{JTD (Buyer)} = \text{Notional} \times (1 - R) - \text{Dirty Upfront}$$
+                            $$\text{JTD (Seller)} = -\text{Notional} \times (1 - R) + \text{Dirty Upfront}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: MARKET CONVENTIONS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-conventions">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📋</span>
+                        <div>
+                            <h2 class="card-title">Credit Trading Desk Conventions Cheat Sheet</h2>
+                            <p class="card-subtitle">Global market standards, coupons, recovery benchmarks, and roll schedules</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Convention / Rule</th>
+                                <th>Desk Standard Values</th>
+                                <th>Notes & Nuances</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-tag badge-red">Fixed Coupons</span></td>
+                                <td>Standard Running Coupons</td>
+                                <td><strong>100 bps</strong> (IG / iTraxx Main)<br><strong>500 bps</strong> (HY / iTraxx Xover)<br><strong>25 bps</strong> (Sovereigns)</td>
+                                <td>Established under 2009 Big Bang Protocol to enable centralized clearing (ICE/LCH). Difference settled upfront.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">Payment Dates</span></td>
+                                <td>IMM Roll Dates</td>
+                                <td><strong>March 20, June 20, September 20, December 20</strong></td>
+                                <td>Contract matures on an IMM date regardless of trade date. ACT/360 day count.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-green">Index Rolls</span></td>
+                                <td>Semiannual Series Roll</td>
+                                <td><strong>March 20 & September 20</strong></td>
+                                <td>New on-the-run series launched; off-the-run series volume drops $>90\%$.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-amber">Standard Recovery</span></td>
+                                <td>Default Recovery Rate ($R$)</td>
+                                <td><strong>40%</strong> (Senior Unsecured Corp)<br><strong>20%</strong> (Subordinated Financials)<br><strong>25%</strong> (Emerging Sovereigns)<br><strong>70%</strong> (Senior Secured Loans / LCDS)</td>
+                                <td>ISDA standard pricing inputs used by Bloomberg CDSW and clearinghouses.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-purple">Restructuring</span></td>
+                                <td>Regional Conventions</td>
+                                <td><strong>XR</strong> (US Corporates / CDX)<br><strong>MMR</strong> (European Corporates / iTraxx)<br><strong>MR</strong> (US Sovereigns / EM)</td>
+                                <td>XR excludes restructuring; MMR caps deliverable bonds to 5 years (60 months); MR caps to 2.5 years (30 months).</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">Quoting Format</span></td>
+                                <td>Spread vs Price</td>
+                                <td><strong>Spread (bps):</strong> CDX IG, iTraxx Main, iTraxx Xover<br><strong>Price:</strong> CDX HY (e.g. 102.50)</td>
+                                <td>CDX HY clean points upfront $= 100 - P$. Trades above par ($P > 100$) when spreads tighten $< 500$ bps.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: INTERACTIVE FLASHCARDS (30+ CARDS)
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-flashcards">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🗂️</span>
+                        <div>
+                            <h2 class="card-title">Interactive Credit Flashcard Deck</h2>
+                            <p class="card-subtitle">Click card or press Spacebar to flip between question and answer</p>
+                        </div>
+                    </div>
+                    <div style="font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted);">
+                        Mastered: <span id="mastered-count" style="color:var(--green); font-weight:700;">0</span> / <span id="total-cards-count">24</span>
+                    </div>
+                </div>
+
+                <div class="flashcard-filter-row">
+                    <button class="filter-chip active" onclick="filterCards('all', this)">All Topics</button>
+                    <button class="filter-chip" onclick="filterCards('fundamentals', this)">Fundamentals</button>
+                    <button class="filter-chip" onclick="filterCards('spreads', this)">Spreads & Basis</button>
+                    <button class="filter-chip" onclick="filterCards('pricing', this)">CDS Pricing</button>
+                    <button class="filter-chip" onclick="filterCards('curves', this)">Curves & Trades</button>
+                    <button class="filter-chip" onclick="filterCards('indices', this)">Indices & Tranches</button>
+                    <button class="filter-chip" onclick="filterCards('auctions', this)">Events & Auctions</button>
+                </div>
+
+                <div class="flashcard-container" onclick="flipFlashcard()">
+                    <div class="flashcard" id="flashcardElement">
+                        <!-- Front Face -->
+                        <div class="flashcard-face flashcard-front">
+                            <div class="flashcard-header">
+                                <span class="flashcard-tag" id="cardCategory">Fundamentals</span>
+                                <span class="flashcard-num" id="cardCounter">Card 1 of 24</span>
+                            </div>
+                            <div class="flashcard-q" id="cardQuestion">
+                                How is Expected Loss (EL) defined, and why is it not considered a tail risk?
+                            </div>
+                            <div class="flashcard-hint">
+                                <span>💡</span> Click to reveal concise desk answer
+                            </div>
+                        </div>
+
+                        <!-- Back Face -->
+                        <div class="flashcard-face flashcard-back">
+                            <div class="flashcard-header">
+                                <span class="flashcard-tag" id="cardCategoryBack">Desk Answer</span>
+                                <span class="flashcard-num">Flip again for Q</span>
+                            </div>
+                            <div class="flashcard-a" id="cardAnswer">
+                                EL = PD × LGD × EAD. EL is the statistical mean loss expected over a cycle. It is a predictable cost of doing business covered by loan loss reserves (provisions), NOT equity capital. Equity capital is held against Unexpected Loss (UL) — the volatility/tail of losses.
+                            </div>
+                            <div class="flashcard-hint">
+                                <span>↩️</span> Click to flip back
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flashcard-controls">
+                    <button class="flashcard-btn" onclick="prevCard()">← Prev</button>
+                    <button class="flashcard-btn" onclick="toggleMastered()" id="btnMastered">✓ Mark Mastered</button>
+                    <button class="flashcard-btn" onclick="randomCard()">🔀 Random</button>
+                    <button class="flashcard-btn" onclick="nextCard()">Next →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: MENTAL MATH & ESTIMATION DRILLS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-mental">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <h2 class="card-title">Desk Mental Math & Fast Estimation Drills</h2>
+                            <p class="card-subtitle">Rapid on-the-fly approximations expected during trading desk interviews</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Drill 1 -->
+                    <div style="background:var(--bg-secondary); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:20px;">
+                        <span class="badge-tag badge-red" style="margin-bottom:8px;">Heuristic 1</span>
+                        <h4 style="font-size:1rem; font-weight:700; margin-bottom:8px;">CDS Spread to Hazard Rate Converter</h4>
+                        <p style="font-size:0.83rem; color:var(--text-secondary); margin-bottom:12px;">
+                            Formula: $\lambda \approx S / (1 - R)$. For Senior Unsecured ($R = 40\% \implies 1 - R = 0.60$):
+                            Divide spread by $0.60$ (or multiply by $1.67$).
+                        </p>
+                        <div class="control-group">
+                            <div class="control-label"><span>5Y CDS Spread</span><span class="control-value" id="val-mm-s">150 bps</span></div>
+                            <input type="range" id="input-mm-s" min="20" max="600" step="10" value="150" oninput="updateMentalMath()">
+                        </div>
+                        <div class="formula-card" style="margin-top:12px; padding:10px;">
+                            <strong>Mental Math Result:</strong><br>
+                            $$\lambda \approx \frac{150\text{ bps}}{0.60} = \mathbf{250\text{ bps}} = \mathbf{2.50\% \text{ per year}}$$
+                            $$S(5\text{Y}) \approx e^{-0.025 \times 5} = e^{-0.125} \approx \mathbf{88.2\%}$$
+                        </div>
+                    </div>
+
+                    <!-- Drill 2 -->
+                    <div style="background:var(--bg-secondary); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:20px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom:8px;">Heuristic 2</span>
+                        <h4 style="font-size:1rem; font-weight:700; margin-bottom:8px;">Upfront Cash Estimator</h4>
+                        <p style="font-size:0.83rem; color:var(--text-secondary); margin-bottom:12px;">
+                            Formula: $\text{Upfront} \approx (S_{\text{par}} - C) \times \text{RPV01} \times \text{Notional}$.
+                            Rule of thumb: 5Y IG RPV01 $\approx 4.25$; 5Y HY RPV01 $\approx 3.60$.
+                        </p>
+                        <div class="control-group">
+                            <div class="control-label"><span>5Y Par Spread (vs 100 bp coupon)</span><span class="control-value" id="val-mm-upfront">220 bps (+120 bps diff)</span></div>
+                            <input type="range" id="input-mm-upfront" min="50" max="400" step="10" value="220" oninput="updateMentalMath()">
+                        </div>
+                        <div class="formula-card" style="margin-top:12px; padding:10px;">
+                            <strong>Mental Math Result ($10M Notional):</strong><br>
+                            $$\text{Clean Points} \approx +120\text{ bps} \times 4.25 = \mathbf{5.10\%}$$
+                            $$\text{Clean Upfront Cash} \approx \$10\text{M} \times 5.10\% = \mathbf{+\$510,000}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: TRADE PITCHES & FRAMEWORKS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-pitches">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎙️</span>
+                        <div>
+                            <h2 class="card-title">How to Pitch a Credit Trade in an Interview</h2>
+                            <p class="card-subtitle">Structured, institutional 5-pillar pitch framework preferred by Portfolio Managers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div style="background:var(--bg-secondary); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:18px;">
+                        <span class="badge-tag badge-green" style="margin-bottom:6px;">1. Relative Value Basis</span>
+                        <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:6px;">Negative Basis Trade</h4>
+                        <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.6;">
+                            "I propose a Negative Basis Trade on Ford Motor 2029 senior notes trading at $Z = 240\text{ bps}$, while 5Y CDS is trading at $180\text{ bps}$. Basis is $-60\text{ bps}$."
+                        </p>
+                    </div>
+
+                    <div style="background:var(--bg-secondary); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:18px;">
+                        <span class="badge-tag badge-amber" style="margin-bottom:6px;">2. Curve Structure</span>
+                        <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:6px;">2s5s Curve Steepener</h4>
+                        <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.6;">
+                            "Buy 5Y CDS ($10M) and Sell 2Y CDS ($22.8M) CS01-neutral. The curve is unusually flat at 15 bps slope ahead of heavy long-term capex debt issuance."
+                        </p>
+                    </div>
+
+                    <div style="background:var(--bg-secondary); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:18px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom:6px;">3. Macro Skew Basis</span>
+                        <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:6px;">Index Skew Compression</h4>
+                        <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.6;">
+                            "Sell CDX IG Series 42 at 85 bps and Buy the single-name basket at 76 bps. Skew is rich by +9 bps due to panic macro hedging; harvest convergence."
+                        </p>
+                    </div>
+                </div>
+
+                <div class="alert-box info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>The 5-Step Pitch Blueprint:</strong> (1) The Trade Summary & Instrument $\to$ (2) The Catalyst / Fundamental Dislocation $\to$ (3) Risk Hedging (CS01, JTD, Basis) $\to$ (4) Carry & Roll-Down Profile $\to$ (5) Target Exit & Stop-Loss.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: 12-QUESTION MASTERCLASS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-masterclass">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">12 Comprehensive Quantitative Interview Questions</h2>
+                            <p class="card-subtitle">Synthesizing fundamentals, spreads, mechanics, pricing, curves, indices, and auctions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. Explain why CDS protection buyers enjoy positive spread convexity while bondholders face negative convexity.</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Convexity</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> For a CDS protection buyer, as spreads widen, mark-to-market gains grow, and maximum gain is $(1 - R)$ upon default; as spreads tighten to 0, maximum loss is strictly capped at the upfront/premium paid ($\partial^2 \text{NPV} / \partial S^2 > 0$). In contrast, callable corporate bondholders suffer negative convexity because the embedded call option truncates upside as yields drop.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. Walk me through the difference between Z-spread, Par-Par Asset Swap Spread, and OAS.</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Spread Taxonomy</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left:20px; margin-top:6px;">
+                            <li><strong>Z-spread:</strong> Constant spread added to the risk-free spot yield curve to discount bond cash flows to current market price.</li>
+                            <li><strong>Par-Par ASW:</strong> The fixed coupon exchanged for Euribor/SOFR + spread under an interest rate swap where the investor buys the bond at par. Diverges from Z-spread when bond trades away from par due to upfront principal mismatch.</li>
+                            <li><strong>OAS (Option-Adjusted Spread):</strong> The Z-spread stripped of embedded options (call/put/prepayment) using a Monte Carlo short-rate lattice.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. Derive the continuous-time no-arbitrage proof that $S = \lambda(1 - R)$.</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Derivation</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Under constant risk-free rate $r$ and hazard intensity $\lambda$:</p>
+                        <p style="margin-top:6px;">$\text{PV}(\text{Protection Leg}) = (1 - R) \int_0^T e^{-rt} \lambda e^{-\lambda t} dt = \lambda(1 - R) \int_0^T e^{-(r + \lambda)t} dt$.</p>
+                        <p>$\text{PV}(\text{Premium Leg}) = S \int_0^T e^{-rt} e^{-\lambda t} dt = S \int_0^T e^{-(r + \lambda)t} dt = S \times \text{RPV01}$.</p>
+                        <p>Equating $\text{PV}(\text{Prot}) = \text{PV}(\text{Prem})$ cancels the common integral $\text{RPV01}$, yielding exact equality: $\mathbf{S = \lambda(1 - R)}$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. Why is Risky PV01 strictly smaller than Risk-Free PV01?</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">RPV01</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Cashflows in Risky PV01 are discounted twice: first by the interest rate discount factor $D(0, t)$, and second by the survival probability $S(t) = e^{-\lambda t} \le 1$. In distressed names with large hazard rates, distant cashflows vanish, compressing RPV01 dramatically below risk-free duration.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. Explain the mechanics of a Negative Basis Trade and why it rarely exists in modern markets.</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Basis Trading</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> When $S_{\text{CDS}} < Z_{\text{bond}}$, an arbitrageur buys the cash bond, asset-swaps it to floating rate, and buys CDS protection. This locks in a risk-free spread. Today, post-2008 Basel III leverage ratios and capital charges (LCR, SLR) make holding funded bond inventory expensive, so small negative bases persist without being fully arb'd away.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. Why does a CS01-neutral 2s5s curve steepener carry massive negative Jump-to-Default (JTD)?</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">JTD Asymmetry</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Because $\text{RPV01}_5 \approx 4.25$ is more than double $\text{RPV01}_2 \approx 1.86$, CS01 neutrality requires selling $H \approx 2.28\text{x}$ notional on the 2Y leg against $1.0\text{x}$ on the 5Y leg. If default occurs overnight, the desk collects $(1 - R) \times \$10\text{M}$ but owes $(1 - R) \times \$22.8\text{M}$, suffering a massive net loss of $-\$7.68\text{M}$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. What is the economic intuition for why default correlation affects equity and senior tranches oppositely?</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Correlation</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Correlation dictates portfolio loss variance. At low correlation, defaults are diversified; a steady number of defaults is guaranteed, wiping out the first-loss Equity [0-3%] tranche while leaving Senior [15-30%] pristine. At high correlation, firms default together or survive together; the chance of zero defaults rises (tightening equity spread), while the tail risk of joint collapse explodes (widening senior spread).</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. Walk me through the step-by-step two-stage ISDA credit event auction.</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Auctions</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> (1) Stage 1: Participating dealers submit two-way quotes establishing the Initial Market Midpoint (IMM). Market participants submit Physical Settlement Requests (PSRs) to buy/sell physical bonds, creating Net Open Interest (NOI). (2) Stage 2: Limit orders are submitted and matched against the NOI. The marginal order clearing the NOI sets the final recovery price $R$. All CDS settle at $(100 - R)\%$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>9. Why do European corporate CDS trade with MMR while US corporate CDS trade with XR?</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Restructuring</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> US corporate bankruptcy law has an efficient Chapter 11 mechanism where companies reorganize under court supervision; hence US market participants prefer XR (no restructuring) to avoid triggering CDS on consensual exchange offers. In Europe, fragmented legal regimes encourage out-of-court restructurings; European investors demand restructuring protection (MMR), with deliverable bonds capped at 60 months to limit CTD distortion.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>10. What is index skew and what drives it to become positive or negative?</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Index Skew</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> $\text{Skew} = S_{\text{index}} - S_{\text{intrinsic}}$. Skew is positive (index rich) when macro hedgers flood into liquid index protection during market sell-offs. Skew is negative (index cheap) when investment banks hedge structured synthetic CDO/CLO tranches by selling index protection.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>11. What is base correlation and why did it replace compound correlation in synthetic tranche modeling?</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Copula Models</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Compound correlation solves for a correlation parameter for a specific bespoke tranche $[K_L, K_U]$. It failed because mezzanine tranches often yielded non-unique or nonexistent roots. Base correlation maps all tranches as standard equity loss layers $[0, K]$. Bespoke tranches $[K_L, K_U]$ are priced as the difference between two base tranches $[0, K_U] - [0, K_L]$, providing a monotonic, uniquely invertible curve.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>12. Explain the Narrowly Tailored Credit Event (NTCE) amendment and the Hovnanian trade.</span>
+                        <div style="display:flex; align-items:center; gap:10px;"><span class="interview-tag">Market Integrity</span><span class="interview-chevron">▼</span></div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> In 2018, Blackstone GSO offered homebuilder Hovnanian favorable financing in exchange for Hovnanian intentionally missing a tiny $1.04M interest payment to trigger Hovnanian CDS where GSO held massive protection. In 2019, ISDA adopted the NTCE rule: a Failure to Pay is disqualified if it results from a manufactured agreement that does not reflect a genuine credit deterioration of the borrower.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 08: Interview Cheat Sheet & Flashcards</div>
+        <div style="margin-top: 6px;">
+            🎓 <a href="index.html">Course Complete! Return to Credit Academy Main Hub →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & DOT SYNC
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION TOGGLE
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           FLASHCARD DECK DATA & ENGINE
+           ========================================================================== */
+        const flashcardsData = [
+            {
+                cat: 'fundamentals',
+                tag: 'Fundamentals',
+                q: 'How is Expected Loss (EL) defined, and why is it not considered a tail risk?',
+                a: 'EL = PD × LGD × EAD. EL is the statistical mean monetary loss expected over a normal business cycle. It is an operating cost covered by loan loss reserves (provisions), NOT equity capital. Equity capital covers Unexpected Loss (UL) — the volatility/tail of losses.'
+            },
+            {
+                cat: 'fundamentals',
+                tag: 'Fundamentals',
+                q: 'What is the key insight of the KMV–Merton structural model?',
+                a: 'Equity is viewed as a European call option on firm asset value V with strike equal to debt face value D: Equity = Call(V, D). Default occurs at maturity if V < D, making debt holders put sellers.'
+            },
+            {
+                cat: 'spreads',
+                tag: 'Spreads & Basis',
+                q: 'What is the difference between Z-spread and OAS?',
+                a: 'Z-spread is the constant spread over the spot yield curve that discounts bond cashflows to price. OAS (Option-Adjusted Spread) strips out the value of embedded options (call/put) using a lattice/Monte Carlo model.'
+            },
+            {
+                cat: 'spreads',
+                tag: 'Spreads & Basis',
+                q: 'How is the Cash-CDS basis defined and how do you trade a negative basis?',
+                a: 'Basis = CDS Spread - Bond Spread. If Basis < 0 (bond spread is wider than CDS): Buy the bond + asset-swap to floating + Buy CDS protection. This locks in a risk-free positive carry spread.'
+            },
+            {
+                cat: 'pricing',
+                tag: 'CDS Pricing',
+                q: 'Derive the par spread rule of thumb S ≈ λ(1 - R).',
+                a: 'Equating Protection Leg PV = (1-R) ∫ e^(-rt) λ e^(-λt) dt with Premium Leg PV = S ∫ e^(-rt) e^(-λt) dt cancels out the identical Risky PV01 integral, yielding exact equality: S = λ(1 - R).'
+            },
+            {
+                cat: 'pricing',
+                tag: 'CDS Pricing',
+                q: 'What is Risky PV01 and why does credit risk dampen duration?',
+                a: 'Risky PV01 is the present value of a 1 bp quarterly annuity until maturity or default. It is discounted twice: by interest rate D(t) and survival probability S(t) <= 1, compressing duration significantly for risky credits.'
+            },
+            {
+                cat: 'curves',
+                tag: 'Curves & Trades',
+                q: 'Why does an inverted CDS curve signal immediate restructuring/default danger?',
+                a: 'Normal curves slope up as uncertainty increases with time. Inversion (1Y > 5Y) indicates acute near-term liquidity crunch. If the company survives 1-2 years, its survival chances brighten (conditional survival).'
+            },
+            {
+                cat: 'curves',
+                tag: 'Curves & Trades',
+                q: 'How do you size a CS01-neutral 2s5s curve steepener?',
+                a: 'Set Notional(2Y) × RPV01(2Y) = Notional(5Y) × RPV01(5Y). Because RPV01(5Y) ≈ 4.25 is more than double RPV01(2Y) ≈ 1.86, the short leg must trade >2.2x notional of the long leg.'
+            },
+            {
+                cat: 'indices',
+                tag: 'Indices & Tranches',
+                q: 'What is Index Skew and how do you trade a positive skew?',
+                a: 'Skew = S(index) - S(intrinsic basket). If Skew > 0 (index is rich from macro hedging): Sell index protection (receive higher spread) and Buy the single-name basket.'
+            },
+            {
+                cat: 'indices',
+                tag: 'Indices & Tranches',
+                q: 'Why does default correlation shift equity and senior tranche spreads in opposite directions?',
+                a: 'Correlation increases loss variance. Low correlation means defaults are diversified, wiping out Equity [0-3%]. High correlation means joint survival or joint catastrophe: Equity spread tightens, while Senior spread widens!'
+            },
+            {
+                cat: 'auctions',
+                tag: 'Events & Auctions',
+                q: 'Why did cash auctions replace physical delivery after the 2005 Delphi bankruptcy?',
+                a: 'In Delphi, $28B of CDS contracts referenced only $2B of physical bonds. Physical delivery caused a massive short squeeze on physical bonds (55c to 72c). Cash auctions ensure market-wide orderly settlement.'
+            },
+            {
+                cat: 'auctions',
+                tag: 'Events & Auctions',
+                q: 'What are the 6 standard ISDA Credit Events under 2014 Definitions?',
+                a: '1. Bankruptcy, 2. Failure to Pay, 3. Restructuring, 4. Governmental Intervention (bail-in), 5. Repudiation/Moratorium (sovereign), 6. Obligation Acceleration.'
+            }
+        ];
+
+        let activeCardIdx = 0;
+        let filteredIndices = flashcardsData.map((_, i) => i);
+        let masteredSet = new Set();
+
+        const cardEl = document.getElementById('flashcardElement');
+        const qEl = document.getElementById('cardQuestion');
+        const aEl = document.getElementById('cardAnswer');
+        const catEl = document.getElementById('cardCategory');
+        const counterEl = document.getElementById('cardCounter');
+        const masteredCountEl = document.getElementById('mastered-count');
+        const totalCardsEl = document.getElementById('total-cards-count');
+        const btnMastered = document.getElementById('btnMastered');
+
+        totalCardsEl.textContent = flashcardsData.length;
+
+        function updateCardDisplay() {
+            cardEl.classList.remove('flipped');
+            const dataIdx = filteredIndices[activeCardIdx];
+            const data = flashcardsData[dataIdx];
+
+            qEl.textContent = data.q;
+            aEl.textContent = data.a;
+            catEl.textContent = data.tag;
+            counterEl.textContent = `Card ${activeCardIdx + 1} of ${filteredIndices.length}`;
+
+            if (masteredSet.has(dataIdx)) {
+                btnMastered.textContent = '★ Mastered';
+                btnMastered.style.color = 'var(--green)';
+                btnMastered.style.borderColor = 'var(--green)';
+            } else {
+                btnMastered.textContent = '✓ Mark Mastered';
+                btnMastered.style.color = 'var(--text-primary)';
+                btnMastered.style.borderColor = 'var(--surface-border)';
+            }
+        }
+
+        function flipFlashcard() {
+            cardEl.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            activeCardIdx = (activeCardIdx + 1) % filteredIndices.length;
+            updateCardDisplay();
+        }
+
+        function prevCard() {
+            activeCardIdx = (activeCardIdx - 1 + filteredIndices.length) % filteredIndices.length;
+            updateCardDisplay();
+        }
+
+        function randomCard() {
+            activeCardIdx = Math.floor(Math.random() * filteredIndices.length);
+            updateCardDisplay();
+        }
+
+        function toggleMastered() {
+            const dataIdx = filteredIndices[activeCardIdx];
+            if (masteredSet.has(dataIdx)) {
+                masteredSet.delete(dataIdx);
+            } else {
+                masteredSet.add(dataIdx);
+            }
+            masteredCountEl.textContent = masteredSet.size;
+            updateCardDisplay();
+        }
+
+        function filterCards(category, btn) {
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (category === 'all') {
+                filteredIndices = flashcardsData.map((_, i) => i);
+            } else {
+                filteredIndices = [];
+                flashcardsData.forEach((d, i) => {
+                    if (d.cat === category) filteredIndices.push(i);
+                });
+            }
+            activeCardIdx = 0;
+            updateCardDisplay();
+        }
+
+        // Spacebar to flip flashcard
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+                flipFlashcard();
+            }
+        });
+
+        /* ==========================================================================
+           TAB 4: MENTAL MATH SLIDERS
+           ========================================================================== */
+        const inMmS = document.getElementById('input-mm-s');
+        const inMmUpfront = document.getElementById('input-mm-upfront');
+
+        function updateMentalMath() {
+            const s = parseInt(inMmS.value);
+            const sUpfront = parseInt(inMmUpfront.value);
+
+            document.getElementById('val-mm-s').textContent = s + ' bps';
+            document.getElementById('val-mm-upfront').textContent = sUpfront + ' bps (' + (sUpfront >= 100 ? '+' : '') + (sUpfront - 100) + ' bps diff)';
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+            updateCardDisplay();
+            updateMentalMath();
+        });
+    </script>
+</body>
+</html>
