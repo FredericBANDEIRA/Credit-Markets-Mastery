@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 04: CDS Pricing — Credit Academy</title>
+    <meta name="description" content="A rigorous, quantitative guide to Credit Default Swap (CDS) pricing: hazard rates, survival curves, Risky PV01, premium and protection leg valuation, Bloomberg CDSW pricer, and credit risk Greeks.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        .alert-box.tip {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #a7f3d0;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Formula display container */
+        .formula-card {
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent-bright);
+            margin-bottom: 8px;
+        }
+
+        /* KPI summary stats */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .kpi-card .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-card .kpi-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-card.highlight .kpi-value {
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           CONTROLS & SLIDERS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* ==========================================================================
+           CANVAS CHARTS WRAPPER & TOOLTIP
+           ========================================================================== */
+        .chart-wrapper {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+
+        .chart-hud {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(15, 20, 25, 0.94);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .chart-hud .hud-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            line-height: 1.5;
+        }
+
+        .chart-hud .hud-label {
+            color: var(--text-muted);
+        }
+
+        .chart-hud .hud-val {
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        .interview-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-bright);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">04</span>
+                <span>CDS Pricing</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 04 • Quantitative Valuation & Risk Greeks</div>
+            <h1>CDS Pricing</h1>
+            <p class="hero-description">
+                Rigorous mathematical valuation of Credit Default Swaps: hazard rates ($\lambda$), survival curves ($S(t)$),
+                Risky PV01, premium/protection leg equilibrium, Bloomberg CDSW engine, and desk risk sensitivities.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-hazard" role="tab">
+                <span class="tab-num">01</span> Hazard Rates & Survival
+            </button>
+            <button class="tab-btn" data-tab="tab-premium" role="tab">
+                <span class="tab-num">02</span> Premium Leg & RPV01
+            </button>
+            <button class="tab-btn" data-tab="tab-protection" role="tab">
+                <span class="tab-num">03</span> Protection Leg & Par Spread
+            </button>
+            <button class="tab-btn" data-tab="tab-cdsw" role="tab">
+                <span class="tab-num">04</span> Bloomberg CDSW Pricer
+            </button>
+            <button class="tab-btn" data-tab="tab-greeks" role="tab">
+                <span class="tab-num">05</span> Risk Greeks & JTD
+            </button>
+            <button class="tab-btn" data-tab="tab-interview" role="tab">
+                <span class="tab-num">06</span> Interview Q&A
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: HAZARD RATES & SURVIVAL PROBABILITIES
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-hazard">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📉</span>
+                        <div>
+                            <h2 class="card-title">The Probability Foundation: Intensity-Based Modeling</h2>
+                            <p class="card-subtitle">Hazard rate $\lambda(t)$, cumulative default $F(t)$, and survival probability $S(t)$</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    In modern quantitative credit pricing, default is modeled as the first arrival of an inhomogeneous Poisson jump process governed by an instantaneous intensity or <strong>hazard rate ($\lambda(t)$)</strong>.
+                </p>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">1. Hazard Rate $\lambda(t)$</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            The instantaneous conditional default probability rate at time $t$, given survival up to $t$:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$\lambda(t) = \lim_{\Delta t \to 0} \frac{\mathbb{P}(t < \tau \le t + \Delta t \mid \tau > t)}{\Delta t}$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--green); font-size: 0.95rem;">2. Survival Function $S(t)$</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            The unconditional probability that the reference entity survives past horizon $t$:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$S(t) = \exp\left(-\int_0^t \lambda(u)\,du\right)$$
+                            $$\text{If } \lambda = \text{const} \implies S(t) = e^{-\lambda t}$$
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 18px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">3. Cumulative Default $F(t)$</strong>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px;">
+                            The probability of defaulting on or before time $t$, plus the marginal density $f(t)$:
+                        </p>
+                        <div class="formula-card" style="margin: 8px 0 0;">
+                            $$F(t) = 1 - S(t) = 1 - e^{-\lambda t}$$
+                            $$f(t) = -S'(t) = \lambda(t) e^{-\lambda t}$$
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-box info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Marginal vs Conditional Default Probabilities:</strong> Be careful not to confuse marginal default probability with conditional hazard rate. The <em>marginal</em> probability of defaulting during year 3 is $S(2) - S(3) = e^{-2\lambda} - e^{-3\lambda}$. The <em>conditional</em> probability of defaulting in year 3 given survival through year 2 is $1 - e^{-\lambda} \approx \lambda$.
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE SURVIVAL CURVE GENERATOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📈</span>
+                        <div>
+                            <h2 class="card-title">Interactive Survival & Default Curve Generator</h2>
+                            <p class="card-subtitle">Visualize how default intensity shapes multi-year survival trajectories</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitHazard()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Base Hazard Rate ($\lambda$)</span>
+                            <span class="control-value" id="val-haz-lambda">3.00% (300 bps)</span>
+                        </div>
+                        <input type="range" id="input-haz-lambda" min="0.25" max="15.0" step="0.25" value="3.00" oninput="updateHazard()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Hazard Curve Slope</span>
+                            <span class="control-value" id="val-haz-slope">+20 bps/yr (Normal)</span>
+                        </div>
+                        <input type="range" id="input-haz-slope" min="-50" max="100" step="10" value="20" oninput="updateHazard()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Evaluation Horizon</span>
+                            <span class="control-value" id="val-haz-horizon">5.0 Years</span>
+                        </div>
+                        <input type="range" id="input-haz-horizon" min="1" max="10" step="0.5" value="5.0" oninput="updateHazard()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Survival Probability $S(T)$</span>
+                        <span class="kpi-value" id="kpi-haz-surv">84.37%</span>
+                        <span class="kpi-sub">At selected horizon</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Cumulative Default $F(T)$</span>
+                        <span class="kpi-value" id="kpi-haz-def">15.63%</span>
+                        <span class="kpi-sub">1 − S(T) default chance</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Terminal Hazard Rate</span>
+                        <span class="kpi-value" id="kpi-haz-term">3.80%</span>
+                        <span class="kpi-sub">Instantaneous intensity at T</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Expected Lifetime $1/\lambda$</span>
+                        <span class="kpi-value" id="kpi-haz-life">29.4 yrs</span>
+                        <span class="kpi-sub">Expected time to default</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="hazardCanvas" width="900" height="280"></canvas>
+                    <div class="chart-hud" id="hazHud">
+                        <div class="hud-row"><span class="hud-label">Time:</span><span class="hud-val" id="hud-haz-t">5.0y</span></div>
+                        <div class="hud-row"><span class="hud-label">Survival S(t):</span><span class="hud-val" id="hud-haz-surv">84.4%</span></div>
+                        <div class="hud-row"><span class="hud-label">Cumulative Default F(t):</span><span class="hud-val" id="hud-haz-def">15.6%</span></div>
+                        <div class="hud-row"><span class="hud-label">Intensity λ(t):</span><span class="hud-val" id="hud-haz-rate">3.80%</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: PREMIUM LEG & RISKY PV01
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-premium">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">💸</span>
+                        <div>
+                            <h2 class="card-title">Valuing the Premium (Fee) Leg</h2>
+                            <p class="card-subtitle">Quarterly coupon discounting, default accrual, and Risky PV01 (RPV01)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    The protection buyer pays fixed coupon $C$ on quarterly payment dates $t_1, t_2, \dots, t_N$ until contract maturity $T$ or default. Each payment occurs <em>conditional on survival</em>:
+                </p>
+
+                <div class="formula-card">
+                    <div class="label">The Complete Premium Leg Valuation Formula</div>
+                    $$\text{PV}(\text{Premium Leg}) = C \times \text{RPV01} \times \text{Notional}$$
+                    $$\text{RPV01} = \sum_{i=1}^N \Delta t_i \, D(0, t_i) \, S(t_i) + \underbrace{\frac{1}{2} \sum_{i=1}^N \Delta t_i \, D(0, t_i) \left[ S(t_{i-1}) - S(t_i) \right]}_{\text{Accrual on Default}}$$
+                </div>
+
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--accent-bright); font-size: 0.95rem;">1. Regular Scheduled Annuity</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            The sum of quarterly day-count fractions ($\Delta t_i = \text{ACT}/360 \approx 0.25$), discounted by the risk-free curve $D(0, t_i)$ and weighted by the survival probability $S(t_i)$.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--amber); font-size: 0.95rem;">2. Accrual on Default Term</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            If default occurs between $t_{i-1}$ and $t_i$, the buyer pays accrued coupon for the fraction of the quarter survived. Under standard ISDA pricing, default is assumed to occur on average at the midpoint ($\Delta t_i / 2$).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RPV01 BEHAVIOR & CONVEXITY -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📐</span>
+                        <div>
+                            <h2 class="card-title">Risky PV01 Dynamics: Why Credit Dampens Duration</h2>
+                            <p class="card-subtitle">Continuous approximation: $\text{RPV01} \approx \frac{1 - e^{-(r + \lambda)T}}{r + \lambda}$</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Credit Quality</th>
+                                <th>5Y CDS Spread</th>
+                                <th>Implied Hazard ($\lambda$)</th>
+                                <th>Risk-Free PV01 (r=3.5%)</th>
+                                <th>Risky PV01 (RPV01)</th>
+                                <th>Duration Discount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-tag badge-green">AAA / Sovereign</span></td>
+                                <td>25 bps</td>
+                                <td>0.42%</td>
+                                <td>4.58 yrs</td>
+                                <td><strong>4.50 yrs</strong></td>
+                                <td>-1.7%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-green">Single-A IG</span></td>
+                                <td>75 bps</td>
+                                <td>1.25%</td>
+                                <td>4.58 yrs</td>
+                                <td><strong>4.34 yrs</strong></td>
+                                <td>-5.2%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">BBB (Borderline IG)</span></td>
+                                <td>150 bps</td>
+                                <td>2.50%</td>
+                                <td>4.58 yrs</td>
+                                <td><strong>4.12 yrs</strong></td>
+                                <td>-10.0%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-amber">BB High Yield</span></td>
+                                <td>350 bps</td>
+                                <td>5.83%</td>
+                                <td>4.58 yrs</td>
+                                <td><strong>3.60 yrs</strong></td>
+                                <td>-21.4%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-red">CCC Distressed</span></td>
+                                <td>1,000 bps</td>
+                                <td>16.67%</td>
+                                <td>4.58 yrs</td>
+                                <td><strong>2.51 yrs</strong></td>
+                                <td>-45.2%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: PROTECTION LEG & PAR SPREAD
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-protection">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🛡️</span>
+                        <div>
+                            <h2 class="card-title">Valuing the Protection Leg & Fair Par Spread</h2>
+                            <p class="card-subtitle">Contingent cashflow integration and continuous-time derivation of $S_{\text{par}} = \lambda(1 - R)$</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    The protection seller pays $(1 - R)$ at the random default time $\tau$, provided $\tau \le T$. In discrete quarterly implementation:
+                </p>
+
+                <div class="formula-card">
+                    <div class="label">Protection Leg Present Value</div>
+                    $$\text{PV}(\text{Protection Leg}) = (1 - R) \sum_{i=1}^N D(0, \bar{t}_i) \left[ S(t_{i-1}) - S(t_i) \right] \times \text{Notional}$$
+                </div>
+
+                <div class="card-header" style="margin-top: 24px;">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">The Continuous-Time Mathematical Proof</h3>
+                            <p class="card-subtitle">Why $S_{\text{par}} = \lambda(1 - R)$ under flat curves</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.75;">
+                    <p>Assume constant interest rate $r$ and constant hazard rate $\lambda$. Then $S(t) = e^{-\lambda t}$ and $D(0, t) = e^{-rt}$.</p>
+                    <p style="margin-top: 8px;"><strong>1. Protection Leg:</strong></p>
+                    $$\text{PV}(\text{Prot}) = (1 - R) \int_0^T e^{-rt} \left( -d S(t) \right) = (1 - R) \int_0^T e^{-rt} \left( \lambda e^{-\lambda t} \right) dt = \lambda(1 - R) \int_0^T e^{-(r + \lambda)t} dt$$
+                    <p style="margin-top: 8px;"><strong>2. Premium Leg:</strong></p>
+                    $$\text{PV}(\text{Prem}) = S_{\text{par}} \int_0^T e^{-rt} S(t) dt = S_{\text{par}} \int_0^T e^{-(r + \lambda)t} dt = S_{\text{par}} \times \text{RPV01}$$
+                    <p style="margin-top: 8px;"><strong>3. No-Arbitrage Equality:</strong></p>
+                    $$\text{PV}(\text{Prot}) = \text{PV}(\text{Prem}) \iff \lambda(1 - R) \int_0^T e^{-(r + \lambda)t} dt = S_{\text{par}} \int_0^T e^{-(r + \lambda)t} dt$$
+                    $$\implies \mathbf{S_{\text{par}} = \lambda(1 - R)} \quad \text{Q.E.D.}$$
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: BLOOMBERG CDSW PRICER ENGINE
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-cdsw">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">💻</span>
+                        <div>
+                            <h2 class="card-title">Interactive Bloomberg CDSW Pricing Engine</h2>
+                            <p class="card-subtitle">Institutional CDS pricing simulator matching Bloomberg <code>CDSW</code></p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitCdsw()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Contract Notional</span>
+                            <span class="control-value" id="val-cdsw-notional">$10M</span>
+                        </div>
+                        <input type="range" id="input-cdsw-notional" min="1" max="100" step="1" value="10" oninput="updateCdsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Market Par Spread ($S_{\text{par}}$)</span>
+                            <span class="control-value" id="val-cdsw-par">225 bps</span>
+                        </div>
+                        <input type="range" id="input-cdsw-par" min="20" max="1500" step="5" value="225" oninput="updateCdsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Standard Running Coupon ($C$)</span>
+                            <span class="control-value" id="val-cdsw-cpn">100 bps (IG)</span>
+                        </div>
+                        <select id="select-cdsw-coupon" onchange="updateCdsw()">
+                            <option value="100" selected>100 bps — Investment Grade</option>
+                            <option value="500">500 bps — High Yield</option>
+                            <option value="25">25 bps — Sovereign Standard</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Contract Tenor</span>
+                            <span class="control-value" id="val-cdsw-tenor">5 Years</span>
+                        </div>
+                        <input type="range" id="input-cdsw-tenor" min="1" max="10" step="1" value="5" oninput="updateCdsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Assumed Recovery Rate ($R$)</span>
+                            <span class="control-value" id="val-cdsw-rec">40% (Senior Unsecured)</span>
+                        </div>
+                        <input type="range" id="input-cdsw-rec" min="10" max="80" step="5" value="40" oninput="updateCdsw()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Risk-Free Rate ($r$)</span>
+                            <span class="control-value" id="val-cdsw-rf">3.50%</span>
+                        </div>
+                        <input type="range" id="input-cdsw-rf" min="0.5" max="8.0" step="0.25" value="3.50" oninput="updateCdsw()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Implied Hazard Rate ($\lambda$)</span>
+                        <span class="kpi-value" id="kpi-cdsw-lambda">3.75%</span>
+                        <span class="kpi-sub">$S / (1 - R)$ exact intensity</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Risky PV01 (RPV01)</span>
+                        <span class="kpi-value" id="kpi-cdsw-rpv01">4.21</span>
+                        <span class="kpi-sub">Spread sensitivity multiplier</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Clean Points Upfront</span>
+                        <span class="kpi-value" id="kpi-cdsw-points">+5.26%</span>
+                        <span class="kpi-sub" id="kpi-cdsw-points-dir">Buyer pays Seller</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Clean Cash Upfront</span>
+                        <span class="kpi-value" id="kpi-cdsw-clean">$526,250</span>
+                        <span class="kpi-sub">Excludes roll accrual</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">CS01 (Spread01 / 1 bp)</span>
+                        <span class="kpi-value" id="kpi-cdsw-cs01">$4,210</span>
+                        <span class="kpi-sub">Dollar value of 1 bp spread</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Jump to Default (JTD)</span>
+                        <span class="kpi-value" id="kpi-cdsw-jtd">+$5.47M</span>
+                        <span class="kpi-sub">Overnight default buyer gain</span>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="cdswCanvas" width="900" height="300"></canvas>
+                    <div class="chart-hud" id="cdswHud">
+                        <div class="hud-row"><span class="hud-label">Maturity:</span><span class="hud-val" id="hud-cdsw-t">5.0y</span></div>
+                        <div class="hud-row"><span class="hud-label">Survival S(t):</span><span class="hud-val" id="hud-cdsw-surv">82.9%</span></div>
+                        <div class="hud-row"><span class="hud-label">Cumulative Default F(t):</span><span class="hud-val" id="hud-cdsw-def">17.1%</span></div>
+                        <div class="hud-row"><span class="hud-label">Discount Factor D(t):</span><span class="hud-val" id="hud-cdsw-df">0.839</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: RISK GREEKS & JTD
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-greeks">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <h2 class="card-title">Credit Trading Desks Risk Greeks & Sensitivities</h2>
+                            <p class="card-subtitle">CS01, IR DV01, Recovery01, Jump to Default (JTD), and Spread Convexity</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--accent-bright); font-size: 1rem;">1. CS01 (Spread01) & Convexity</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px;">
+                            CS01 measures the change in contract mark-to-market for a 1 basis point widening in credit spread:
+                        </p>
+                        <div class="formula-card" style="margin: 0 0 10px;">
+                            $$\text{CS01} = \text{Notional} \times \text{RPV01} \times 0.0001$$
+                        </div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                            <strong>Positive Spread Convexity:</strong> As spreads widen, protection buyers gain at a rate that slows down (as RPV01 compresses), but as spreads tighten towards zero, losses are strictly bounded. For sellers, convexity is negative!
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--amber); font-size: 1rem;">2. Jump to Default (JTD)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px;">
+                            The instantaneous P&L if the reference entity files for bankruptcy overnight:
+                        </p>
+                        <div class="formula-card" style="margin: 0 0 10px;">
+                            $$\text{JTD (Buyer)} = \text{Notional} \times (1 - R) - \text{Dirty Upfront}$$
+                            $$\text{JTD (Seller)} = -\text{Notional} \times (1 - R) + \text{Dirty Upfront}$$
+                        </div>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary);">
+                            JTD cannot be hedged with small delta spreads; it requires jump protection via bonds or options.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--blue); font-size: 1rem;">3. IR DV01 (Interest Rate Sensitivity)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            $$\text{IR DV01} = \frac{\partial \text{Upfront}}{\partial r} = (S_{\text{par}} - C) \times \frac{\partial \text{RPV01}}{\partial r}$$
+                            Higher interest rates decrease RPV01 (discounting future coupons more heavily). If $S_{\text{par}} > C$, an increase in rates slightly decreases the upfront value.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <strong style="color: var(--purple); font-size: 1rem;">4. Recovery01 (Rec01)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                            $$\text{Rec01} = \frac{\partial \text{Upfront}}{\partial R}$$
+                            Measures sensitivity to changes in the assumed auction recovery rate. A 1% decrease in $R$ (e.g. 40% to 39%) increases the Protection Leg PV, requiring more upfront from the buyer.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: INTERVIEW Q&A
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-interview">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">CDS Pricing Interview Masterclass</h2>
+                            <p class="card-subtitle">8 high-frequency quantitative interview questions on hazard rates and valuation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. Derive the fundamental rule of thumb $S \approx \lambda(1 - R)$ in continuous time.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Derivation</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Under constant hazard rate $\lambda$ and risk-free rate $r$, survival is $S(t) = e^{-\lambda t}$.</p>
+                        <p style="margin-top: 6px;">The Protection Leg pays $(1 - R)$ upon default: $\text{PV}(\text{Prot}) = (1 - R) \int_0^T e^{-rt} \left(\lambda e^{-\lambda t}\right) dt = \lambda(1 - R) \int_0^T e^{-(r + \lambda)t} dt$.</p>
+                        <p style="margin-top: 6px;">The Premium Leg pays par spread $S$ conditional on survival: $\text{PV}(\text{Prem}) = S \int_0^T e^{-rt} e^{-\lambda t} dt = S \int_0^T e^{-(r + \lambda)t} dt$.</p>
+                        <p style="margin-top: 6px;">Equating $\text{PV}(\text{Prot}) = \text{PV}(\text{Prem})$ cancels the common integral $\text{RPV01}$, yielding exact equality: $\mathbf{S = \lambda(1 - R)}$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. What is Risky PV01 (RPV01) and why is it always smaller than risk-free PV01?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">RPV01 Dynamics</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Risky PV01 (also called Spread01) is the present value of a 1 basis point ($0.0001$) annuity paid quarterly until maturity or default.</p>
+                        <p style="margin-top: 6px;">It is strictly smaller than risk-free PV01 ($\text{RPV01} < \text{PV01}_{\text{rf}}$) because cashflows are discounted <strong>twice</strong>: first by the interest rate discount factor $D(0, t)$, and second by the survival probability $S(t) = e^{-\lambda t} \le 1$. In distressed names with large $\lambda$, distant cash flows vanish, compressing RPV01 dramatically.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. Explain the accrual on default convention in the CDS premium leg.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Accrual Term</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> CDS premium payments occur quarterly. If the reference entity defaults between coupon dates, protection was provided during those intermediate days. Therefore, the buyer owes accrued coupon from the last IMM date to default date $\tau$.</p>
+                        <p style="margin-top: 6px;">In pricing models, assuming default occurs uniformly across the quarter, the expected accrual is modeled as: $\frac{C}{2} \sum \Delta t_i D(0, t_i) [S(t_{i-1}) - S(t_i)]$. Ignoring this term undervalues the premium leg by 1 to 3 basis points.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. How do you calculate Jump to Default (JTD) for a protection seller?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Risk & JTD</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <div class="formula-card" style="margin: 8px 0;">
+                            $$\text{JTD (Seller)} = -\text{Notional} \times (1 - R) + \text{Dirty Upfront}$$
+                        </div>
+                        <p>If default strikes overnight, the protection seller must immediately pay $(1 - R) \times \text{Notional}$ at the auction. If the seller originally received an upfront payment, that upfront reduces the net loss. On a $10M contract with $R = 40\%$ and zero upfront, the seller loses $-\$6.0M$ overnight.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. Why do CDS protection buyers enjoy positive spread convexity?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Convexity</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> For a protection buyer, as credit spreads widen ($\Delta S > 0$), MtM gains accumulate rapidly. Although RPV01 decreases as spreads widen, the contract value converges to the maximum possible payout $(1 - R)$.</p>
+                        <p style="margin-top: 6px;">Conversely, if spreads tighten towards zero ($\Delta S < 0$), the maximum possible loss is strictly capped at the running premium or upfront paid. This asymmetric payoff structure gives protection buyers <strong>positive convexity</strong> ($\partial^2 \text{NPV} / \partial S^2 > 0$).</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. If a 5-year CDS trades at 400 bps and recovery is 40%, what is the implied hazard rate?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Mental Math</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Using the exact relationship $\lambda \approx S / (1 - R)$:</p>
+                        <div class="formula-card" style="margin: 8px 0;">
+                            $$\lambda \approx \frac{400\text{ bps}}{1 - 0.40} = \frac{400\text{ bps}}{0.60} = 667\text{ bps} = 6.67\% \text{ per year}$$
+                        </div>
+                        <p>Over 5 years, the approximate survival probability is $S(5) \approx e^{-0.0667 \times 5} = e^{-0.333} \approx 71.65\%$, implying a 5-year cumulative default probability of $\approx 28.35\%$.</p>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. How does an increase in the risk-free interest rate affect CDS upfront and par spreads?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Interest Rate Risk</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> An increase in risk-free rate $r$ increases discount factors $e^{-rt}$ across all maturities, which:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li>Decreases both the Protection Leg PV and the Premium Leg RPV01.</li>
+                            <li>Because protection payouts typically occur sooner than the full 5-year annuity on average, the ratio $\text{PV}(\text{Prot}) / \text{RPV01}$ is only weakly sensitive to interest rates, leaving $S_{\text{par}}$ virtually unchanged.</li>
+                            <li>However, for existing contracts trading away from coupon ($S_{\text{par}} \neq C$), the dollar upfront $(S_{\text{par}} - C) \times \text{RPV01}$ shrinks because RPV01 contracts.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. Explain the difference between pricing a CDS with flat hazard rate vs bootstrapped piecewise hazard rates.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Curve Bootstrapping</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li><strong>Flat Hazard Rate:</strong> Assumes default intensity $\lambda$ is constant across all tenors ($S(t) = e^{-\lambda t}$). Useful for quick mental math and single-maturity contracts, but cannot price curve trades.</li>
+                            <li><strong>Piecewise Bootstrapped Hazard Rates:</strong> Discretizes intensity into constant pillars between standard market maturities: $\lambda_1$ for $[0, 1Y]$, $\lambda_2$ for $[1Y, 3Y]$, $\lambda_3$ for $[3Y, 5Y]$, etc. It calibrates sequentially so the model exactly reprices quoted market spreads at every pillar without arbitrage.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 04: CDS Pricing</div>
+        <div style="margin-top: 6px;">
+            Next up: <a href="05_Credit_Curves.html">Module 05: Credit Curves (Bootstrapping, Term Structure & Curve Trades) →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & DOT SYNC
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+
+                // Resize/redraw canvas on active tab
+                setTimeout(() => {
+                    if (targetId === 'tab-hazard') drawHazard();
+                    if (targetId === 'tab-cdsw') drawCdsw();
+                }, 50);
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION TOGGLE
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           TAB 1: HAZARD & SURVIVAL SIMULATOR
+           ========================================================================== */
+        const inHazLambda = document.getElementById('input-haz-lambda');
+        const inHazSlope = document.getElementById('input-haz-slope');
+        const inHazHorizon = document.getElementById('input-haz-horizon');
+
+        let hazardPoints = [];
+
+        function updateHazard() {
+            const baseLambda = parseFloat(inHazLambda.value) / 100;
+            const slopeBps = parseFloat(inHazSlope.value);
+            const slope = slopeBps / 10000;
+            const horizon = parseFloat(inHazHorizon.value);
+
+            document.getElementById('val-haz-lambda').textContent = inHazLambda.value + '% (' + (baseLambda * 10000).toFixed(0) + ' bps)';
+            document.getElementById('val-haz-slope').textContent = (slopeBps >= 0 ? '+' : '') + slopeBps + ' bps/yr ' + (slopeBps > 0 ? '(Normal)' : slopeBps < 0 ? '(Inverted)' : '(Flat)');
+            document.getElementById('val-haz-horizon').textContent = horizon.toFixed(1) + ' Years';
+
+            // Generate curve points over 10 years
+            hazardPoints = [];
+            const steps = 100;
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * 10;
+                // Hazard rate function: lambda(t) = max(0.001, base + slope*t)
+                const lambdaT = Math.max(0.001, baseLambda + slope * t);
+                // Integrated hazard: int_0^t lambda(u) du = base*t + 0.5*slope*t^2
+                const cumLambda = Math.max(0.0001, baseLambda * t + 0.5 * slope * t * t);
+                const surv = Math.exp(-cumLambda);
+                const def = 1 - surv;
+                hazardPoints.push({ t, lambda: lambdaT, surv, def });
+            }
+
+            // Interpolate at target horizon
+            const targetCumLambda = Math.max(0.0001, baseLambda * horizon + 0.5 * slope * horizon * horizon);
+            const targetSurv = Math.exp(-targetCumLambda);
+            const targetDef = 1 - targetSurv;
+            const targetLambda = Math.max(0.001, baseLambda + slope * horizon);
+            const expectedLife = 1 / targetLambda;
+
+            document.getElementById('kpi-haz-surv').textContent = (targetSurv * 100).toFixed(2) + '%';
+            document.getElementById('kpi-haz-def').textContent = (targetDef * 100).toFixed(2) + '%';
+            document.getElementById('kpi-haz-term').textContent = (targetLambda * 100).toFixed(2) + '%';
+            document.getElementById('kpi-haz-life').textContent = expectedLife.toFixed(1) + ' yrs';
+
+            drawHazard();
+        }
+
+        function reinitHazard() {
+            inHazLambda.value = 3.00;
+            inHazSlope.value = 20;
+            inHazHorizon.value = 5.0;
+            updateHazard();
+        }
+
+        const hazCanvas = document.getElementById('hazardCanvas');
+        const hazCtx = hazCanvas.getContext('2d');
+        const hazHud = document.getElementById('hazHud');
+        let hazHoverX = null;
+
+        function drawHazard() {
+            if (!hazCanvas || hazardPoints.length === 0) return;
+            const W = hazCanvas.width;
+            const H = hazCanvas.height;
+            hazCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            // Gridlines
+            hazCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            hazCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                hazCtx.beginPath();
+                hazCtx.moveTo(padL, y);
+                hazCtx.lineTo(W - padR, y);
+                hazCtx.stroke();
+            }
+
+            // Draw Survival Curve S(t) (Green/Cyan)
+            hazCtx.beginPath();
+            hazardPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / 10) * plotW;
+                const y = padT + plotH - pt.surv * plotH;
+                if (i === 0) hazCtx.moveTo(x, y);
+                else hazCtx.lineTo(x, y);
+            });
+            hazCtx.strokeStyle = '#10b981';
+            hazCtx.lineWidth = 3;
+            hazCtx.stroke();
+
+            // Draw Cumulative Default Curve F(t) (Crimson Red)
+            hazCtx.beginPath();
+            hazardPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / 10) * plotW;
+                const y = padT + plotH - pt.def * plotH;
+                if (i === 0) hazCtx.moveTo(x, y);
+                else hazCtx.lineTo(x, y);
+            });
+            hazCtx.strokeStyle = '#ef4444';
+            hazCtx.lineWidth = 2.5;
+            hazCtx.stroke();
+
+            // Shaded Area under Default Curve
+            hazCtx.lineTo(padL + plotW, padT + plotH);
+            hazCtx.lineTo(padL, padT + plotH);
+            hazCtx.closePath();
+            hazCtx.fillStyle = 'rgba(220, 38, 38, 0.15)';
+            hazCtx.fill();
+
+            // Legend
+            hazCtx.fillStyle = '#10b981';
+            hazCtx.font = '11px JetBrains Mono';
+            hazCtx.fillText('■ Survival Probability S(t)', padL + 20, padT + 20);
+
+            hazCtx.fillStyle = '#ef4444';
+            hazCtx.fillText('■ Cumulative Default F(t)', padL + 230, padT + 20);
+
+            // Axes & Labels
+            hazCtx.strokeStyle = '#64748b';
+            hazCtx.lineWidth = 1;
+            hazCtx.beginPath();
+            hazCtx.moveTo(padL, padT);
+            hazCtx.lineTo(padL, padT + plotH);
+            hazCtx.lineTo(W - padR, padT + plotH);
+            hazCtx.stroke();
+
+            hazCtx.fillStyle = '#94a3b8';
+            hazCtx.font = '11px Inter';
+            hazCtx.fillText('Maturity Horizon (Years)', W / 2 - 60, H - 10);
+
+            for (let t = 0; t <= 10; t += 2) {
+                const x = padL + (t / 10) * plotW;
+                hazCtx.fillText(t + 'Y', x - 8, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const pVal = ((1 - i / 4) * 100).toFixed(0);
+                const y = padT + (plotH / 4) * i;
+                hazCtx.fillText(pVal + '%', padL - 40, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (hazHoverX !== null && hazHoverX >= padL && hazHoverX <= W - padR) {
+                const normX = (hazHoverX - padL) / plotW;
+                const hoveredIdx = Math.min(hazardPoints.length - 1, Math.max(0, Math.round(normX * (hazardPoints.length - 1))));
+                const pt = hazardPoints[hoveredIdx];
+
+                const snapX = padL + (pt.t / 10) * plotW;
+                const snapYSurv = padT + plotH - pt.surv * plotH;
+                const snapYDef = padT + plotH - pt.def * plotH;
+
+                hazCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                hazCtx.setLineDash([2, 2]);
+                hazCtx.beginPath();
+                hazCtx.moveTo(snapX, padT);
+                hazCtx.lineTo(snapX, padT + plotH);
+                hazCtx.stroke();
+                hazCtx.setLineDash([]);
+
+                hazCtx.fillStyle = '#10b981';
+                hazCtx.beginPath();
+                hazCtx.arc(snapX, snapYSurv, 5, 0, Math.PI * 2);
+                hazCtx.fill();
+
+                hazCtx.fillStyle = '#ef4444';
+                hazCtx.beginPath();
+                hazCtx.arc(snapX, snapYDef, 5, 0, Math.PI * 2);
+                hazCtx.fill();
+
+                hazHud.style.display = 'block';
+                document.getElementById('hud-haz-t').textContent = pt.t.toFixed(2) + 'y';
+                document.getElementById('hud-haz-surv').textContent = (pt.surv * 100).toFixed(2) + '%';
+                document.getElementById('hud-haz-def').textContent = (pt.def * 100).toFixed(2) + '%';
+                document.getElementById('hud-haz-rate').textContent = (pt.lambda * 100).toFixed(2) + '%';
+            }
+        }
+
+        hazCanvas.addEventListener('mousemove', e => {
+            const rect = hazCanvas.getBoundingClientRect();
+            const scaleX = hazCanvas.width / rect.width;
+            hazHoverX = (e.clientX - rect.left) * scaleX;
+            drawHazard();
+        });
+
+        hazCanvas.addEventListener('mouseleave', () => {
+            hazHoverX = null;
+            hazHud.style.display = 'none';
+            drawHazard();
+        });
+
+        /* ==========================================================================
+           TAB 4: BLOOMBERG CDSW PRICER ENGINE
+           ========================================================================== */
+        const inCdswNotional = document.getElementById('input-cdsw-notional');
+        const inCdswPar = document.getElementById('input-cdsw-par');
+        const selCdswCoupon = document.getElementById('select-cdsw-coupon');
+        const inCdswTenor = document.getElementById('input-cdsw-tenor');
+        const inCdswRec = document.getElementById('input-cdsw-rec');
+        const inCdswRf = document.getElementById('input-cdsw-rf');
+
+        let cdswPricerPoints = [];
+
+        function updateCdsw() {
+            const notional = parseFloat(inCdswNotional.value) * 1e6;
+            const parSpreadBps = parseFloat(inCdswPar.value);
+            const parSpread = parSpreadBps / 10000;
+            const couponBps = parseFloat(selCdswCoupon.value);
+            const coupon = couponBps / 10000;
+            const tenor = parseInt(inCdswTenor.value);
+            const rec = parseFloat(inCdswRec.value) / 100;
+            const rf = parseFloat(inCdswRf.value) / 100;
+
+            document.getElementById('val-cdsw-notional').textContent = '$' + inCdswNotional.value + 'M';
+            document.getElementById('val-cdsw-par').textContent = parSpreadBps + ' bps';
+            document.getElementById('val-cdsw-cpn').textContent = couponBps + ' bps ' + (couponBps === 100 ? '(IG)' : couponBps === 500 ? '(HY)' : '(Sovereign)');
+            document.getElementById('val-cdsw-tenor').textContent = tenor + ' Years';
+            document.getElementById('val-cdsw-rec').textContent = inCdswRec.value + '%';
+            document.getElementById('val-cdsw-rf').textContent = inCdswRf.value + '%';
+
+            // Exact Implied Hazard Rate: lambda = S / (1 - R)
+            const lambda = parSpread / (1 - rec);
+
+            // Compute Exact Quarterly RPV01 and Protection Leg
+            const numQuarters = tenor * 4;
+            let rpv01 = 0;
+            let protLeg = 0;
+            cdswPricerPoints = [];
+
+            let prevSurv = 1.0;
+            for (let q = 1; q <= numQuarters; q++) {
+                const t = q * 0.25;
+                const dt = 0.25;
+                const df = Math.exp(-rf * t);
+                const surv = Math.exp(-lambda * t);
+                const marginalDef = prevSurv - surv;
+
+                // RPV01 = scheduled + accrual on default
+                rpv01 += dt * df * surv + 0.5 * dt * df * marginalDef;
+
+                // Protection Leg = (1 - R) * sum(df_mid * marginalDef)
+                const dfMid = Math.exp(-rf * (t - 0.125));
+                protLeg += (1 - rec) * dfMid * marginalDef;
+
+                prevSurv = surv;
+                cdswPricerPoints.push({ q, t, df, surv, def: 1 - surv });
+            }
+
+            // Upfront calculations
+            const spreadDiff = parSpread - coupon;
+            const cleanPoints = spreadDiff * rpv01;
+            const cleanCash = notional * cleanPoints;
+
+            // CS01: value of 1 bp spread widening = Notional * RPV01 * 0.0001
+            const cs01 = notional * rpv01 * 0.0001;
+
+            // Jump to Default (JTD)
+            const jtdBuyer = notional * (1 - rec) - cleanCash;
+
+            document.getElementById('kpi-cdsw-lambda').textContent = (lambda * 100).toFixed(2) + '% (' + Math.round(lambda * 10000) + ' bps)';
+            document.getElementById('kpi-cdsw-rpv01').textContent = rpv01.toFixed(2);
+            document.getElementById('kpi-cdsw-points').textContent = (cleanPoints >= 0 ? '+' : '') + (cleanPoints * 100).toFixed(2) + '%';
+            document.getElementById('kpi-cdsw-points-dir').textContent = cleanPoints >= 0 ? 'Buyer pays Seller' : 'Seller pays Buyer';
+
+            document.getElementById('kpi-cdsw-clean').textContent = (cleanCash >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(cleanCash)).toLocaleString();
+            document.getElementById('kpi-cdsw-cs01').textContent = '$' + Math.round(cs01).toLocaleString();
+            document.getElementById('kpi-cdsw-jtd').textContent = (jtdBuyer >= 0 ? '+' : '-') + '$' + (Math.abs(jtdBuyer) / 1e6).toFixed(2) + 'M';
+
+            drawCdsw();
+        }
+
+        function reinitCdsw() {
+            inCdswNotional.value = 10;
+            inCdswPar.value = 225;
+            selCdswCoupon.value = '100';
+            inCdswTenor.value = 5;
+            inCdswRec.value = 40;
+            inCdswRf.value = 3.50;
+            updateCdsw();
+        }
+
+        const cdswCanvas = document.getElementById('cdswCanvas');
+        const cdswCtx = cdswCanvas.getContext('2d');
+        const cdswHud = document.getElementById('cdswHud');
+        let cdswHoverX = null;
+
+        function drawCdsw() {
+            if (!cdswCanvas || cdswPricerPoints.length === 0) return;
+            const W = cdswCanvas.width;
+            const H = cdswCanvas.height;
+            cdswCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+            const tenor = parseInt(inCdswTenor.value);
+
+            // Gridlines
+            cdswCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            cdswCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                cdswCtx.beginPath();
+                cdswCtx.moveTo(padL, y);
+                cdswCtx.lineTo(W - padR, y);
+                cdswCtx.stroke();
+            }
+
+            // Draw Survival Curve (Green)
+            cdswCtx.beginPath();
+            cdswPricerPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / tenor) * plotW;
+                const y = padT + plotH - pt.surv * plotH;
+                if (i === 0) cdswCtx.moveTo(x, y);
+                else cdswCtx.lineTo(x, y);
+            });
+            cdswCtx.strokeStyle = '#10b981';
+            cdswCtx.lineWidth = 3;
+            cdswCtx.stroke();
+
+            // Draw Discount Factor Curve D(t) (Blue)
+            cdswCtx.beginPath();
+            cdswPricerPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / tenor) * plotW;
+                const y = padT + plotH - pt.df * plotH;
+                if (i === 0) cdswCtx.moveTo(x, y);
+                else cdswCtx.lineTo(x, y);
+            });
+            cdswCtx.strokeStyle = '#38bdf8';
+            cdswCtx.setLineDash([4, 4]);
+            cdswCtx.lineWidth = 2;
+            cdswCtx.stroke();
+            cdswCtx.setLineDash([]);
+
+            // Draw Cumulative Default Curve F(t) (Red)
+            cdswCtx.beginPath();
+            cdswPricerPoints.forEach((pt, i) => {
+                const x = padL + (pt.t / tenor) * plotW;
+                const y = padT + plotH - pt.def * plotH;
+                if (i === 0) cdswCtx.moveTo(x, y);
+                else cdswCtx.lineTo(x, y);
+            });
+            cdswCtx.strokeStyle = '#ef4444';
+            cdswCtx.lineWidth = 2.5;
+            cdswCtx.stroke();
+
+            // Legend
+            cdswCtx.fillStyle = '#10b981';
+            cdswCtx.font = '11px JetBrains Mono';
+            cdswCtx.fillText('■ Survival S(t)', padL + 20, padT + 20);
+
+            cdswCtx.fillStyle = '#38bdf8';
+            cdswCtx.fillText('--- Discount Factor D(t)', padL + 160, padT + 20);
+
+            cdswCtx.fillStyle = '#ef4444';
+            cdswCtx.fillText('■ Cumulative Default F(t)', padL + 350, padT + 20);
+
+            // Axes & Labels
+            cdswCtx.strokeStyle = '#64748b';
+            cdswCtx.lineWidth = 1;
+            cdswCtx.beginPath();
+            cdswCtx.moveTo(padL, padT);
+            cdswCtx.lineTo(padL, padT + plotH);
+            cdswCtx.lineTo(W - padR, padT + plotH);
+            cdswCtx.stroke();
+
+            cdswCtx.fillStyle = '#94a3b8';
+            cdswCtx.font = '11px Inter';
+            cdswCtx.fillText('Tenor (Years)', W / 2 - 40, H - 10);
+
+            for (let t = 1; t <= tenor; t++) {
+                const x = padL + (t / tenor) * plotW;
+                cdswCtx.fillText(t + 'Y', x - 8, padT + plotH + 18);
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const pVal = ((1 - i / 4) * 100).toFixed(0);
+                const y = padT + (plotH / 4) * i;
+                cdswCtx.fillText(pVal + '%', padL - 40, y + 4);
+            }
+
+            // Crosshair hover tracking
+            if (cdswHoverX !== null && cdswHoverX >= padL && cdswHoverX <= W - padR) {
+                const normX = (cdswHoverX - padL) / plotW;
+                const targetIdx = Math.min(cdswPricerPoints.length - 1, Math.max(0, Math.round(normX * cdswPricerPoints.length) - 1));
+                const pt = cdswPricerPoints[targetIdx];
+
+                const snapX = padL + (pt.t / tenor) * plotW;
+                const snapYSurv = padT + plotH - pt.surv * plotH;
+                const snapYDef = padT + plotH - pt.def * plotH;
+
+                cdswCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                cdswCtx.setLineDash([2, 2]);
+                cdswCtx.beginPath();
+                cdswCtx.moveTo(snapX, padT);
+                cdswCtx.lineTo(snapX, padT + plotH);
+                cdswCtx.stroke();
+                cdswCtx.setLineDash([]);
+
+                cdswCtx.fillStyle = '#10b981';
+                cdswCtx.beginPath();
+                cdswCtx.arc(snapX, snapYSurv, 5, 0, Math.PI * 2);
+                cdswCtx.fill();
+
+                cdswCtx.fillStyle = '#ef4444';
+                cdswCtx.beginPath();
+                cdswCtx.arc(snapX, snapYDef, 5, 0, Math.PI * 2);
+                cdswCtx.fill();
+
+                cdswHud.style.display = 'block';
+                document.getElementById('hud-cdsw-t').textContent = pt.t.toFixed(2) + 'y';
+                document.getElementById('hud-cdsw-surv').textContent = (pt.surv * 100).toFixed(2) + '%';
+                document.getElementById('hud-cdsw-def').textContent = (pt.def * 100).toFixed(2) + '%';
+                document.getElementById('hud-cdsw-df').textContent = pt.df.toFixed(4);
+            }
+        }
+
+        cdswCanvas.addEventListener('mousemove', e => {
+            const rect = cdswCanvas.getBoundingClientRect();
+            const scaleX = cdswCanvas.width / rect.width;
+            cdswHoverX = (e.clientX - rect.left) * scaleX;
+            drawCdsw();
+        });
+
+        cdswCanvas.addEventListener('mouseleave', () => {
+            cdswHoverX = null;
+            cdswHud.style.display = 'none';
+            drawCdsw();
+        });
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeX Auto-Render
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Initial computations
+            updateHazard();
+            updateCdsw();
+        });
+    </script>
+</body>
+</html>
