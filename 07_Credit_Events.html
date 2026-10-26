@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 07: Credit Events & Auctions — Credit Academy</title>
+    <meta name="description" content="A comprehensive quantitative guide to CDS Credit Events, ISDA Determinations Committee, Restructuring clauses (XR, MR, MMR), succession splits, and the 2-stage credit event auction mechanism.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ==========================================================================
+           CSS CUSTOM PROPERTIES & COLOR PALETTE (DEEP CRIMSON THEME)
+           ========================================================================== */
+        :root {
+            --bg: #05080a;
+            --bg-secondary: #0a0e12;
+            --surface: #0f1419;
+            --surface-hover: #161d24;
+            --surface-border: #1e2830;
+            --surface-elevated: #1a222c;
+
+            /* Accent - Deep Crimson */
+            --accent: #dc2626;
+            --accent-bright: #ef4444;
+            --accent-dim: #991b1b;
+            --accent-dark: #450a0a;
+            --accent-glow: rgba(220, 38, 38, 0.15);
+            --accent-glow-strong: rgba(220, 38, 38, 0.35);
+
+            /* Secondary tones */
+            --amber: #f59e0b;
+            --amber-dim: #b45309;
+            --green: #10b981;
+            --green-dim: #047857;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --purple: #8b5cf6;
+
+            /* Typography colors */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-accent: #fca5a5;
+
+            /* Fonts */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+            /* Sizing & Radius */
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --container-max: 1200px;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Math labels casing protection */
+        .math-symbol, .katex {
+            text-transform: none !important;
+            font-family: var(--font-mono), serif;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 8, 10, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 24px;
+        }
+
+        .top-nav-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateX(-2px);
+        }
+
+        .nav-module-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            background: var(--accent-glow);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .progress-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot-step {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            transition: all 0.3s ease;
+        }
+
+        .dot-step.active {
+            background: var(--accent-bright);
+            box-shadow: 0 0 8px var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .module-hero {
+            position: relative;
+            padding: 48px 24px 36px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% -20%, rgba(220, 38, 38, 0.18) 0%, transparent 70%),
+                        linear-gradient(180deg, rgba(220, 38, 38, 0.04) 0%, transparent 100%);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hero-inner {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .module-hero h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #fca5a5 60%, var(--accent-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        .tabs-wrapper {
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+            background: var(--bg);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 0 24px;
+        }
+
+        .tabs-list {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 8px 0;
+        }
+
+        .tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface);
+            border-color: var(--surface-border);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--surface-elevated);
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .tab-btn .tab-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-bright);
+            background: rgba(220, 38, 38, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT PANELS
+           ========================================================================== */
+        .main-container {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           CARDS, GRIDS & TYPOGRAPHY
+           ========================================================================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(220, 38, 38, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Callout alert boxes */
+        .alert-box {
+            padding: 18px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
+
+        .alert-box.danger {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fecaca;
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde68a;
+        }
+
+        /* Formula Display Card */
+        .formula-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .formula-card .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        /* KPI / Metric Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .kpi-card.highlight {
+            border-color: rgba(220, 38, 38, 0.35);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-secondary) 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .kpi-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==========================================================================
+           CONTROLS, SLIDERS & BUTTONS
+           ========================================================================== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background: var(--surface-border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-bright);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="number"], select {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-reinit {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reinit:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        /* ==========================================================================
+           CANVAS CHARTS WRAPPER & TOOLTIP
+           ========================================================================== */
+        .chart-wrapper {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+
+        .chart-hud {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(15, 20, 25, 0.94);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(220, 38, 38, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .chart-hud .hud-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            line-height: 1.5;
+        }
+
+        .chart-hud .hud-label {
+            color: var(--text-muted);
+        }
+
+        .chart-hud .hud-val {
+            font-weight: 600;
+            color: var(--accent-bright);
+        }
+
+        /* ==========================================================================
+           DATA TABLES
+           ========================================================================== */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 40, 48, 0.5);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(220, 38, 38, 0.04);
+        }
+
+        .badge-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .badge-green { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-red { background: rgba(220, 38, 38, 0.12); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+        .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-blue { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-purple { background: rgba(139, 92, 246, 0.12); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION CARDS
+           ========================================================================== */
+        .interview-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .interview-card:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .interview-q {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .interview-q:hover {
+            color: var(--accent-bright);
+        }
+
+        .interview-chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .interview-card.open .interview-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-bright);
+        }
+
+        .interview-a {
+            display: none;
+            padding: 0 24px 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            border-top: 1px solid rgba(30, 40, 48, 0.5);
+            background: var(--bg-secondary);
+        }
+
+        .interview-card.open .interview-a {
+            display: block;
+        }
+
+        .interview-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-bright);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .module-footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-footer a {
+            color: var(--accent-bright);
+            text-decoration: none;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 700px) {
+            .top-nav { padding: 10px 16px; }
+            .tabs-wrapper { padding: 0 16px; }
+            .main-container { padding: 24px 16px 60px; }
+            .card { padding: 20px 16px; }
+            .controls-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STICKY BAR -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="back-link">
+                <span>←</span> Back to Hub
+            </a>
+            <div class="nav-module-title">
+                <span class="nav-badge">07</span>
+                <span>Credit Events & Auctions</span>
+            </div>
+            <div class="progress-dots">
+                <div class="dot-step active" title="Tab 1"></div>
+                <div class="dot-step" title="Tab 2"></div>
+                <div class="dot-step" title="Tab 3"></div>
+                <div class="dot-step" title="Tab 4"></div>
+                <div class="dot-step" title="Tab 5"></div>
+                <div class="dot-step" title="Tab 6"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MODULE HERO -->
+    <header class="module-hero">
+        <div class="hero-inner">
+            <div class="hero-pill">Module 07 • Legal Triggers & Settlement Discovery</div>
+            <h1>Credit Events & Auctions</h1>
+            <p class="hero-description">
+                The legal and market mechanics of credit defaults: ISDA Credit Events taxonomy,
+                Restructuring clauses (XR, MR, MMR), Determinations Committee governance, and the two-stage auction settlement process.
+            </p>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tabs-wrapper">
+        <div class="tabs-list" role="tablist">
+            <button class="tab-btn active" data-tab="tab-events" role="tab">
+                <span class="tab-num">01</span> ISDA Credit Events
+            </button>
+            <button class="tab-btn" data-tab="tab-restructuring" role="tab">
+                <span class="tab-num">02</span> Restructuring Clauses
+            </button>
+            <button class="tab-btn" data-tab="tab-dc" role="tab">
+                <span class="tab-num">03</span> DC & Succession Splits
+            </button>
+            <button class="tab-btn" data-tab="tab-auction-theory" role="tab">
+                <span class="tab-num">04</span> Auction Mechanics
+            </button>
+            <button class="tab-btn" data-tab="tab-auction-sim" role="tab">
+                <span class="tab-num">05</span> Interactive Auction Engine
+            </button>
+            <button class="tab-btn" data-tab="tab-interview" role="tab">
+                <span class="tab-num">06</span> Interview Q&A
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="main-container">
+
+        <!-- ==========================================================================
+             TAB 1: ISDA CREDIT EVENTS TAXONOMY
+             ========================================================================== -->
+        <section class="tab-pane active" id="tab-events">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">📜</span>
+                        <div>
+                            <h2 class="card-title">The ISDA Credit Events Taxonomy (2014 Definitions)</h2>
+                            <p class="card-subtitle">The 6 standard contractual default triggers governing OTC credit derivatives</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Under the <strong>2014 ISDA Credit Derivatives Definitions</strong>, a CDS contract pays out if and only if a designated <strong>Credit Event</strong> is officially declared by the ISDA Determinations Committee (DC) backed by Publicly Available Information (PAI).
+                </p>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-red" style="margin-bottom: 8px;">1. Bankruptcy</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Insolvency & Judicial Filings</h4>
+                        <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6;">
+                            Applies to all corporate entities. Triggered by voluntary or involuntary filing for Chapter 7 liquidation, Chapter 11 reorganization, receivership, or legal insolvency administration.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-amber" style="margin-bottom: 8px;">2. Failure to Pay</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Missed Coupon or Principal</h4>
+                        <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6;">
+                            Failure to make a scheduled payment on one or more debt obligations after the contractual <strong>grace period</strong> expires (typically 30 calendar days or 3 business days), above the <strong>Payment Requirement</strong> threshold (typically $1,000,000 USD).
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 8px;">3. Restructuring</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Distressed Debt Exchange</h4>
+                        <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6;">
+                            Reduction in coupon/principal, deferral of payment, change in priority/seniority, or mandatory currency redenomination agreed to in distress that binds all bondholders.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-purple" style="margin-bottom: 8px;">4. Governmental Intervention</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Bail-in & Write-Downs</h4>
+                        <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6;">
+                            Added in the 2014 Definitions to address bank bail-ins (e.g. European BRRD rules). Triggered when a regulator mandates a reduction, cancellation, or debt-to-equity conversion of subordinated bank debt (e.g. Credit Suisse AT1s).
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-green" style="margin-bottom: 8px;">5. Repudiation / Moratorium</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Sovereign Debt Freezes</h4>
+                        <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6;">
+                            Primarily applicable to Emerging Market and Sovereign CDS. Triggered when an authorized government authority disavows, repudiates, or declares a moratorium on debt service.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 20px;">
+                        <span class="badge-tag badge-red" style="margin-bottom: 8px;">6. Obligation Acceleration</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Cross-Default Acceleration</h4>
+                        <p style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6;">
+                            When an obligation becomes due and payable before its normal maturity date as a consequence of a covenant default on another debt issue (cross-acceleration).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="alert-box info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Publicly Available Information (PAI) Standard:</strong> A credit event requires confirmation published in at least <strong>two independent public sources</strong> (e.g. Bloomberg, Reuters, SEC 8-K filings, court dockets, or published news) before the ISDA DC will accept a question for deliberation.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 2: RESTRUCTURING CLAUSES & MATURITY BUCKETS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-restructuring">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">⚖️</span>
+                        <div>
+                            <h2 class="card-title">Restructuring Conventions: XR, MR, and MMR</h2>
+                            <p class="card-subtitle">How regional bankruptcy cultures shape CDS deliverable obligation maturity limits</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Under physical settlement, a protection buyer delivers defaulted debt in exchange for par. In a restructuring, long-dated bonds often trade at much lower dollar prices than short-dated debt due to duration discount. This created the notorious <strong>Cheapest-to-Deliver (CTD) distortion</strong>. ISDA introduced maturity caps to control this basis.
+                </p>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Restructuring Clause</th>
+                                <th>Market Standard</th>
+                                <th>Is Restructuring a Credit Event?</th>
+                                <th>Deliverable Maturity Limit</th>
+                                <th>Economic Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-tag badge-green">XR (No Restructuring)</span></td>
+                                <td><strong>North American Corporates (CDX NA IG/HY)</strong></td>
+                                <td style="color: var(--accent-bright); font-weight: 700;">NO</td>
+                                <td>None (Restructuring does not trigger CDS)</td>
+                                <td>US Chapter 11 is efficient; consensual debt exchanges should not trigger windfall payouts to CDS buyers.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-blue">MMR (Mod-Mod-R)</span></td>
+                                <td><strong>European Corporates (iTraxx Europe / Xover)</strong></td>
+                                <td style="color: var(--green); font-weight: 700;">YES</td>
+                                <td><strong>60 Months (5 Years)</strong> for restructured debt; 30 months for other debt</td>
+                                <td>European legal systems lack Chapter 11 debtor-in-possession framework; out-of-court restructurings must trigger CDS, with 5Y delivery cap.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-amber">MR (Modified Restructuring)</span></td>
+                                <td><strong>Historical US / Standard Sovereigns</strong></td>
+                                <td style="color: var(--green); font-weight: 700;">YES</td>
+                                <td><strong>30 Months (2.5 Years)</strong> post-restructuring</td>
+                                <td>Strict 30-month deliverable limit designed to prevent buyers from delivering 30Y distressed bonds into 1Y CDS contracts.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-tag badge-red">CR (Full Restructuring)</span></td>
+                                <td><strong>Asian Corporates / Sovereigns</strong></td>
+                                <td style="color: var(--green); font-weight: 700;">YES</td>
+                                <td><strong>Up to 30 Years</strong> (No maturity cap)</td>
+                                <td>Maximum CTD option value. Protection buyers deliver whichever bond has the lowest price regardless of remaining maturity.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="formula-card">
+                    <div class="label">Cheapest-to-Deliver (CTD) Option Value</div>
+                    $$\text{Payout} = \text{Notional} \times \left(100 - \min_{i \in \text{Deliverable}} P_i\right)$$
+                    <p style="font-size: 0.83rem; color: var(--text-secondary); margin-top: 6px;">
+                        The wider the maturity basket, the lower the minimum price $\min(P_i)$, increasing the CTD option value embedded in the CDS spread: $S_{\text{CR}} > S_{\text{MMR}} > S_{\text{MR}} > S_{\text{XR}}$.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 3: DETERMINATIONS COMMITTEE & SUCCESSION
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-dc">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🏛️</span>
+                        <div>
+                            <h2 class="card-title">The ISDA Determinations Committee (DC) Governance</h2>
+                            <p class="card-subtitle">Composition, supermajority voting rules, and corporate succession split-up mechanics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-purple" style="margin-bottom: 8px;">Governance Framework</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">The 15-Member DC Structure</h3>
+                        <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+                            <li><strong>10 Global Dealers:</strong> Leading sell-side investment banks (e.g. JPMorgan, Goldman Sachs, Morgan Stanley, Barclays, Deutsche Bank).</li>
+                            <li><strong>5 Buy-Side Members:</strong> Major asset managers, hedge funds, or pension managers (e.g. PIMCO, BlackRock, Citadel, Elliott).</li>
+                            <li><strong>Supermajority Threshold:</strong> Decisions require an <strong>80% supermajority (12 out of 15 votes)</strong> to be final and binding.</li>
+                            <li><strong>External Review:</strong> If a vote fails to achieve 12 votes (e.g. 11-4 or 10-5), the question is referred to an independent 3-member External Review panel of legal experts.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 8px;">Corporate Actions</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Succession Event Rules</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;">
+                            When an issuer undergoes a corporate split-up, merger, demerger, or transfer of debt:
+                        </p>
+                        <ul style="padding-left: 20px; font-size: 0.83rem; color: var(--text-secondary); margin-top: 8px;">
+                            <li><strong>Single Successor ($\ge 75\%$):</strong> If Entity A assumes $\ge 75\%$ of relevant debt, it becomes the 100% sole successor.</li>
+                            <li><strong>Notional Split ($25\%\text{--}75\%$):</strong> If multiple entities assume between $25\%$ and $75\%$ of debt, the CDS contract notional is <strong>divided equally</strong> among the successors!</li>
+                            <li><strong>Zero Successor ($< 25\%$):</strong> If no entity assumes $\ge 25\%$, the primary historical commercial operating company succeeds.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- INTERACTIVE SUCCESSION SPLIT CALCULATOR -->
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🔀</span>
+                        <div>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Interactive Corporate Succession Split Calculator</h3>
+                            <p class="card-subtitle">Input debt assumption shares to see how the ISDA DC splits a $10M CDS contract</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Entity A (Spin-off Core) Debt Share</span>
+                            <span class="control-value" id="val-succ-a">60%</span>
+                        </div>
+                        <input type="range" id="input-succ-a" min="0" max="100" step="5" value="60" oninput="updateSuccession()">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Entity B (RemainCo) Debt Share</span>
+                            <span class="control-value" id="val-succ-b">40%</span>
+                        </div>
+                        <input type="range" id="input-succ-b" min="0" max="100" step="5" value="40" disabled style="opacity:0.6;">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">DC Determination</span>
+                        <span class="kpi-value" id="kpi-succ-outcome" style="font-size:1.15rem; color:var(--amber);">Two Successors (50/50 Split)</span>
+                        <span class="kpi-sub" id="kpi-succ-sub">Both entities between 25% and 75%</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Entity A Contract Notional</span>
+                        <span class="kpi-value" id="kpi-succ-notional-a">$5.0M</span>
+                        <span class="kpi-sub">50% of original $10M position</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Entity B Contract Notional</span>
+                        <span class="kpi-value" id="kpi-succ-notional-b">$5.0M</span>
+                        <span class="kpi-sub">50% of original $10M position</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 4: CREDIT EVENT AUCTION MECHANICS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-auction-theory">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🔨</span>
+                        <div>
+                            <h2 class="card-title">The Two-Stage Credit Event Auction Protocol</h2>
+                            <p class="card-subtitle">How Creditex and Tradeweb discover the market-wide recovery price ($R$)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Prior to the 2009 Big Bang Protocol, defaulted CDS settled via physical delivery of bonds. Because outstanding CDS notional frequently exceeded physical bonds by 5x to 10x (e.g. Delphi, Lehman Brothers), physical settlement caused severe short squeezes.
+                    The ISDA <strong>Two-Stage Auction</strong> was established to guarantee orderly cash settlement for the entire market.
+                </p>
+
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-blue" style="margin-bottom: 8px;">Stage 1: Morning Session</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Market Midpoint & Net Open Interest (NOI)</h3>
+                        <ul style="padding-left: 20px; font-size: 0.84rem; color: var(--text-secondary); line-height: 1.7;">
+                            <li><strong>Dealer Two-Way Quotes:</strong> Participating dealers submit firm, executable bid/offer quotes within a maximum spread cap (e.g. 2 points).</li>
+                            <li><strong>Initial Market Midpoint (IMM):</strong> The average of the non-outlier dealer bids and offers establishes the IMM.</li>
+                            <li><strong>Physical Settlement Requests (PSRs):</strong> Dealers and clients submit requests to physically buy or sell bonds.</li>
+                            <li><strong>Net Open Interest (NOI):</strong> The sum of all buy vs sell PSRs. Typically, NOI is <strong>Net to Sell</strong> (protection buyers tend to deliver bonds).</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--surface-border); border-radius: var(--radius-sm); padding: 22px;">
+                        <span class="badge-tag badge-green" style="margin-bottom: 8px;">Stage 2: Afternoon Session</span>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Order Book Matching & Final Price</h3>
+                        <ul style="padding-left: 20px; font-size: 0.84rem; color: var(--text-secondary); line-height: 1.7;">
+                            <li><strong>Limit Orders:</strong> Dealers and clients submit limit orders to purchase bonds (if NOI is to sell) or sell bonds (if NOI is to buy).</li>
+                            <li><strong>Order Book Matching:</strong> The auction administrator (Creditex) matches the Net Open Interest against the limit order book, starting from the highest bid down.</li>
+                            <li><strong>Final Price ($R$):</strong> The price of the last matched order that fully clears the Net Open Interest.</li>
+                            <li><strong>Cash Settlement:</strong> All CDS market participants settle at:
+                                $$\text{Payout} = (100 - R)\% \times \text{Notional}$$
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="alert-box warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Dealer Quotation Penalty:</strong> To ensure dealers submit truthful quotes in Stage 1, a dealer who submits an off-market quote that is crossed by the IMM must pay a cash penalty (up to $50,000 per violation) to the auction pot!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 5: INTERACTIVE AUCTION ENGINE
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-auction-sim">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">💻</span>
+                        <div>
+                            <h2 class="card-title">Interactive Stage 1 & Stage 2 Auction Simulator</h2>
+                            <p class="card-subtitle">Simulate dealer quotes, Net Open Interest (NOI), limit order book matching, and final clearing price</p>
+                        </div>
+                    </div>
+                    <button class="btn-reinit" onclick="reinitAuctionSim()"><span>↺</span> Reinit</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Client Physical Requests to Sell Bonds</span>
+                            <span class="control-value" id="val-psr-sell">$350M</span>
+                        </div>
+                        <input type="range" id="input-psr-sell" min="100" max="800" step="25" value="350" oninput="updateAuctionSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Client Physical Requests to Buy Bonds</span>
+                            <span class="control-value" id="val-psr-buy">$100M</span>
+                        </div>
+                        <input type="range" id="input-psr-buy" min="0" max="300" step="25" value="100" oninput="updateAuctionSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Dealer Initial Market Midpoint (IMM)</span>
+                            <span class="control-value" id="val-imm">38.00%</span>
+                        </div>
+                        <input type="range" id="input-imm" min="5" max="80" step="1" value="38" oninput="updateAuctionSim()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Your Position Notional</span>
+                            <span class="control-value" id="val-pos-notional">$10M (Long Protection)</span>
+                        </div>
+                        <input type="range" id="input-pos-notional" min="1" max="50" step="1" value="10" oninput="updateAuctionSim()">
+                    </div>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Net Open Interest (NOI)</span>
+                        <span class="kpi-value" id="kpi-noi-val" style="color:var(--accent-bright);">$250M</span>
+                        <span class="kpi-sub" id="kpi-noi-dir">Net to Sell (Supply of Bonds)</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">Final Auction Price ($R$)</span>
+                        <span class="kpi-value" id="kpi-final-price">34.25%</span>
+                        <span class="kpi-sub" id="kpi-price-sub">Clears full $250M NOI</span>
+                    </div>
+                    <div class="kpi-card highlight">
+                        <span class="kpi-label">CDS Settlement Payout</span>
+                        <span class="kpi-value" id="kpi-cds-payout">65.75%</span>
+                        <span class="kpi-sub">$(100 - R)\%$ of notional</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">Your Net Cash Received</span>
+                        <span class="kpi-value" id="kpi-cash-rec" style="color:var(--green);">+$6,575,000</span>
+                        <span class="kpi-sub">On your $10M protection leg</span>
+                    </div>
+                </div>
+
+                <!-- CANVAS AUCTION BOOK VISUALIZER -->
+                <div class="chart-wrapper">
+                    <canvas id="auctionCanvas" width="900" height="300"></canvas>
+                    <div class="chart-hud" id="auctionHud">
+                        <div class="hud-row"><span class="hud-label">Cumulative Bids:</span><span class="hud-val" id="hud-auc-vol">$250M</span></div>
+                        <div class="hud-row"><span class="hud-label">Bid Price:</span><span class="hud-val" id="hud-auc-price">34.25%</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Limit Order Level</th>
+                                <th>Bid Price</th>
+                                <th>Order Size</th>
+                                <th>Cumulative Demand</th>
+                                <th>NOI Absorption Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-auction">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             TAB 6: INTERVIEW Q&A MASTERCLASS
+             ========================================================================== -->
+        <section class="tab-pane" id="tab-interview">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon">🎓</span>
+                        <div>
+                            <h2 class="card-title">Credit Events & Auctions Interview Masterclass</h2>
+                            <p class="card-subtitle">8 high-frequency desk interview questions on legal triggers, restructurings, and auctions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>1. Walk me through the step-by-step two-stage ISDA credit event auction.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Auction Protocol</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> The auction establishes a binding market-wide recovery rate $R$ via two sessions:</p>
+                        <ol style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Stage 1 (Morning):</strong> Participating dealers submit firm, executable two-way bid/ask quotes within a mandatory spread tolerance. The midpoint of valid quotes forms the <strong>Initial Market Midpoint (IMM)</strong>. Simultaneously, market participants submit <strong>Physical Settlement Requests (PSRs)</strong> to buy or sell physical deliverable bonds. The netting of buy vs sell PSRs defines the <strong>Net Open Interest (NOI)</strong>.</li>
+                            <li><strong>Stage 2 (Afternoon):</strong> Limit orders are submitted to absorb the NOI. If NOI is net to sell, limit bids are ranked from highest to lowest and matched against the NOI volume. The price of the marginal order that fully absorbs the NOI becomes the <strong>Final Price ($R$)</strong>. All CDS contracts settle in cash at $(1 - R) \times \text{Notional}$.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>2. What was the Credit Suisse AT1 wipeout and did it trigger Credit Suisse CDS?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Case Study</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> In March 2023, FINMA ordered the complete write-down of CHF 16B of Credit Suisse Additional Tier 1 (AT1) contingent convertible bonds during the UBS takeover.</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Did Senior CDS Trigger?</strong> NO. Senior CDS references Senior Unsecured Debt, which was fully assumed by UBS without impairment.</li>
+                            <li><strong>Did Subordinated CDS Trigger?</strong> NO. The ISDA Determinations Committee ruled that the 2014 "Governmental Intervention" definition requires an action on an *Obligation* or *Deliverable Obligation*. The AT1 bonds did not qualify as deliverable obligations for the standard Subordinated CDS contract (which referenced Tier 2 subordinated debt, not AT1 equity-like hybrid capital). Hence, Subordinated CDS did NOT pay out!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>3. Explain the difference between XR, MR, and MMR restructuring conventions.</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Restructuring</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> The three clauses differ by whether Restructuring is an event and what bonds can be delivered:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>XR (No Restructuring):</strong> Restructuring is excluded completely. Standard in North America (CDX IG/HY) because US Chapter 11 provides transparent court-supervised restructuring.</li>
+                            <li><strong>MR (Modified Restructuring):</strong> Restructuring is an event. Deliverable bonds are capped at <strong>30 months</strong> post-event to curb cheapest-to-deliver distortion. Standard for US sovereign debt.</li>
+                            <li><strong>MMR (Modified Modified Restructuring):</strong> Restructuring is an event. Deliverable bonds are capped at <strong>60 months (5 years)</strong> for restructured debt (30 months for other debt). Standard for European corporates (iTraxx Europe) where out-of-court restructuring is common.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>4. How did the Delphi bankruptcy in 2005 illustrate the danger of physical settlement squeezes?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Historical Squeeze</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> When auto-parts supplier Delphi filed for Chapter 11 in October 2005:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li>Outstanding CDS protection sold on Delphi totaled approximately <strong>$28 Billion</strong>.</li>
+                            <li>However, Delphi had only about <strong>$2 Billion of physical deliverable bonds</strong> outstanding.</li>
+                            <li>Protection buyers rushed into the secondary cash market to acquire the scarce physical bonds needed to settle their CDS contracts. This desperate buying frenzy artificially bid up the defaulted bonds from 55 cents to over 72 cents!</li>
+                            <li>This severe physical squeeze led directly to the creation of the cash-settled Credit Event Auction protocol in 2006.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>5. What is a "Manufactured Default" (e.g. Hovnanian/GSO) and how did the 2019 NTCE rule stop it?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Market Manipulation</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong></p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>The Hovnanian Trade (2018):</strong> Hedge fund GSO offered homebuilder Hovnanian favorable below-market financing on the strict condition that Hovnanian intentionally miss a tiny $1.04M interest payment to trigger a "Failure to Pay" on Hovnanian CDS where GSO held massive long protection!</li>
+                            <li><strong>The 2019 NTCE Amendment:</strong> ISDA enacted the <strong>Narrowly Tailored Credit Event (NTCE)</strong> rules. Under NTCE, a Failure to Pay is NOT recognized as a credit event if the failure results from an agreement between the issuer and a counterparty that does not reflect a bona fide deterioration in creditworthiness or financial condition.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>6. How does the ISDA Determinations Committee handle a corporate spin-off where debt is split 60% / 40%?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Succession Events</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Under the 2014 ISDA Definitions succession threshold rules:</p>
+                        <p style="margin-top: 6px;">Because neither entity assumes $\ge 75\%$ of the relevant debt, but both entities assume between $25\%$ and $75\%$ (Entity A has 60%, Entity B has 40%):</p>
+                        <ul style="padding-left: 20px; margin-top: 6px;">
+                            <li>Both entities are declared <strong>joint successors</strong>.</li>
+                            <li>The CDS contract is <strong>divided equally (50% / 50%)</strong> between Entity A and Entity B!</li>
+                            <li>An original $10M CDS contract on the parent is replaced by a $5M contract referencing Entity A and a $5M contract referencing Entity B.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>7. Why does a credit event auction set a single price across all deliverable obligations?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Cheapest to Deliver</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Setting a single price solves the cheapest-to-deliver problem efficiently:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li>Under ISDA rules, any bond meeting the seniority and maturity criteria on the <strong>Deliverable Obligations List</strong> can be tendered by sellers into the auction.</li>
+                            <li>Rational market participants tender the lowest-priced (cheapest-to-deliver) bonds. Therefore, the single auction clearing price naturally converges to the value of the cheapest deliverable bond.</li>
+                            <li>Having a single price ensures that all CDS contracts cash-settle at an identical, transparent payout rate $(100 - R)\%$, eliminating dispute litigation across different counterparties.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interview-card">
+                    <div class="interview-q" onclick="toggleInterview(this)">
+                        <span>8. What are the Payment Requirement and Grace Period conditions for a Failure to Pay?</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="interview-tag">Thresholds</span>
+                            <span class="interview-chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="interview-a">
+                        <p><strong>Concise Answer:</strong> Under standard 2014 ISDA Confirmation terms:</p>
+                        <ul style="padding-left: 20px; margin-top: 6px; line-height: 1.65;">
+                            <li><strong>Payment Requirement:</strong> The missed amount must equal or exceed <strong>$1,000,000 USD</strong> (or equivalent in contract currency) for corporates, or $100,000 USD for micro-credits. Missed operational dust payments cannot trigger a CDS.</li>
+                            <li><strong>Grace Period Extension:</strong> If the underlying bond indenture contains a contractual grace period (typically 30 calendar days for coupons, 3 business days for principal), the credit event does NOT occur until the grace period has fully expired without payment.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODULE FOOTER -->
+    <footer class="module-footer">
+        <div>Credit Academy — Module 07: Credit Events & Auctions</div>
+        <div style="margin-top: 6px;">
+            Next up: <a href="08_Credit_Interview.html">Module 08: Credit Interview Cheat Sheet & Flashcards →</a>
+        </div>
+    </footer>
+
+    <!-- KATEX CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- MODULE SCRIPT -->
+    <script>
+        /* ==========================================================================
+           TAB SWITCHING & DOT SYNC
+           ========================================================================== */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const dotSteps = document.querySelectorAll('.dot-step');
+
+        tabButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-tab');
+
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                dotSteps.forEach(d => d.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) targetPane.classList.add('active');
+                if (dotSteps[index]) dotSteps[index].classList.add('active');
+
+                // Resize/redraw canvas on active tab
+                setTimeout(() => {
+                    if (targetId === 'tab-auction-sim') drawAuctionSim();
+                }, 50);
+            });
+        });
+
+        /* ==========================================================================
+           INTERVIEW ACCORDION TOGGLE
+           ========================================================================== */
+        function toggleInterview(el) {
+            const card = el.parentElement;
+            card.classList.toggle('open');
+        }
+
+        /* ==========================================================================
+           TAB 3: SUCCESSION EVENT CALCULATOR
+           ========================================================================== */
+        const inSuccA = document.getElementById('input-succ-a');
+        const inSuccB = document.getElementById('input-succ-b');
+
+        function updateSuccession() {
+            const shareA = parseInt(inSuccA.value);
+            const shareB = 100 - shareA;
+            inSuccB.value = shareB;
+
+            document.getElementById('val-succ-a').textContent = shareA + '%';
+            document.getElementById('val-succ-b').textContent = shareB + '%';
+
+            const outcomeEl = document.getElementById('kpi-succ-outcome');
+            const subEl = document.getElementById('kpi-succ-sub');
+            const notionalAEl = document.getElementById('kpi-succ-notional-a');
+            const notionalBEl = document.getElementById('kpi-succ-notional-b');
+
+            if (shareA >= 75) {
+                outcomeEl.textContent = 'Entity A Sole Successor (100%)';
+                outcomeEl.style.color = 'var(--green)';
+                subEl.textContent = 'Entity A assumes ≥ 75% of debt';
+                notionalAEl.textContent = '$10.0M';
+                notionalBEl.textContent = '$0.0M';
+            } else if (shareB >= 75) {
+                outcomeEl.textContent = 'Entity B Sole Successor (100%)';
+                outcomeEl.style.color = 'var(--green)';
+                subEl.textContent = 'Entity B assumes ≥ 75% of debt';
+                notionalAEl.textContent = '$0.0M';
+                notionalBEl.textContent = '$10.0M';
+            } else if (shareA >= 25 && shareB >= 25) {
+                outcomeEl.textContent = 'Two Successors (50 / 50 Split)';
+                outcomeEl.style.color = 'var(--amber)';
+                subEl.textContent = 'Both entities between 25% and 75%';
+                notionalAEl.textContent = '$5.0M';
+                notionalBEl.textContent = '$5.0M';
+            } else {
+                outcomeEl.textContent = 'Historical Operating Successor';
+                outcomeEl.style.color = 'var(--blue)';
+                subEl.textContent = 'No entity clears 25% threshold';
+                notionalAEl.textContent = '$10.0M';
+                notionalBEl.textContent = '$0.0M';
+            }
+        }
+
+        /* ==========================================================================
+           TAB 5: AUCTION SIMULATOR ENGINE
+           ========================================================================== */
+        const inPsrSell = document.getElementById('input-psr-sell');
+        const inPsrBuy = document.getElementById('input-psr-buy');
+        const inImm = document.getElementById('input-imm');
+        const inPosNotional = document.getElementById('input-pos-notional');
+
+        const aucCanvas = document.getElementById('auctionCanvas');
+        const aucCtx = aucCanvas.getContext('2d');
+        const aucHud = document.getElementById('auctionHud');
+        let aucHoverX = null;
+
+        let limitBookLevels = [];
+        let finalClearingPrice = 0;
+        let noiVolume = 0;
+
+        function updateAuctionSim() {
+            const sellPsr = parseFloat(inPsrSell.value);
+            const buyPsr = parseFloat(inPsrBuy.value);
+            const immPrice = parseFloat(inImm.value);
+            const posNotional = parseFloat(inPosNotional.value) * 1e6;
+
+            document.getElementById('val-psr-sell').textContent = '$' + sellPsr + 'M';
+            document.getElementById('val-psr-buy').textContent = '$' + buyPsr + 'M';
+            document.getElementById('val-imm').textContent = immPrice.toFixed(2) + '%';
+            document.getElementById('val-pos-notional').textContent = '$' + inPosNotional.value + 'M (Long Protection)';
+
+            // Net Open Interest
+            noiVolume = Math.max(0, sellPsr - buyPsr);
+            document.getElementById('kpi-noi-val').textContent = '$' + noiVolume + 'M';
+            document.getElementById('kpi-noi-dir').textContent = sellPsr >= buyPsr ? 'Net to Sell (Bonds Offered)' : 'Net to Buy';
+
+            // Generate synthetic limit order book around IMM
+            // Bids descend from IMM + 2% down to IMM - 12%
+            limitBookLevels = [
+                { price: immPrice + 1.5, size: 50 },
+                { price: immPrice + 0.5, size: 75 },
+                { price: immPrice - 0.5, size: 100 },
+                { price: immPrice - 2.0, size: 100 },
+                { price: immPrice - 3.75, size: 125 },
+                { price: immPrice - 6.0, size: 150 },
+                { price: immPrice - 9.0, size: 200 }
+            ];
+
+            let cumDemand = 0;
+            finalClearingPrice = limitBookLevels[limitBookLevels.length - 1].price;
+            let cleared = false;
+
+            const tbody = document.getElementById('tbody-auction');
+            tbody.innerHTML = '';
+
+            limitBookLevels.forEach((order, idx) => {
+                cumDemand += order.size;
+                let statusText = '';
+
+                if (!cleared && cumDemand >= noiVolume) {
+                    finalClearingPrice = order.price;
+                    cleared = true;
+                    statusText = '<span class="badge-tag badge-green">Clearing Order ($R)</span>';
+                } else if (!cleared) {
+                    statusText = '<span class="badge-tag badge-blue">Filled</span>';
+                } else {
+                    statusText = '<span style="color:var(--text-muted);">Unmatched</span>';
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>Tier ${idx + 1}</td>
+                    <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${order.price.toFixed(2)}%</strong></td>
+                    <td style="font-family:var(--font-mono);">$${order.size}M</td>
+                    <td style="font-family:var(--font-mono);">$${cumDemand}M</td>
+                    <td>${statusText}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // If NOI was 0, clearing price is IMM
+            if (noiVolume === 0) finalClearingPrice = immPrice;
+
+            finalClearingPrice = Math.max(0.1, finalClearingPrice);
+            const payoutPct = 100 - finalClearingPrice;
+            const cashGain = posNotional * (payoutPct / 100);
+
+            document.getElementById('kpi-final-price').textContent = finalClearingPrice.toFixed(2) + '%';
+            document.getElementById('kpi-price-sub').textContent = 'Clears full $' + noiVolume + 'M NOI';
+            document.getElementById('kpi-cds-payout').textContent = payoutPct.toFixed(2) + '%';
+            document.getElementById('kpi-cash-rec').textContent = '+$' + Math.round(cashGain).toLocaleString();
+
+            drawAuctionSim();
+        }
+
+        function reinitAuctionSim() {
+            inPsrSell.value = 350;
+            inPsrBuy.value = 100;
+            inImm.value = 38;
+            inPosNotional.value = 10;
+            updateAuctionSim();
+        }
+
+        function drawAuctionSim() {
+            if (!aucCanvas || limitBookLevels.length === 0) return;
+            const W = aucCanvas.width;
+            const H = aucCanvas.height;
+            aucCtx.clearRect(0, 0, W, H);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            const maxVol = 800;
+            const maxPrice = 80;
+
+            // Gridlines
+            aucCtx.strokeStyle = 'rgba(30, 40, 48, 0.6)';
+            aucCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + (plotH / 4) * i;
+                aucCtx.beginPath();
+                aucCtx.moveTo(padL, y);
+                aucCtx.lineTo(W - padR, y);
+                aucCtx.stroke();
+
+                const pVal = Math.round(maxPrice * (1 - i / 4));
+                aucCtx.fillStyle = '#64748b';
+                aucCtx.font = '11px JetBrains Mono';
+                aucCtx.fillText(pVal + '%', padL - 42, y + 4);
+            }
+
+            // Draw Cumulative Demand Step Curve
+            let cumVol = 0;
+            aucCtx.beginPath();
+            limitBookLevels.forEach((lvl, i) => {
+                const xStart = padL + (cumVol / maxVol) * plotW;
+                cumVol += lvl.size;
+                const xEnd = padL + (cumVol / maxVol) * plotW;
+                const y = padT + plotH - (lvl.price / maxPrice) * plotH;
+
+                if (i === 0) aucCtx.moveTo(xStart, y);
+                aucCtx.lineTo(xEnd, y);
+                if (i < limitBookLevels.length - 1) {
+                    const nextY = padT + plotH - (limitBookLevels[i + 1].price / maxPrice) * plotH;
+                    aucCtx.lineTo(xEnd, nextY);
+                }
+            });
+            aucCtx.strokeStyle = '#38bdf8';
+            aucCtx.lineWidth = 3;
+            aucCtx.stroke();
+
+            // Draw Net Open Interest (NOI) Vertical Supply Line
+            const noiX = padL + (noiVolume / maxVol) * plotW;
+            aucCtx.strokeStyle = '#ef4444';
+            aucCtx.lineWidth = 2.5;
+            aucCtx.beginPath();
+            aucCtx.moveTo(noiX, padT);
+            aucCtx.lineTo(noiX, padT + plotH);
+            aucCtx.stroke();
+
+            // Clearing Intersection Dot
+            const clearY = padT + plotH - (finalClearingPrice / maxPrice) * plotH;
+            aucCtx.fillStyle = '#10b981';
+            aucCtx.beginPath();
+            aucCtx.arc(noiX, clearY, 7, 0, Math.PI * 2);
+            aucCtx.fill();
+            aucCtx.strokeStyle = '#ffffff';
+            aucCtx.lineWidth = 2;
+            aucCtx.stroke();
+
+            // Legend
+            aucCtx.fillStyle = '#38bdf8';
+            aucCtx.font = '11px JetBrains Mono';
+            aucCtx.fillText('■ Cumulative Limit Bids', padL + 20, padT + 20);
+
+            aucCtx.fillStyle = '#ef4444';
+            aucCtx.fillText('■ Net Open Interest ($' + noiVolume + 'M)', padL + 220, padT + 20);
+
+            aucCtx.fillStyle = '#10b981';
+            aucCtx.fillText('● Final Clearing Price ($R = ' + finalClearingPrice.toFixed(2) + '%)', padL + 430, padT + 20);
+
+            // Axes
+            aucCtx.strokeStyle = '#64748b';
+            aucCtx.lineWidth = 1;
+            aucCtx.beginPath();
+            aucCtx.moveTo(padL, padT);
+            aucCtx.lineTo(padL, padT + plotH);
+            aucCtx.lineTo(W - padR, padT + plotH);
+            aucCtx.stroke();
+
+            aucCtx.fillStyle = '#94a3b8';
+            aucCtx.font = '11px Inter';
+            for (let v = 100; v <= maxVol; v += 100) {
+                const x = padL + (v / maxVol) * plotW;
+                aucCtx.fillText('$' + v + 'M', x - 14, padT + plotH + 20);
+            }
+            aucCtx.fillText('Cumulative Volume ($M)', W / 2 - 50, H - 10);
+
+            // Hover crosshair
+            if (aucHoverX !== null && aucHoverX >= padL && aucHoverX <= W - padR) {
+                const normX = (aucHoverX - padL) / plotW;
+                const volAtHover = normX * maxVol;
+
+                aucCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                aucCtx.setLineDash([2, 2]);
+                aucCtx.beginPath();
+                aucCtx.moveTo(aucHoverX, padT);
+                aucCtx.lineTo(aucHoverX, padT + plotH);
+                aucCtx.stroke();
+                aucCtx.setLineDash([]);
+
+                aucHud.style.display = 'block';
+                document.getElementById('hud-auc-vol').textContent = '$' + Math.round(volAtHover) + 'M';
+                document.getElementById('hud-auc-price').textContent = finalClearingPrice.toFixed(2) + '%';
+            }
+        }
+
+        aucCanvas.addEventListener('mousemove', e => {
+            const rect = aucCanvas.getBoundingClientRect();
+            const scaleX = aucCanvas.width / rect.width;
+            aucHoverX = (e.clientX - rect.left) * scaleX;
+            drawAuctionSim();
+        });
+
+        aucCanvas.addEventListener('mouseleave', () => {
+            aucHoverX = null;
+            aucHud.style.display = 'none';
+            drawAuctionSim();
+        });
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeX Auto-Render
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+
+            // Initial computations
+            updateSuccession();
+            updateAuctionSim();
+        });
+    </script>
+</body>
+</html>
